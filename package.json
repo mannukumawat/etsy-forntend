@@ -6,7 +6,7 @@
   "description": "Phase 1 customer-facing frontend for a single-seller handmade goods store (mock services, no backend).",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "build": "vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",

@@ -79,7 +79,7 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
           </li>
         ))}
       </ul>
-      <p className="mt-8 text-xs text-ink-faint">{storeName} · {t('common.demoStore')}</p>
+      <p className="mt-8 text-xs text-ink-faint">{storeName}</p>
     </Drawer>
   );
 }

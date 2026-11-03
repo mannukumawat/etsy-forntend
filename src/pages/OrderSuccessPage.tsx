@@ -4,7 +4,7 @@ import { CheckCircle2, PackageSearch } from 'lucide-react';
 import { AddressBlock } from '@/components/checkout/AddressBlock';
 import { OrderLines, OrderTotals } from '@/components/order/OrderParts';
 import { ButtonLink } from '@/components/ui/Button';
-import { EmptyState, ErrorState, Notice, Spinner } from '@/components/ui/Feedback';
+import { EmptyState, ErrorState, Spinner } from '@/components/ui/Feedback';
 import { useAsync } from '@/hooks/useAsync';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useLanguage } from '@/hooks/useLocale';
@@ -75,10 +75,6 @@ export default function OrderSuccessPage() {
         <p className="mt-3 text-sm text-ink-muted">{t('order.placedOn', { date: formatDate(order.createdAt, lang) })}</p>
       </div>
 
-      <Notice tone="demo" className="mt-8">
-        {t('order.emailDemo', { email: order.email })}
-      </Notice>
-
       <div className="mt-8 grid gap-6 md:grid-cols-[1fr_320px]">
         <section aria-labelledby="items-title" className="card p-5">
           <h2 id="items-title" className="text-2xl">
@@ -107,7 +103,7 @@ export default function OrderSuccessPage() {
               {t(`checkout.methods.${order.shippingMethod.id}`)} · {t('checkout.businessDays', { min: order.shippingMethod.minDays, max: order.shippingMethod.maxDays })}
             </p>
             <h2 className="mt-4 font-sans text-sm font-semibold">{t('order.payment')}</h2>
-            <p className="mt-2 text-ink-soft">{t('order.paymentDemo', { method: t(`checkout.paymentMethods.${order.paymentMethod}`) })}</p>
+            <p className="mt-2 text-ink-soft">{t(`checkout.paymentMethods.${order.paymentMethod}`)}</p>
           </section>
         </div>
       </div>

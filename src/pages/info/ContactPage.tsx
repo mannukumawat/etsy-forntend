@@ -85,7 +85,6 @@ export default function ContactPage() {
         <aside className="space-y-4 text-sm">
           <div className="card p-5">
             <h2 className="font-sans text-sm font-semibold">{t('pages.contact.details')}</h2>
-            <p className="mt-1 text-xs text-ink-muted">{t('footer.sampleContact')}</p>
             <ul className="mt-3 space-y-2 text-ink-soft">
               <li className="flex items-center gap-2">
                 <Mail className="h-4 w-4 shrink-0 text-ink-muted" aria-hidden /> {storeContact.email}

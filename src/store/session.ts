@@ -1,6 +1,5 @@
 import { create } from 'zustand';
-import { API_MODE } from '@/api';
-import type { PaymentMethodPreview, PaymentScenario, ShippingMethodId, User } from '@/types';
+import type { PaymentMethodPreview, ShippingMethodId, User } from '@/types';
 import type { CheckoutDetailsValues } from '@/utils/validation';
 import { newId } from '@/services/api';
 import { useWishlist } from './wishlist';
@@ -37,14 +36,12 @@ interface CheckoutState {
   details: CheckoutDetailsValues | null;
   shippingMethod: ShippingMethodId;
   paymentMethod: PaymentMethodPreview;
-  paymentScenario: PaymentScenario;
   /** One key per order attempt so double clicks can't create duplicate orders. */
   idempotencyKey: string;
   setStep: (step: CheckoutStep) => void;
   setDetails: (details: CheckoutDetailsValues) => void;
   setShippingMethod: (m: ShippingMethodId) => void;
   setPaymentMethod: (m: PaymentMethodPreview) => void;
-  setPaymentScenario: (s: PaymentScenario) => void;
   newAttempt: () => void;
   reset: () => void;
 }
@@ -53,8 +50,7 @@ const initialCheckout = () => ({
   step: 'details' as CheckoutStep,
   details: null,
   shippingMethod: 'standard' as ShippingMethodId,
-  paymentMethod: (API_MODE ? 'cod' : 'card') as PaymentMethodPreview,
-  paymentScenario: 'success' as PaymentScenario,
+  paymentMethod: 'cod' as PaymentMethodPreview,
   idempotencyKey: newId('idem'),
 });
 
@@ -64,7 +60,6 @@ export const useCheckout = create<CheckoutState>()((set) => ({
   setDetails: (details) => set({ details }),
   setShippingMethod: (shippingMethod) => set({ shippingMethod }),
   setPaymentMethod: (paymentMethod) => set({ paymentMethod }),
-  setPaymentScenario: (paymentScenario) => set({ paymentScenario }),
   newAttempt: () => set({ idempotencyKey: newId('idem') }),
   reset: () => set(initialCheckout()),
 }));

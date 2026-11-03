@@ -7,8 +7,7 @@ import { ButtonLink } from '@/components/ui/Button';
 import { ErrorState } from '@/components/ui/Feedback';
 import { HomeHero } from '@/components/layout/HomeHero';
 import { NewsletterForm } from '@/components/layout/NewsletterForm';
-import { CATEGORIES, STORY_IMAGE } from '@/data/categories';
-import { API_MODE } from '@/api/config';
+import { CATEGORIES } from '@/data/categories';
 import { useAsync } from '@/hooks/useAsync';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useLocalized } from '@/hooks/useLocale';
@@ -57,12 +56,12 @@ export default function HomePage() {
   useDocumentTitle(null);
   const { data, isLoading, isError, reload } = useAsync('catalog:collections', () => productService.getCollections());
   const { data: homepage } = useAsync('content:homepage', () => contentService.getHomepage());
-  const { data: apiCategories } = useAsync(API_MODE ? 'catalog:categories' : null, () => productService.listCategories());
+  const { data: apiCategories } = useAsync('catalog:categories', () => productService.listCategories());
   const live = homepage?.content;
 
-  const categories = API_MODE ? (apiCategories ?? []) : CATEGORIES;
+  const categories = apiCategories ?? CATEGORIES;
 
-  const storyImage = live?.story.image ?? STORY_IMAGE;
+  const storyImage = live?.story.image ?? null;
   const storyCtaLabel = live ? loc(live.story.ctaLabel) : t('home.storyCta');
   const storyCtaHref = live?.story.ctaHref || '/about';
   const newsletterTitle = live ? loc(live.newsletter.title) : t('home.newsletterTitle');
@@ -113,7 +112,7 @@ export default function HomePage() {
       )}
 
       {/* New Arrivals */}
-      {(!API_MODE || (data?.newArrivals?.length ?? 0) > 0 || isLoading) && (
+      {((data?.newArrivals?.length ?? 0) > 0 || isLoading) && (
         <Section title={t('home.newHeading')} link={{ to: '/shop?sort=newest', label: t('common.viewAll') }}>
           <Collection products={data?.newArrivals} loading={isLoading} error={isError} onRetry={reload} count={4} />
         </Section>
@@ -154,17 +153,17 @@ export default function HomePage() {
       )}
 
       {/* Featured pieces */}
-      {(!API_MODE || (data?.featured?.length ?? 0) > 0 || isLoading) && (
+      {((data?.featured?.length ?? 0) > 0 || isLoading) && (
         <Section title={t('home.featuredHeading')} sub={t('home.featuredSub')} link={{ to: '/shop', label: t('common.viewAll') }}>
           <Collection products={data?.featured} loading={isLoading} error={isError} onRetry={reload} count={8} />
         </Section>
       )}
 
       {/* Brand story */}
-      {(!API_MODE || live) && (
+      {live && (
         <section aria-labelledby="story-title" className="container-site mt-16 lg:mt-24">
           <div className="grid items-center gap-0 overflow-hidden rounded-2xl bg-sand-100 md:grid-cols-2">
-            <img src={storyImage} alt="" width={1200} height={900} loading="lazy" className="h-full max-h-[460px] w-full object-cover" />
+            {storyImage && <img src={storyImage} alt="" width={1200} height={900} loading="lazy" className="h-full max-h-[460px] w-full object-cover" />}
             <div className="px-6 pb-10 md:py-12 md:pr-12 lg:pr-16">
               <p className="eyebrow">{t('home.storyEyebrow')}</p>
               <h2 id="story-title" className="mt-3 text-4xl leading-tight">
@@ -189,7 +188,7 @@ export default function HomePage() {
       )}
 
       {/* Bestsellers */}
-      {(!API_MODE || (data?.bestsellers?.length ?? 0) > 0 || isLoading) && (
+      {((data?.bestsellers?.length ?? 0) > 0 || isLoading) && (
         <Section title={t('home.bestsellersHeading')} link={{ to: '/shop', label: t('common.viewAll') }}>
           <Collection products={data?.bestsellers} loading={isLoading} error={isError} onRetry={reload} count={4} />
         </Section>
@@ -219,7 +218,7 @@ export default function HomePage() {
       </section>
 
       {/* Newsletter */}
-      {(!API_MODE || live) && (
+      {live && (
         <section aria-labelledby="newsletter-title" className="container-site mt-16 lg:mt-20">
           <div className="rounded-2xl border border-sand-200 bg-white px-6 py-10 text-center shadow-card sm:px-10">
             <h2 id="newsletter-title" className="text-4xl">

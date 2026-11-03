@@ -1,7 +1,5 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-import { HERO_IMAGE } from '@/data/categories';
-import { API_MODE } from '@/api/config';
 import { useAsync } from '@/hooks/useAsync';
 import { contentService } from '@/services/contentService';
 
@@ -9,8 +7,7 @@ export function HomeHero() {
   const { data: homepage } = useAsync('content:homepage', () => contentService.getHomepage());
   const live = homepage?.content;
 
-  // In API mode use first admin banner slide if set; otherwise fall back to generated art
-  const heroImage = (API_MODE && live?.bannerSlides?.[0]?.image) || HERO_IMAGE;
+  const heroImage = live?.bannerSlides?.[0]?.image ?? null;
 
   return (
     <section
@@ -52,31 +49,35 @@ export function HomeHero() {
         </div>
 
         {/* Image column — desktop */}
-        <div className="hidden flex-1 overflow-hidden lg:block">
-          <img
-            src={heroImage}
-            alt=""
-            width={960}
-            height={540}
-            fetchPriority="high"
-            decoding="async"
-            className="h-full w-full object-cover"
-          />
-        </div>
+        {heroImage && (
+          <div className="hidden flex-1 overflow-hidden lg:block">
+            <img
+              src={heroImage}
+              alt=""
+              width={960}
+              height={540}
+              fetchPriority="high"
+              decoding="async"
+              className="h-full w-full object-cover"
+            />
+          </div>
+        )}
       </div>
 
       {/* Mobile: faint background tint */}
-      <div className="absolute inset-0 -z-10 lg:hidden">
-        <img
-          src={heroImage}
-          alt=""
-          aria-hidden
-          width={800}
-          height={500}
-          loading="eager"
-          className="h-full w-full object-cover opacity-[0.08]"
-        />
-      </div>
+      {heroImage && (
+        <div className="absolute inset-0 -z-10 lg:hidden">
+          <img
+            src={heroImage}
+            alt=""
+            aria-hidden
+            width={800}
+            height={500}
+            loading="eager"
+            className="h-full w-full object-cover opacity-[0.08]"
+          />
+        </div>
+      )}
     </section>
   );
 }

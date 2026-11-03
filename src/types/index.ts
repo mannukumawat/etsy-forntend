@@ -1,5 +1,4 @@
-// Shared domain types. These mirror the shapes the future Node.js API is expected to return,
-// so the mock service layer can be swapped for real HTTP calls without touching components.
+// Shared domain types matching the shapes returned by the backend API.
 
 /** Storefront UI language. English variants share one translation and differ only in date/number format. */
 export type LanguageCode = 'en-US' | 'en-GB' | 'en-IN' | 'de' | 'fr' | 'it' | 'es';
@@ -198,7 +197,7 @@ export interface RateSnapshot {
   base: 'USD';
   rates: Record<CurrencyCode, number>;
   asOf: string;
-  illustrative: true;
+  illustrative: boolean;
 }
 
 // ---------- Address / shipping ----------
@@ -246,7 +245,6 @@ export interface CartTotals {
 // ---------- Orders ----------
 
 export type OrderStatus = 'placed' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
-export type PaymentScenario = 'success' | 'decline' | 'cancel';
 export type PaymentMethodPreview = 'cod' | 'card' | 'upi' | 'wallet';
 
 export interface OrderLine {
@@ -339,5 +337,4 @@ export interface User {
   email: string;
   phone?: string;
   createdAt: string;
-  isDemoAccount: boolean;
 }

@@ -57,7 +57,7 @@ export default function AddressesPage() {
   const user = useAuth((s) => s.user)!;
   const toast = useUi((s) => s.toast);
   const key = `addresses:${user.id}`;
-  const { data, isError, reload } = useAsync(key, () => authService.listAddresses(user.id));
+  const { data, isError, reload } = useAsync(key, () => authService.listAddresses());
   const [editing, setEditing] = useState<SavedAddress | 'new' | null>(null);
   const [deleting, setDeleting] = useState<SavedAddress | null>(null);
   const [busy, setBusy] = useState(false);
@@ -69,7 +69,7 @@ export default function AddressesPage() {
 
   const save = async (values: SavedAddressFormValues) => {
     try {
-      await authService.saveAddress(user.id, { ...values, id: editing && editing !== 'new' ? editing.id : undefined });
+      await authService.saveAddress({ ...values, id: editing && editing !== 'new' ? editing.id : undefined });
       toast(t('account.addressSaved'), 'success');
       setEditing(null);
       refresh();
@@ -81,7 +81,7 @@ export default function AddressesPage() {
   const setDefault = async (a: SavedAddress) => {
     setBusy(true);
     try {
-      await authService.saveAddress(user.id, { ...a, isDefault: true });
+      await authService.saveAddress({ ...a, isDefault: true });
       refresh();
     } catch {
       toast(t('toast.error'), 'error');
@@ -94,7 +94,7 @@ export default function AddressesPage() {
     if (!deleting) return;
     setBusy(true);
     try {
-      await authService.deleteAddress(user.id, deleting.id);
+      await authService.deleteAddress(deleting.id);
       toast(t('account.addressDeleted'), 'info');
       setDeleting(null);
       refresh();

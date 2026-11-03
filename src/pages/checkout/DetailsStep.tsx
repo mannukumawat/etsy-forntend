@@ -6,7 +6,6 @@ import { useTranslation } from 'react-i18next';
 import { ArrowRight, Plus, UserCircle2 } from 'lucide-react';
 import { AddressFields } from '@/components/checkout/AddressFields';
 import { Button } from '@/components/ui/Button';
-import { Notice } from '@/components/ui/Feedback';
 import { CheckboxField, TextField } from '@/components/ui/Form';
 import { getCountry } from '@/data/countries';
 import { useCountries } from '@/hooks/useCountries';
@@ -66,7 +65,7 @@ export function DetailsStep({ onDone }: { onDone: () => void }) {
   useEffect(() => {
     if (!user) return;
     let cancelled = false;
-    authService.listAddresses(user.id).then(
+    authService.listAddresses().then(
       (list) => {
         if (cancelled) return;
         setSaved(list);
@@ -116,8 +115,6 @@ export function DetailsStep({ onDone }: { onDone: () => void }) {
           <p className="text-ink-muted">{t('checkout.guestNote')}</p>
         </div>
       )}
-
-      <Notice tone="demo">{t('checkout.fictionalNote')}</Notice>
 
       <section aria-labelledby="contact-title">
         <h2 id="contact-title" className="mb-4 text-2xl">

@@ -106,7 +106,6 @@ export default function TrackOrderPage() {
                   ) : (
                     <p className="mt-2 text-ink-muted">{t('track.trackingPending')}</p>
                   )}
-                  <p className="mt-3 text-xs text-ink-muted">{t('track.trackingPlaceholder')}</p>
                 </div>
                 {user && result.userId === user.id && (
                   <Link to={`/account/orders/${result.id}`} className="link">

@@ -6,7 +6,7 @@ import { usePreferences } from '@/store/preferences';
 import type { ShippingMethodId } from '@/types';
 import { pricedLines, resolveCartLines } from '@/utils/cart';
 import { calculateTotals } from '@/utils/pricing';
-import { getDemoTaxRate, getShippingQuote } from '@/utils/shipping';
+import { getShippingQuote } from '@/utils/shipping';
 import { useAsync } from './useAsync';
 
 /**
@@ -34,9 +34,9 @@ export function useCartDetails(options: { country?: string | null; shippingMetho
         snapshot: RATE_SNAPSHOT,
         couponCode,
         shipping: quote?.amount ?? null,
-        taxRate: country ? getDemoTaxRate(country) : 0,
+        taxRate: 0,
       }),
-    [resolved, currency, couponCode, quote?.amount, country],
+    [resolved, currency, couponCode, quote?.amount],
   );
 
   const hasIssues = resolved.some((r) => r.status === 'issue');

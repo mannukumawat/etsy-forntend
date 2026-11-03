@@ -23,4 +23,4 @@ export const API_TIMEOUT_MS = 15_000;
 export const mediaUrl = (id: string) => `${API_BASE_URL}/media/${encodeURIComponent(id)}`;
 
 /** Human-readable label for the storefront footer. */
-export const apiModeLabel = () => (API_MODE ? `Catalogue: live store API (${API_BASE_URL})` : 'Catalogue: bundled sample data (no API configured)');
+export const apiModeLabel = () => (API_MODE ? `Catalogue: live store API (${API_BASE_URL})` : 'API not configured');

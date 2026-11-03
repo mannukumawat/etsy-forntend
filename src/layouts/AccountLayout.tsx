@@ -2,8 +2,6 @@ import { useEffect } from 'react';
 import { Navigate, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { LogOut, MapPin, Package, RotateCcw, User } from 'lucide-react';
-import { Badge, Notice } from '@/components/ui/Feedback';
-import { API_MODE } from '@/api';
 import { authService } from '@/services/authService';
 import { useAuth, useCheckout } from '@/store/session';
 import { useUi } from '@/store/ui';
@@ -27,14 +25,13 @@ export function RequireAuth({ children }: { children: JSX.Element }) {
 
 export function AccountLayout() {
   const { t } = useTranslation();
-  const user = useAuth((s) => s.user);
   const signOutUser = useAuth((s) => s.signOut);
   const resetCheckout = useCheckout((s) => s.reset);
   const toast = useUi((s) => s.toast);
 
   // RequireAuth sends the visitor home once the user is cleared.
   const signOut = () => {
-    if (API_MODE) authService.logout().catch(() => {});
+    authService.logout().catch(() => {});
     signOutUser();
     resetCheckout();
     toast(t('account.signedOut'), 'info');
@@ -52,13 +49,7 @@ export function AccountLayout() {
       <div className="container-site py-8 lg:py-12">
         <div className="flex flex-wrap items-center gap-3">
           <h1 className="text-4xl lg:text-5xl">{t('account.title')}</h1>
-          {!API_MODE && user?.isDemoAccount && <Badge tone="warning">{t('account.demoBadge')}</Badge>}
         </div>
-        {!API_MODE && (
-          <Notice tone="demo" className="mt-4">
-            {t('account.simulatedNote')}
-          </Notice>
-        )}
         <div className="mt-8 grid gap-8 lg:grid-cols-[220px_1fr]">
           <nav aria-label={t('account.title')}>
             <ul className="scrollbar-none -mx-4 flex gap-2 overflow-x-auto px-4 lg:mx-0 lg:flex-col lg:px-0">

@@ -3,28 +3,47 @@ import type { CurrencyCode, RateSnapshot } from '@/types';
 export interface CurrencyConfig {
   code: CurrencyCode;
   name: { en: string };
-  /** Digits shown after the decimal point. */
   fractionDigits: number;
-  /** Converted amounts are rounded to a multiple of this many minor units (INR rounds to whole rupees). */
   roundingIncrement: number;
 }
 
-export const CURRENCIES: Record<CurrencyCode, CurrencyConfig> = {
+// Populated from /api/settings at startup. Minimal USD-only default prevents crashes before the
+// settings response arrives; the real values replace these as soon as initSiteSettings() resolves.
+
+export let CURRENCIES: Record<CurrencyCode, CurrencyConfig> = {
   USD: { code: 'USD', name: { en: 'US dollar' }, fractionDigits: 2, roundingIncrement: 1 },
-  INR: { code: 'INR', name: { en: 'Indian rupee' }, fractionDigits: 0, roundingIncrement: 100 },
-  EUR: { code: 'EUR', name: { en: 'Euro' }, fractionDigits: 2, roundingIncrement: 1 },
-  GBP: { code: 'GBP', name: { en: 'British pound' }, fractionDigits: 2, roundingIncrement: 1 },
-};
+} as Record<CurrencyCode, CurrencyConfig>;
 
-export const CURRENCY_CODES = Object.keys(CURRENCIES) as CurrencyCode[];
+export let CURRENCY_CODES: CurrencyCode[] = ['USD'];
 
-/**
- * Illustrative, fixed conversion rates — NOT live market rates.
- * Phase 2: fetch from the backend, which should own the rate source and snapshot it per order.
- */
-export const RATE_SNAPSHOT: RateSnapshot = {
+export let RATE_SNAPSHOT: RateSnapshot = {
   base: 'USD',
-  rates: { USD: 1, INR: 84, EUR: 0.92, GBP: 0.78 },
-  asOf: '2026-10-01',
+  rates: { USD: 1 } as Record<CurrencyCode, number>,
+  asOf: '',
   illustrative: true,
 };
+
+/** Called by initSiteSettings after /api/settings resolves. */
+export function syncCurrenciesFromSettings(
+  currencies: Array<{ code: CurrencyCode; name: string; rate: number; fractionDigits: number }>,
+) {
+  if (!currencies.length) return;
+  CURRENCIES = Object.fromEntries(
+    currencies.map((c) => [
+      c.code,
+      {
+        code: c.code,
+        name: { en: c.name },
+        fractionDigits: c.fractionDigits,
+        roundingIncrement: c.fractionDigits === 0 ? 100 : 1,
+      },
+    ]),
+  ) as Record<CurrencyCode, CurrencyConfig>;
+  CURRENCY_CODES = currencies.map((c) => c.code);
+  RATE_SNAPSHOT = {
+    base: 'USD',
+    rates: Object.fromEntries(currencies.map((c) => [c.code, c.rate])) as Record<CurrencyCode, number>,
+    asOf: new Date().toISOString().split('T')[0],
+    illustrative: false,
+  };
+}

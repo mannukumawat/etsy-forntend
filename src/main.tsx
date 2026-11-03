@@ -12,16 +12,17 @@ import { ConfigurationRequired } from './ConfigurationRequired';
 import { router } from './routes';
 import { initSiteSettings } from './store/siteSettings';
 
-// The storefront must never silently serve the bundled sample catalogue as if it were the real
-// store. If the backend URL isn't configured, stop here with a clear error instead of booting.
-if (API_MODE) initSiteSettings();
+if (API_MODE) {
+  initSiteSettings();
+}
 
 const render = () =>
   createRoot(document.getElementById('root')!).render(
     <StrictMode>{API_MODE ? <RouterProvider router={router} future={{ v7_startTransition: true }} /> : <ConfigurationRequired />}</StrictMode>,
   );
 
-// Category names appear in the header menu on first paint, so load the live (translated) names
-// first — but never hold the page back more than a moment if the API is slow.
-if (API_MODE) void Promise.race([syncCategoriesFromApi(() => fetchCategories()), new Promise((r) => setTimeout(r, 1500))]).finally(render);
-else render();
+if (API_MODE) {
+  void Promise.race([syncCategoriesFromApi(() => fetchCategories()), new Promise((r) => setTimeout(r, 1500))]).finally(render);
+} else {
+  render();
+}

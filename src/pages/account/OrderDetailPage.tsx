@@ -4,7 +4,7 @@ import { ArrowLeft, PackageSearch } from 'lucide-react';
 import { AddressBlock } from '@/components/checkout/AddressBlock';
 import { OrderLines, OrderStatusBadge, OrderTimeline, OrderTotals } from '@/components/order/OrderParts';
 import { ButtonLink } from '@/components/ui/Button';
-import { EmptyState, ErrorState, Notice, Spinner } from '@/components/ui/Feedback';
+import { EmptyState, ErrorState, Spinner } from '@/components/ui/Feedback';
 import { useAsync } from '@/hooks/useAsync';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useLanguage } from '@/hooks/useLocale';
@@ -69,9 +69,6 @@ export default function OrderDetailPage() {
                 {order.tracking.carrier} · <span className="font-mono">{order.tracking.number}</span>
               </p>
             )}
-            <Notice tone="demo" className="mt-4">
-              {t('track.trackingPlaceholder')}
-            </Notice>
           </section>
           <section aria-labelledby="od-address" className="card p-5 text-sm">
             <h3 id="od-address" className="font-sans text-sm font-semibold">
@@ -83,7 +80,7 @@ export default function OrderDetailPage() {
             <h3 className="mt-4 font-sans text-sm font-semibold">{t('order.shippingMethod')}</h3>
             <p className="mt-1 text-ink-soft">{t(`checkout.methods.${order.shippingMethod.id}`)}</p>
             <h3 className="mt-4 font-sans text-sm font-semibold">{t('order.payment')}</h3>
-            <p className="mt-1 text-ink-soft">{t('order.paymentDemo', { method: t(`checkout.paymentMethods.${order.paymentMethod}`) })}</p>
+            <p className="mt-1 text-ink-soft">{t(`checkout.paymentMethods.${order.paymentMethod}`)}</p>
           </section>
         </div>
       </div>

@@ -1,10 +1,9 @@
 import { useEffect, useId, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Tag, X } from 'lucide-react';
-import { API_MODE, validateCartCoupon } from '@/api';
+import { validateCartCoupon } from '@/api';
 import { useCart } from '@/store/cart';
 import { usePreferences } from '@/store/preferences';
-import { isValidCoupon } from '@/utils/pricing';
 import { FieldError } from '../ui/Form';
 
 export function CouponForm() {
@@ -18,12 +17,10 @@ export function CouponForm() {
   const [value, setValue] = useState('');
   const [error, setError] = useState<string | undefined>();
   const [checking, setChecking] = useState(false);
-  // In API mode, a persisted coupon is re-checked against the live backend on load/change (it may have
-  // expired, been deactivated, or hit its usage limit since it was applied).
   const [serverValid, setServerValid] = useState<boolean | null>(null);
 
   useEffect(() => {
-    if (!API_MODE || !couponCode) {
+    if (!couponCode) {
       setServerValid(null);
       return;
     }
@@ -43,9 +40,9 @@ export function CouponForm() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [API_MODE, couponCode, currency, lines.length]);
+  }, [couponCode, currency, lines.length]);
 
-  const valid = couponCode && (API_MODE ? serverValid === true : isValidCoupon(couponCode));
+  const valid = couponCode && serverValid === true;
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
@@ -53,35 +50,23 @@ export function CouponForm() {
       setError('validation.required');
       return;
     }
-    if (API_MODE) {
-      setChecking(true);
-      try {
-        const result = await validateCartCoupon(value, lines.map((l) => ({ productId: l.productId, variantId: l.variantId, quantity: l.quantity })), currency);
-        if (!result.valid) {
-          setError(undefined);
-          setChecking(false);
-          // Server messages are already client-ready; FieldError expects an i18n key, so render directly.
-          setError(result.error ?? 'cart.couponInvalid');
-          return;
-        }
-        applyCoupon(value);
-        setServerValid(true);
-        setValue('');
-        setError(undefined);
-      } catch {
-        setError('toast.error');
-      } finally {
+    setChecking(true);
+    try {
+      const result = await validateCartCoupon(value, lines.map((l) => ({ productId: l.productId, variantId: l.variantId, quantity: l.quantity })), currency);
+      if (!result.valid) {
+        setError(result.error ?? 'cart.couponInvalid');
         setChecking(false);
+        return;
       }
-      return;
+      applyCoupon(value);
+      setServerValid(true);
+      setValue('');
+      setError(undefined);
+    } catch {
+      setError('toast.error');
+    } finally {
+      setChecking(false);
     }
-    if (!isValidCoupon(value)) {
-      setError('cart.couponInvalid');
-      return;
-    }
-    applyCoupon(value);
-    setValue('');
-    setError(undefined);
   };
 
   if (valid) {

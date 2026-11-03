@@ -5,7 +5,6 @@ import { AddressBlock } from '@/components/checkout/AddressBlock';
 import { Button } from '@/components/ui/Button';
 import { Notice } from '@/components/ui/Feedback';
 import { CheckboxField } from '@/components/ui/Form';
-import { API_MODE } from '@/api';
 import { useLanguage, useMoney } from '@/hooks/useLocale';
 import { useCheckout, type CheckoutStep } from '@/store/session';
 import { deliveryWindow, formatShortDate } from '@/utils/dates';
@@ -39,7 +38,7 @@ export function ReviewStep({ total, submitting, error, blocked, onEdit, onPlace 
   const { t } = useTranslation();
   const lang = useLanguage();
   const money = useMoney();
-  const { details, shippingMethod, paymentMethod, paymentScenario } = useCheckout();
+  const { details, shippingMethod, paymentMethod } = useCheckout();
   const [ack, setAck] = useState(false);
   const [ackError, setAckError] = useState<string>();
 
@@ -77,25 +76,16 @@ export function ReviewStep({ total, submitting, error, blocked, onEdit, onPlace 
           )}
         </Block>
         <Block title={t('checkout.payment')} onEdit={() => onEdit('payment')}>
-          {API_MODE ? (
-            <p className="text-ink-soft">
-              {t(`checkout.paymentMethods.${paymentMethod}`)}
-              {paymentMethod === 'cod' && <span className="block text-ink-muted">{t('checkout.codNote')}</span>}
-            </p>
-          ) : (
-            <p className="text-ink-soft">
-              {t('order.paymentDemo', { method: t(`checkout.paymentMethods.${paymentMethod}`) })}
-              <span className="block text-ink-muted">
-                {t('checkout.outcome')}: {t(`checkout.scenarios.${paymentScenario}.label`)}
-              </span>
-            </p>
-          )}
+          <p className="text-ink-soft">
+            {t(`checkout.paymentMethods.${paymentMethod}`)}
+            {paymentMethod === 'cod' && <span className="block text-ink-muted">{t('checkout.codNote')}</span>}
+          </p>
         </Block>
       </div>
 
       <CheckboxField
         id="co-ack"
-        label={API_MODE ? t('checkout.acknowledgeReal') : t('checkout.acknowledge')}
+        label={t('checkout.acknowledgeReal')}
         checked={ack}
         onChange={(e) => {
           setAck(e.target.checked);
@@ -115,12 +105,10 @@ export function ReviewStep({ total, submitting, error, blocked, onEdit, onPlace 
           {t('common.back')}
         </Button>
         <Button size="lg" onClick={place} loading={submitting} disabled={blocked} icon={!submitting ? <Lock className="h-4 w-4" aria-hidden /> : undefined}>
-          {submitting
-            ? API_MODE ? t('checkout.placingReal') : t('checkout.placing')
-            : API_MODE ? t('checkout.placeOrderReal', { total }) : t('checkout.placeOrder', { total })}
+          {submitting ? t('checkout.placingReal') : t('checkout.placeOrderReal', { total })}
         </Button>
       </div>
-      <p className="text-center text-sm text-ink-muted sm:text-right">{API_MODE ? t('checkout.codChargeNote') : t('checkout.noChargeNote')}</p>
+      <p className="text-center text-sm text-ink-muted sm:text-right">{t('checkout.codChargeNote')}</p>
     </div>
   );
 }

@@ -1,6 +1,5 @@
 import { contentLanguage } from '@/utils/money';
 import { useTranslation } from 'react-i18next';
-import { SHIPPING_ZONES, type ShippingZoneId } from '@/data/countries';
 import { useAsync } from '@/hooks/useAsync';
 import { useLanguage, useLocalized, useMoney } from '@/hooks/useLocale';
 import { contentService } from '@/services/contentService';
@@ -25,17 +24,12 @@ export default function ShippingPage() {
   const contentLang = contentLanguage(lang);
   const showUntranslated = !!contentLang && !!content && !content.intro[contentLang];
 
-  // Live, admin-edited rates when available; the bundled illustrative rates otherwise (mock mode, or
-  // before the first fetch resolves).
-  const mockZoneIds = Object.keys(SHIPPING_ZONES) as ShippingZoneId[];
-  const rows = liveZones.length
-    ? liveZones.map((z) => ({
-        key: z.id,
-        name: z.name,
-        standard: z.standard.enabled ? { price: z.standard.rate, minDays: z.standard.minDays, maxDays: z.standard.maxDays } : null,
-        express: z.express.enabled ? { price: z.express.rate, minDays: z.express.minDays, maxDays: z.express.maxDays } : null,
-      }))
-    : mockZoneIds.map((z) => ({ key: z, name: t(`pages.shipping.zones.${z}`), standard: SHIPPING_ZONES[z].standard, express: SHIPPING_ZONES[z].express }));
+  const rows = liveZones.map((z) => ({
+    key: z.id,
+    name: z.name,
+    standard: z.standard.enabled ? { price: z.standard.rate, minDays: z.standard.minDays, maxDays: z.standard.maxDays } : null,
+    express: z.express.enabled ? { price: z.express.rate, minDays: z.express.minDays, maxDays: z.express.maxDays } : null,
+  }));
 
   return (
     <InfoShell title={title} intro={intro} showUntranslatedNotice={showUntranslated}>

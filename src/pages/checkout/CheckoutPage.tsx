@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Check, ShoppingBag } from 'lucide-react';
-import { API_MODE } from '@/api';
 import { OrderSummary } from '@/components/checkout/OrderSummary';
 import { ButtonLink } from '@/components/ui/Button';
 import { EmptyState, ErrorState, Notice, Spinner } from '@/components/ui/Feedback';
@@ -11,10 +10,10 @@ import { useCartDetails } from '@/hooks/useCartDetails';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useMoney } from '@/hooks/useLocale';
 import { ApiError } from '@/services/api';
-import { orderService, PaymentError, type StockIssue } from '@/services/orderService';
+import { orderService, PaymentError } from '@/services/orderService';
 import { useCart } from '@/store/cart';
 import { usePreferences } from '@/store/preferences';
-import { useAuth, useCheckout, type CheckoutStep } from '@/store/session';
+import { useCheckout, type CheckoutStep } from '@/store/session';
 import { cn } from '@/utils/cn';
 import { DetailsStep } from './DetailsStep';
 import { PaymentStep } from './PaymentStep';
@@ -69,11 +68,9 @@ export default function CheckoutPage() {
   useDocumentTitle(t('checkout.title'));
   const navigate = useNavigate();
   const money = useMoney();
-  const user = useAuth((s) => s.user);
   const checkout = useCheckout();
   const prefCountry = usePreferences((s) => s.deliveryCountry);
   const clearCart = useCart((s) => s.clear);
-  const setQuantity = useCart((s) => s.setQuantity);
 
   const country = checkout.details?.country ?? prefCountry;
   const cart = useCartDetails({ country, shippingMethod: checkout.shippingMethod });
@@ -124,8 +121,6 @@ export default function CheckoutPage() {
         address,
         shippingMethodId: checkout.shippingMethod,
         paymentMethod: checkout.paymentMethod,
-        paymentScenario: checkout.paymentScenario,
-        userId: user?.id,
       });
       // Only now — after the (simulated) server confirmed the order — is the cart cleared.
       setPlaced(true);
@@ -140,7 +135,7 @@ export default function CheckoutPage() {
         navigate(`/order/payment-failed?reason=${e.reason}`);
         return;
       }
-      if (API_MODE && e instanceof ApiError) {
+      if (e instanceof ApiError) {
         // The server's own message is already client-ready prose (e.g. "We do not ship to this
         // destination yet.", "Some items in your cart no longer have enough stock."). A stock conflict
         // means the catalogue itself has changed, so refresh it rather than guessing new quantities.
@@ -149,15 +144,6 @@ export default function CheckoutPage() {
           cart.reload();
         }
         setError(e.message || t('checkout.genericError'));
-      } else if (e instanceof ApiError && e.code === 'stock') {
-        for (const issue of (e.details as StockIssue[]) ?? []) {
-          if (issue.available > 0) setQuantity(issue.productId, issue.variantId, Math.min(issue.requested, issue.available));
-        }
-        invalidateQueries('catalog:');
-        cart.reload();
-        setError(t('checkout.stockError'));
-      } else if (e instanceof ApiError && e.code === 'shipping_unsupported') {
-        setError(t('checkout.shippingError'));
       } else {
         setError(t('checkout.genericError'));
       }
@@ -167,7 +153,7 @@ export default function CheckoutPage() {
     }
   };
 
-  if (placed) return <Spinner label={API_MODE ? t('checkout.placingReal') : t('checkout.placing')} className="py-32" />;
+  if (placed) return <Spinner label={t('checkout.placingReal')} className="py-32" />;
 
   if (cart.isEmpty) {
     return (

@@ -7,7 +7,7 @@ import fr from '@/locales/fr';
 import it from '@/locales/it';
 import type { LanguageCode } from '@/types';
 import { toLanguageCode } from '@/utils/money';
-import { API_BASE_URL, API_MODE } from '@/api/config';
+import { API_BASE_URL } from '@/api/config';
 
 export const LANGUAGE_STORAGE_KEY = 'ys-lang';
 
@@ -54,7 +54,6 @@ void i18n.use(initReactI18next).init({
   interpolation: { escapeValue: false },
   returnNull: false,
 }).then(() => {
-  if (!API_MODE) return;
   // Fetch admin overrides for current + english fallback and merge them in.
   const lng = i18n.language;
   const langsToLoad = [...new Set([lng, lng.split('-')[0], 'en'].filter(Boolean))];

@@ -6,7 +6,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/Button';
 import { Notice } from '@/components/ui/Feedback';
 import { CheckboxField, TextField } from '@/components/ui/Form';
-import { API_MODE } from '@/api';
+
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { ApiError } from '@/services/api';
 import { authService } from '@/services/authService';
@@ -52,7 +52,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <AuthShell title={t('auth.registerTitle')} subtitle={t('auth.registerSubtitle')} aside={API_MODE ? undefined : <Notice tone="demo">{t('auth.registerNote')}</Notice>}>
+    <AuthShell title={t('auth.registerTitle')} subtitle={t('auth.registerSubtitle')} aside={undefined}>
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
         {formError && (
           <Notice tone="error" role="alert">

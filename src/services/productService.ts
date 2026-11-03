@@ -1,26 +1,16 @@
 import { PAGE_SIZE } from '@/config/store';
 import { CATEGORIES, CATEGORY_BY_SLUG } from '@/data/categories';
 import { RATE_SNAPSHOT } from '@/data/currencies';
-import { PRODUCTS, PRODUCT_BY_SLUG } from '@/data/products';
 import type { AvailabilityFilter, Category, CategorySlug, Product, ProductListResult, ProductQuery } from '@/types';
 import { convertFromBase } from '@/utils/money';
 import { effectivePrice, totalStock } from '@/utils/variants';
-import { API_MODE, fetchCategories, fetchProductBySlug, fetchProducts, fetchProductsByIds } from '@/api';
-import { ApiError, mockRequest } from './api';
+import { fetchCategories, fetchProductBySlug, fetchProducts, fetchProductsByIds } from '@/api';
 import { contentService } from './contentService';
-import { db } from './mockDb';
 
-// Two sources, one public API:
-//   API mode  (VITE_API_BASE_URL set) — products and categories come from the backend, which serves only
-//                                       active products in active categories.
-//   Mock mode (unset)                 — the bundled sample catalogue, as before.
-//
-// Filtering, sorting, facets and pagination run client-side in both modes so the shop UI behaves
-// identically. Moving them server-side is a later milestone (see backend/README.md).
+// Products and categories come from the backend API. Filtering, sorting and pagination run
+// client-side so the shop UI works offline-first once the catalogue is cached.
 
-// --- API-backed catalogue cache ---------------------------------------------------------------
-// One short-lived in-flight cache so a page that calls list() + getCollections() doesn't refetch.
-
+// --- Catalogue cache -----------------------------------------------------------------------------
 let catalogCache: { at: number; products: Promise<Product[]> } | null = null;
 const CATALOG_TTL = 15_000;
 
@@ -32,7 +22,6 @@ function fetchCatalog(): Promise<Product[]> {
   return catalogCache.products;
 }
 
-/** Drops the cache so the next read hits the API (used after the backend may have changed). */
 export function refreshCatalog() {
   catalogCache = null;
 }
@@ -46,13 +35,7 @@ async function apiProducts(): Promise<Product[]> {
   }
 }
 
-/** Products with stock as currently held by the mock database. */
-function live(product: Product): Product {
-  return {
-    ...product,
-    variants: product.variants.map((v) => ({ ...v, stock: db.stock.get(v.id) ?? v.stock })),
-  };
-}
+// --- Client-side filtering/sorting ---------------------------------------------------------------
 
 function minDisplayPrice(p: Product, query: ProductQuery): number {
   const min = Math.min(...p.variants.map(effectivePrice));
@@ -65,7 +48,7 @@ function matchesSearch(p: Product, q: string): boolean {
   const cat = CATEGORY_BY_SLUG[p.categoryId];
   const haystack = [
     p.name.en, p.shortDescription.en, p.materials.en,
-    cat.name.en, ...p.tags,
+    cat?.name.en, ...p.tags,
     ...p.options.flatMap((o) => o.values.map((v) => v.label.en)),
   ]
     .filter(Boolean)
@@ -109,8 +92,8 @@ function sortProducts(products: Product[], query: ProductQuery): Product[] {
   }
 }
 
-export function queryProducts(query: ProductQuery, source?: Product[]): ProductListResult {
-  const all = source ?? PRODUCTS.map(live);
+export function queryProducts(query: ProductQuery, source: Product[]): ProductListResult {
+  const all = source;
   const filtered = sortProducts(applyFilters(all, query), query);
   const pageSize = query.pageSize ?? PAGE_SIZE;
   const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
@@ -138,24 +121,16 @@ export function queryProducts(query: ProductQuery, source?: Product[]): ProductL
 
 export const productService = {
   list(query: ProductQuery): Promise<ProductListResult> {
-    if (API_MODE) return apiProducts().then((items) => queryProducts(query, items));
-    return mockRequest(() => queryProducts(query));
+    return apiProducts().then((items) => queryProducts(query, items));
   },
 
   getBySlug(slug: string): Promise<Product> {
-    // Ask the API directly so draft/archived products 404 even when the list cache is warm.
-    if (API_MODE) return fetchProductBySlug(slug);
-    return mockRequest(() => {
-      const p = PRODUCT_BY_SLUG[slug];
-      if (!p) throw new ApiError('not_found', 'Product not found');
-      return live(p);
-    });
+    return fetchProductBySlug(slug);
   },
 
   getByIds(ids: string[]): Promise<Product[]> {
     if (!ids.length) return Promise.resolve([]);
-    if (API_MODE) return fetchProductsByIds(ids);
-    return mockRequest(() => PRODUCTS.filter((p) => ids.includes(p.id)).map(live), [150, 350]);
+    return fetchProductsByIds(ids);
   },
 
   getRelated(product: Product, limit = 4): Promise<Product[]> {
@@ -164,8 +139,7 @@ export const productService = {
       const others = all.filter((p) => p.id !== product.id && p.categoryId !== product.categoryId && p.isBestseller);
       return [...same, ...others].slice(0, limit);
     };
-    if (API_MODE) return apiProducts().then(pick);
-    return mockRequest(() => pick(PRODUCTS.map(live)));
+    return apiProducts().then(pick);
   },
 
   getCollections(): Promise<{ featured: Product[]; bestsellers: Product[]; newArrivals: Product[] }> {
@@ -176,31 +150,23 @@ export const productService = {
     });
     const byIds = (all: Product[], ids: string[]) => ids.map((id) => all.find((p) => p.id === id)).filter((p): p is Product => !!p);
 
-    if (API_MODE) {
-      // The admin's curated homepage lists win when something has been published; the flag-based
-      // filter is only a fallback for before the first publish.
-      return Promise.all([apiProducts(), contentService.getHomepage()]).then(([all, homepage]) => {
-        const content = homepage.content;
-        if (!content) return splitByFlags(all);
-        return {
-          featured: byIds(all, content.featuredProductIds),
-          bestsellers: byIds(all, content.bestsellerProductIds),
-          newArrivals: byIds(all, content.newArrivalProductIds),
-        };
-      });
-    }
-    return mockRequest(() => splitByFlags(PRODUCTS.map(live)));
+    return Promise.all([apiProducts(), contentService.getHomepage()]).then(([all, homepage]) => {
+      const content = homepage.content;
+      if (!content) return splitByFlags(all);
+      return {
+        featured: byIds(all, content.featuredProductIds),
+        bestsellers: byIds(all, content.bestsellerProductIds),
+        newArrivals: byIds(all, content.newArrivalProductIds),
+      };
+    });
   },
 
-  /** Lightweight suggestions for the header search. */
   suggest(q: string, limit = 5): Promise<Product[]> {
     if (q.trim().length < 2) return Promise.resolve([]);
-    if (API_MODE) return apiProducts().then((items) => items.filter((p) => matchesSearch(p, q)).slice(0, limit));
-    return mockRequest(() => PRODUCTS.filter((p) => matchesSearch(p, q)).slice(0, limit), [80, 160]);
+    return apiProducts().then((items) => items.filter((p) => matchesSearch(p, q)).slice(0, limit));
   },
 
   listCategories(): Promise<Category[]> {
-    if (API_MODE) return fetchCategories();
-    return mockRequest(() => CATEGORIES, [50, 150]);
+    return fetchCategories();
   },
 };

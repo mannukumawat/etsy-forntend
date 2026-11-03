@@ -41,7 +41,7 @@ export default function AccountPage() {
 
   const onSubmit = async (values: ProfileValues) => {
     try {
-      const updated = await authService.updateProfile(user.id, values);
+      const updated = await authService.updateProfile(values);
       setUser(updated);
       reset({ name: updated.name, email: updated.email, phone: updated.phone ?? '' });
       toast(t('account.profileSaved'), 'success');

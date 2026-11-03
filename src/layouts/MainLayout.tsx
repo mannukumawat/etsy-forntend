@@ -6,7 +6,7 @@ import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
 import { Spinner } from '@/components/ui/Feedback';
 import { ToastViewport } from '@/components/ui/Toasts';
-import { API_MODE, setUnauthorizedHandler } from '@/api';
+import { setUnauthorizedHandler } from '@/api';
 import { useAsync } from '@/hooks/useAsync';
 import { useLocalized } from '@/hooks/useLocale';
 import { authService } from '@/services/authService';
@@ -14,10 +14,8 @@ import { contentService } from '@/services/contentService';
 import { useAuth } from '@/store/session';
 import { useUi } from '@/store/ui';
 
-/** Admin-published announcement when available; the original demo-coupon text as the mock-mode
- *  fallback (and before the first fetch resolves). */
+/** Admin-published announcement when available. */
 function AnnouncementBar() {
-  const { t } = useTranslation();
   const loc = useLocalized();
   const { data: homepage } = useAsync('content:homepage', () => contentService.getHomepage());
   const live = homepage?.content;
@@ -39,7 +37,6 @@ export function MainLayout() {
   // Restores the signed-in customer from the httpOnly session cookie after a page refresh, and signs
   // the customer out locally (no redirect loop) if the server ever rejects a request as unauthorized.
   useEffect(() => {
-    if (!API_MODE) return;
     authService.me().then((user) => {
       if (user) setUser(user);
     });

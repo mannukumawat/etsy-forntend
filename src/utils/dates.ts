@@ -1,4 +1,3 @@
-import { STORE } from '@/config/store';
 import type { LanguageCode } from '@/types';
 import { localeFor } from './money';
 
@@ -13,11 +12,10 @@ export function addBusinessDays(from: Date, days: number): Date {
   return d;
 }
 
-/** Illustrative delivery window: handling time plus transit time, in business days. */
-export function deliveryWindow(minDays: number, maxDays: number, from: Date = new Date()): { start: Date; end: Date } {
+export function deliveryWindow(minDays: number, maxDays: number, from: Date = new Date(), handlingDays = { min: 1, max: 2 }): { start: Date; end: Date } {
   return {
-    start: addBusinessDays(from, STORE.handlingDays.min + minDays),
-    end: addBusinessDays(from, STORE.handlingDays.max + maxDays),
+    start: addBusinessDays(from, handlingDays.min + minDays),
+    end: addBusinessDays(from, handlingDays.max + maxDays),
   };
 }
 

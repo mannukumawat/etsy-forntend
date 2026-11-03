@@ -1,7 +1,6 @@
-// Country, address-format and shipping-zone configuration (illustrative demo data).
-// Phase 2: the backend should own shipping zones, rates and tax rules; keep this shape for the API response.
+// Country and address-format configuration. Shipping zones and tax rates come from /api/settings.
 
-export type ShippingZoneId = 'domestic' | 'asia' | 'europe' | 'north_america' | 'oceania';
+import type { PublicShippingZone } from '@/api/types';
 
 export type RegionLabel = 'state' | 'province' | 'county' | 'prefecture' | 'emirate' | 'stateTerritory' | 'region';
 export type PostalLabel = 'zip' | 'postcode' | 'pinCode' | 'postalCode' | 'eircode';
@@ -16,11 +15,10 @@ export interface AddressFormat {
 
 export interface CountryConfig {
   code: string;
-  name: string; // English fallback; UI uses Intl.DisplayNames for the active language
+  name: string;
   dialCode: string;
-  zone: ShippingZoneId | null; // null = we don't ship there yet
-  /** Illustrative tax/VAT rate used for the demo estimate only. */
-  demoTaxRate: number;
+  /** Shipping zone id, populated from /api/settings. Null = we don't ship there. */
+  zone: string | null;
   format: AddressFormat;
 }
 
@@ -69,7 +67,7 @@ const fiveDigit = (label: PostalLabel, example: string): AddressFormat['postal']
 
 export const COUNTRIES: CountryConfig[] = [
   {
-    code: 'IN', name: 'India', dialCode: '+91', zone: 'domestic', demoTaxRate: 0.12,
+    code: 'IN', name: 'India', dialCode: '+91', zone: null,
     format: {
       cityLabel: 'city', cityRequired: true,
       region: { label: 'state', required: true, options: IN_STATES },
@@ -77,7 +75,7 @@ export const COUNTRIES: CountryConfig[] = [
     },
   },
   {
-    code: 'US', name: 'United States', dialCode: '+1', zone: 'north_america', demoTaxRate: 0.07,
+    code: 'US', name: 'United States', dialCode: '+1', zone: null,
     format: {
       cityLabel: 'city', cityRequired: true,
       region: { label: 'state', required: true, options: US_STATES },
@@ -85,7 +83,7 @@ export const COUNTRIES: CountryConfig[] = [
     },
   },
   {
-    code: 'CA', name: 'Canada', dialCode: '+1', zone: 'north_america', demoTaxRate: 0.13,
+    code: 'CA', name: 'Canada', dialCode: '+1', zone: null,
     format: {
       cityLabel: 'city', cityRequired: true,
       region: { label: 'province', required: true, options: CA_PROVINCES },
@@ -93,7 +91,7 @@ export const COUNTRIES: CountryConfig[] = [
     },
   },
   {
-    code: 'GB', name: 'United Kingdom', dialCode: '+44', zone: 'europe', demoTaxRate: 0.2,
+    code: 'GB', name: 'United Kingdom', dialCode: '+44', zone: null,
     format: {
       cityLabel: 'townCity', cityRequired: true,
       region: { label: 'county', required: false },
@@ -101,23 +99,23 @@ export const COUNTRIES: CountryConfig[] = [
     },
   },
   {
-    code: 'IE', name: 'Ireland', dialCode: '+353', zone: 'europe', demoTaxRate: 0.23,
+    code: 'IE', name: 'Ireland', dialCode: '+353', zone: null,
     format: {
       cityLabel: 'townCity', cityRequired: true,
       region: { label: 'county', required: true },
       postal: { label: 'eircode', required: false, pattern: /^[A-Za-z]\d[\dWw] ?[A-Za-z\d]{4}$/, example: 'D02 X285' },
     },
   },
-  { code: 'DE', name: 'Germany', dialCode: '+49', zone: 'europe', demoTaxRate: 0.19, format: { cityLabel: 'city', cityRequired: true, region: null, postal: fiveDigit('postalCode', '10115') } },
-  { code: 'FR', name: 'France', dialCode: '+33', zone: 'europe', demoTaxRate: 0.2, format: { cityLabel: 'city', cityRequired: true, region: null, postal: fiveDigit('postalCode', '75001') } },
-  { code: 'ES', name: 'Spain', dialCode: '+34', zone: 'europe', demoTaxRate: 0.21, format: { cityLabel: 'city', cityRequired: true, region: { label: 'province', required: false }, postal: fiveDigit('postalCode', '28013') } },
-  { code: 'IT', name: 'Italy', dialCode: '+39', zone: 'europe', demoTaxRate: 0.22, format: { cityLabel: 'city', cityRequired: true, region: { label: 'province', required: false }, postal: fiveDigit('postalCode', '00184') } },
+  { code: 'DE', name: 'Germany', dialCode: '+49', zone: null, format: { cityLabel: 'city', cityRequired: true, region: null, postal: fiveDigit('postalCode', '10115') } },
+  { code: 'FR', name: 'France', dialCode: '+33', zone: null, format: { cityLabel: 'city', cityRequired: true, region: null, postal: fiveDigit('postalCode', '75001') } },
+  { code: 'ES', name: 'Spain', dialCode: '+34', zone: null, format: { cityLabel: 'city', cityRequired: true, region: { label: 'province', required: false }, postal: fiveDigit('postalCode', '28013') } },
+  { code: 'IT', name: 'Italy', dialCode: '+39', zone: null, format: { cityLabel: 'city', cityRequired: true, region: { label: 'province', required: false }, postal: fiveDigit('postalCode', '00184') } },
   {
-    code: 'NL', name: 'Netherlands', dialCode: '+31', zone: 'europe', demoTaxRate: 0.21,
+    code: 'NL', name: 'Netherlands', dialCode: '+31', zone: null,
     format: { cityLabel: 'city', cityRequired: true, region: null, postal: { label: 'postalCode', required: true, pattern: /^\d{4} ?[A-Za-z]{2}$/, example: '1012 AB' } },
   },
   {
-    code: 'AU', name: 'Australia', dialCode: '+61', zone: 'oceania', demoTaxRate: 0.1,
+    code: 'AU', name: 'Australia', dialCode: '+61', zone: null,
     format: {
       cityLabel: 'suburb', cityRequired: true,
       region: { label: 'stateTerritory', required: true, options: AU_STATES },
@@ -125,30 +123,29 @@ export const COUNTRIES: CountryConfig[] = [
     },
   },
   {
-    code: 'NZ', name: 'New Zealand', dialCode: '+64', zone: 'oceania', demoTaxRate: 0.15,
+    code: 'NZ', name: 'New Zealand', dialCode: '+64', zone: null,
     format: { cityLabel: 'townCity', cityRequired: true, region: { label: 'region', required: false }, postal: { label: 'postcode', required: true, pattern: /^\d{4}$/, example: '6011' } },
   },
   {
-    code: 'JP', name: 'Japan', dialCode: '+81', zone: 'asia', demoTaxRate: 0.1,
+    code: 'JP', name: 'Japan', dialCode: '+81', zone: null,
     format: { cityLabel: 'city', cityRequired: true, region: { label: 'prefecture', required: true }, postal: { label: 'postalCode', required: true, pattern: /^\d{3}-?\d{4}$/, example: '100-0001' } },
   },
   {
-    code: 'SG', name: 'Singapore', dialCode: '+65', zone: 'asia', demoTaxRate: 0.09,
+    code: 'SG', name: 'Singapore', dialCode: '+65', zone: null,
     format: { cityLabel: 'city', cityRequired: false, region: null, postal: { label: 'postalCode', required: true, pattern: /^\d{6}$/, example: '018956' } },
   },
   {
-    code: 'AE', name: 'United Arab Emirates', dialCode: '+971', zone: 'asia', demoTaxRate: 0.05,
+    code: 'AE', name: 'United Arab Emirates', dialCode: '+971', zone: null,
     format: { cityLabel: 'city', cityRequired: true, region: { label: 'emirate', required: true, options: AE_EMIRATES }, postal: null },
   },
   {
-    code: 'HK', name: 'Hong Kong', dialCode: '+852', zone: 'asia', demoTaxRate: 0,
+    code: 'HK', name: 'Hong Kong', dialCode: '+852', zone: null,
     format: { cityLabel: 'city', cityRequired: false, region: { label: 'region', required: true, options: ['Hong Kong Island', 'Kowloon', 'New Territories'] }, postal: null },
   },
-  // Destinations the demo store does not ship to yet (shows the unsupported-destination state).
-  { code: 'BR', name: 'Brazil', dialCode: '+55', zone: null, demoTaxRate: 0, format: generic },
-  { code: 'MX', name: 'Mexico', dialCode: '+52', zone: null, demoTaxRate: 0, format: generic },
-  { code: 'ZA', name: 'South Africa', dialCode: '+27', zone: null, demoTaxRate: 0, format: generic },
-  { code: 'NG', name: 'Nigeria', dialCode: '+234', zone: null, demoTaxRate: 0, format: generic },
+  { code: 'BR', name: 'Brazil', dialCode: '+55', zone: null, format: generic },
+  { code: 'MX', name: 'Mexico', dialCode: '+52', zone: null, format: generic },
+  { code: 'ZA', name: 'South Africa', dialCode: '+27', zone: null, format: generic },
+  { code: 'NG', name: 'Nigeria', dialCode: '+234', zone: null, format: generic },
 ];
 
 export const COUNTRY_BY_CODE: Record<string, CountryConfig> = Object.fromEntries(COUNTRIES.map((c) => [c.code, c]));
@@ -157,18 +154,34 @@ export function getCountry(code: string | undefined | null): CountryConfig | und
   return code ? COUNTRY_BY_CODE[code] : undefined;
 }
 
-export interface ShippingRate {
-  /** Base-currency (USD) minor units. */
-  price: number;
-  minDays: number;
-  maxDays: number;
+// --- Shipping zones from /api/settings -----------------------------------------------------------
+
+export let SHIPPING_ZONES: PublicShippingZone[] = [];
+
+/** Country → zone lookup, rebuilt when settings sync. */
+let countryZoneMap: Record<string, PublicShippingZone> = {};
+
+export function getCountryZone(countryCode: string | undefined | null): PublicShippingZone | undefined {
+  return countryCode ? countryZoneMap[countryCode] : undefined;
 }
 
-/** Illustrative shipping rates (USD cents) and transit times in business days. */
-export const SHIPPING_ZONES: Record<ShippingZoneId, { standard: ShippingRate; express: ShippingRate }> = {
-  domestic: { standard: { price: 300, minDays: 3, maxDays: 6 }, express: { price: 900, minDays: 1, maxDays: 3 } },
-  asia: { standard: { price: 1200, minDays: 7, maxDays: 12 }, express: { price: 2600, minDays: 3, maxDays: 6 } },
-  europe: { standard: { price: 1400, minDays: 8, maxDays: 14 }, express: { price: 2900, minDays: 4, maxDays: 7 } },
-  north_america: { standard: { price: 1500, minDays: 8, maxDays: 15 }, express: { price: 3200, minDays: 4, maxDays: 7 } },
-  oceania: { standard: { price: 1600, minDays: 9, maxDays: 16 }, express: { price: 3400, minDays: 5, maxDays: 8 } },
-};
+export function isShippingSupported(countryCode: string | undefined | null): boolean {
+  return !!getCountryZone(countryCode);
+}
+
+/** Called by initSiteSettings after /api/settings resolves. */
+export function syncShippingFromSettings(shipping: { zones: PublicShippingZone[] }) {
+  SHIPPING_ZONES = shipping.zones;
+  countryZoneMap = {};
+  for (const zone of shipping.zones) {
+    for (const cc of zone.countries) {
+      countryZoneMap[cc] = zone;
+    }
+  }
+  for (const c of COUNTRIES) {
+    c.zone = countryZoneMap[c.code]?.id ?? null;
+  }
+  for (const [code, c] of Object.entries(COUNTRY_BY_CODE)) {
+    c.zone = countryZoneMap[code]?.id ?? null;
+  }
+}

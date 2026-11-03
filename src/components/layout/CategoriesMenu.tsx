@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ArrowRight, ChevronRight, Menu, Sparkles } from 'lucide-react';
 import { fetchCollections } from '@/api';
+import { API_MODE } from '@/api/config';
 import { Skeleton } from '@/components/ui/Feedback';
 import { CATEGORIES } from '@/data/categories';
 import { useAsync } from '@/hooks/useAsync';
@@ -37,6 +38,8 @@ export function CategoriesMenu({ className }: { className?: string }) {
 
   const collections = useAsync(loaded ? 'menu:collections' : null, () => fetchCollections());
   const products = useAsync(loaded ? `catalog:menu:${currency}` : null, () => productService.list({ currency, sort: 'featured', pageSize: 200 }));
+  const { data: apiCategories } = useAsync(loaded && API_MODE ? 'catalog:categories' : null, () => productService.listCategories());
+  const categories = API_MODE ? (apiCategories ?? []) : CATEGORIES;
 
   useEffect(() => {
     if (!open) return;
@@ -60,7 +63,8 @@ export function CategoriesMenu({ className }: { className?: string }) {
       const tiles: Tile[] = (collections.data ?? []).map((c) => ({ key: c.slug, label: loc(c.title), href: `/collection/${c.slug}`, image: c.image }));
       return { heading: t('hub.recommended'), headingHref: null as string | null, tiles, loading: !collections.data && !collections.isError };
     }
-    const category = CATEGORIES.find((c) => c.slug === active)!;
+    const category = categories.find((c) => c.slug === active);
+    if (!category) return { heading: '', headingHref: null as string | null, tiles: [] as Tile[], loading: false };
     const tiles: Tile[] = (products.data?.items ?? [])
       .filter((p) => p.categoryId === active)
       .slice(0, TILES)
@@ -117,7 +121,7 @@ export function CategoriesMenu({ className }: { className?: string }) {
               </span>,
               panel.headingHref,
             )}
-            {CATEGORIES.map((c) => listItem(c.slug, loc(c.name), `/category/${c.slug}`))}
+            {categories.map((c) => listItem(c.slug, loc(c.name), `/category/${c.slug}`))}
           </ul>
 
           {/* right: tiles */}

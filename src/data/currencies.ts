@@ -19,7 +19,7 @@ export let CURRENCY_CODES: CurrencyCode[] = ['USD'];
 export let RATE_SNAPSHOT: RateSnapshot = {
   base: 'USD',
   rates: { USD: 1 } as Record<CurrencyCode, number>,
-  asOf: '',
+  asOf: new Date().toISOString().split('T')[0],
   illustrative: true,
 };
 

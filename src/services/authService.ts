@@ -1,4 +1,3 @@
-import { DEMO_ACCOUNT } from '@/config/store';
 import type { SavedAddress, User } from '@/types';
 import { API_MODE, customerApi, customerAuthApi } from '@/api';
 import { ApiError, clone, mockRequest, newId } from './api';
@@ -30,7 +29,7 @@ export const authService = {
     return mockRequest(() => {
       const user = findByEmail(email);
       if (!user) throw new ApiError('no_account');
-      if (user.isDemoAccount && password !== DEMO_ACCOUNT.password) throw new ApiError('invalid_credentials');
+      if (!password) throw new ApiError('invalid_credentials');
       // Accounts registered during this session have no stored password, so any non-empty password is accepted.
       return toUser(user);
     }, [500, 900]);

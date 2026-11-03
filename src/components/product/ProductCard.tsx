@@ -16,28 +16,28 @@ export function ProductCard({ product, eager = false }: { product: Product; eage
   const swatchOption = product.options.find((o) => o.type === 'swatch');
   const [first, second] = product.images;
 
-  if (!first) return null;
-
   return (
     <article className="group relative flex flex-col">
       <Link to={`/product/${product.slug}`} className="block rounded-xl">
-        <div className="relative aspect-square overflow-hidden rounded-xl bg-sand-100">
-          <img
-            src={first.src}
-            alt={loc(first.alt)}
-            width={800}
-            height={800}
-            loading={eager ? 'eager' : 'lazy'}
-            decoding="async"
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03] motion-reduce:transition-none"
-          />
+        <div className="relative aspect-[4/5] overflow-hidden rounded-xl bg-sand-100">
+          {first?.src && (
+            <img
+              src={first.src}
+              alt={loc(first.alt)}
+              width={800}
+              height={1000}
+              loading={eager ? 'eager' : 'lazy'}
+              decoding="async"
+              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03] motion-reduce:transition-none"
+            />
+          )}
           {second && (
             <img
               src={second.src}
               alt=""
               aria-hidden
               width={800}
-              height={800}
+              height={1000}
               loading="lazy"
               decoding="async"
               className="absolute inset-0 hidden h-full w-full object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100 md:block"
@@ -78,7 +78,7 @@ export function ProductCard({ product, eager = false }: { product: Product; eage
 export function ProductCardSkeleton() {
   return (
     <div aria-hidden>
-      <Skeleton className="aspect-square w-full rounded-xl" />
+      <Skeleton className="aspect-[4/5] w-full rounded-xl" />
       <Skeleton className="mt-3 h-4 w-3/4" />
       <Skeleton className="mt-2 h-4 w-1/3" />
       <Skeleton className="mt-2 h-3 w-1/4" />

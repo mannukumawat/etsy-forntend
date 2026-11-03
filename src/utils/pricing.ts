@@ -1,9 +1,8 @@
-import { DEMO_COUPON } from '@/config/store';
 import type { CartTotals, CurrencyCode, Minor, RateSnapshot } from '@/types';
 import { convertFromBase, percentOf, roundMinor } from './money';
 
 // Pure price calculations shared by cart, checkout and the mock order service.
-// Phase 2: the server must recompute all of this from its own catalogue — never trust client totals.
+// Server recomputes all totals authoritatively — never trust client-side totals for payment.
 
 export interface PricingLine {
   /** Effective unit price in base currency minor units. */
@@ -15,13 +14,14 @@ export function normalizeCoupon(code: string | undefined | null): string {
   return (code ?? '').trim().toUpperCase();
 }
 
-export function isValidCoupon(code: string | undefined | null): boolean {
-  return normalizeCoupon(code) === DEMO_COUPON.code;
+// Coupon validation is handled server-side in API mode.
+// Returns false in mock mode (no demo coupon configured).
+export function isValidCoupon(_code: string | undefined | null): boolean {
+  return false;
 }
 
-export function couponDiscount(code: string | undefined | null, subtotal: Minor, currency: CurrencyCode): Minor {
-  if (!isValidCoupon(code) || subtotal <= 0) return 0;
-  return Math.min(subtotal, percentOf(subtotal, DEMO_COUPON.percentOff, currency));
+export function couponDiscount(_code: string | undefined | null, _subtotal: Minor, _currency: CurrencyCode): Minor {
+  return 0;
 }
 
 /** Unit price converted once, then multiplied — keeps line totals and the subtotal consistent. */

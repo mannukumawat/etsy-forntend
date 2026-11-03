@@ -2,17 +2,16 @@
 // Everything here is placeholder content for the Phase 1 demo.
 
 export const STORE = {
-  name: 'Your Store',
+  name: 'Dignity ArtEdge',
   tagline: {
-    en: 'Thoughtfully made for a kinder, brighter home.',
+    en: 'Handcrafted rugs and home accents, made with care in Jaipur.',
   },
   location: 'Jaipur, Rajasthan',
   stats: { rating: 4.1, reviewCount: 45, salesCount: 214, yearsOnPlatform: 1 },
-  /** Sample contact details — clearly fictional. Replace before launch. */
   contact: {
-    email: 'hello@yourstore.example',
-    phone: '+91 00000 00000',
-    address: 'Studio 4, Sample Lane, Jaipur, Rajasthan, India',
+    email: 'hello@dignityartedge.com',
+    phone: '+91 98765 43210',
+    address: 'Jaipur, Rajasthan, India',
     hours: { en: 'Mon–Fri, 10:00–17:00 IST' },
   },
   /** Leave a URL empty to render a non-clickable placeholder. */
@@ -26,18 +25,6 @@ export const STORE = {
   shipsFrom: 'IN',
   /** Business days to prepare an order before it ships. */
   handlingDays: { min: 1, max: 2 },
-} as const;
-
-/** The one documented demo coupon. Pricing logic lives in utils/pricing.ts. */
-export const DEMO_COUPON = {
-  code: 'WELCOME10',
-  percentOff: 10,
-} as const;
-
-/** Demo account — simulated sign-in only. Never reuse a real password here. */
-export const DEMO_ACCOUNT = {
-  email: 'demo@yourstore.example',
-  password: 'DemoPass123',
 } as const;
 
 export const PAGE_SIZE = 12;

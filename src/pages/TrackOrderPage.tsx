@@ -11,7 +11,6 @@ import { TextField } from '@/components/ui/Form';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useLanguage } from '@/hooks/useLocale';
 import { ApiError } from '@/services/api';
-import { DEMO_TRACKING_EXAMPLE } from '@/services/mockDb';
 import { orderService } from '@/services/orderService';
 import { useAuth } from '@/store/session';
 import type { Order } from '@/types';
@@ -31,7 +30,6 @@ export default function TrackOrderPage() {
   const {
     register,
     handleSubmit,
-    setValue,
     formState: { errors, isSubmitting },
   } = useForm<TrackValues>({
     resolver: zodResolver(trackSchema),
@@ -56,20 +54,6 @@ export default function TrackOrderPage() {
     <div className="container-site max-w-3xl py-10 lg:py-14">
       <h1 className="text-4xl lg:text-5xl">{t('track.title')}</h1>
       <p className="mt-2 text-ink-muted">{t('track.subtitle')}</p>
-
-      <Notice tone="demo" className="mt-6">
-        <p>{t('track.demoNote', { order: DEMO_TRACKING_EXAMPLE.orderNumber, email: DEMO_TRACKING_EXAMPLE.email })}</p>
-        <button
-          type="button"
-          className="mt-2 font-semibold underline underline-offset-2"
-          onClick={() => {
-            setValue('orderNumber', DEMO_TRACKING_EXAMPLE.orderNumber, { shouldValidate: true });
-            setValue('email', DEMO_TRACKING_EXAMPLE.email, { shouldValidate: true });
-          }}
-        >
-          {t('track.useExample')}
-        </button>
-      </Notice>
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="card mt-6 grid gap-4 p-5 sm:grid-cols-[1fr_1fr_auto] sm:items-start">
         <TextField id="track-order" label={t('track.orderNumber')} placeholder={t('track.orderPlaceholder')} required error={errors.orderNumber?.message} autoComplete="off" {...register('orderNumber')} />

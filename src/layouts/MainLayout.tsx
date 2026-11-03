@@ -1,7 +1,6 @@
 import { Suspense, useEffect } from 'react';
 import { Outlet, ScrollRestoration, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { DEMO_COUPON } from '@/config/store';
 import { CartDrawer } from '@/components/cart/CartDrawer';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
@@ -23,15 +22,8 @@ function AnnouncementBar() {
   const { data: homepage } = useAsync('content:homepage', () => contentService.getHomepage());
   const live = homepage?.content;
 
-  if (live) {
-    if (!live.announcement.enabled) return null;
-    return <div className="bg-ink px-4 py-2 text-center text-xs font-medium text-ivory sm:text-[13px]">{loc(live.announcement.text)}</div>;
-  }
-  return (
-    <div className="bg-ink px-4 py-2 text-center text-xs font-medium text-ivory sm:text-[13px]">
-      {t('announcement.text', { code: DEMO_COUPON.code, percent: DEMO_COUPON.percentOff })}
-    </div>
-  );
+  if (!live || !live.announcement.enabled) return null;
+  return <div className="bg-ink px-4 py-2 text-center text-xs font-medium text-ivory sm:text-[13px]">{loc(live.announcement.text)}</div>;
 }
 
 export function MainLayout() {

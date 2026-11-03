@@ -2,7 +2,6 @@ import { useEffect, useId, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Tag, X } from 'lucide-react';
 import { API_MODE, validateCartCoupon } from '@/api';
-import { DEMO_COUPON } from '@/config/store';
 import { useCart } from '@/store/cart';
 import { usePreferences } from '@/store/preferences';
 import { isValidCoupon } from '@/utils/pricing';
@@ -90,7 +89,7 @@ export function CouponForm() {
       <div className="flex items-center justify-between gap-3 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900" role="status">
         <span className="flex items-center gap-2">
           <Tag className="h-4 w-4" aria-hidden />
-          {API_MODE ? t('cart.couponAppliedCode', { code: couponCode }) : t('cart.couponApplied', { code: couponCode, percent: DEMO_COUPON.percentOff })}
+          {t('cart.couponAppliedCode', { code: couponCode })}
         </span>
         <button type="button" onClick={removeCoupon} className="rounded p-1 hover:bg-emerald-100" aria-label={t('cart.couponRemove', { code: couponCode })}>
           <X className="h-4 w-4" aria-hidden />
@@ -123,11 +122,6 @@ export function CouponForm() {
         </button>
       </div>
       {error && (error.includes(' ') ? <p className="mt-1.5 text-xs text-red-700">{error}</p> : <FieldError id={`${id}-error`} message={error} />)}
-      {!API_MODE && (
-        <p id={`${id}-hint`} className="mt-1.5 text-xs text-ink-muted">
-          {t('cart.couponHint', { code: DEMO_COUPON.code, percent: DEMO_COUPON.percentOff })}
-        </p>
-      )}
     </form>
   );
 }

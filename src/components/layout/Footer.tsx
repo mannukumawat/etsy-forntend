@@ -5,7 +5,6 @@ import { CATEGORIES } from '@/data/categories';
 import { RATE_SNAPSHOT } from '@/data/currencies';
 import { useLanguage, useLocalized } from '@/hooks/useLocale';
 import { formatDate } from '@/utils/dates';
-import { apiModeLabel } from '@/api';
 import logoMark from '@/assets/logo-mark.png';
 import { useSiteSettings } from '@/store/siteSettings';
 import { NewsletterForm } from './NewsletterForm';
@@ -43,22 +42,25 @@ export function Footer() {
             <p className="font-serif text-3xl font-semibold">{STORE.name}</p>
           </div>
           <p className="mt-3 max-w-xs text-sm text-ink-muted">{loc(STORE.tagline)}</p>
-          <div className="mt-6">
-            <p className="text-xs font-semibold uppercase tracking-wide text-ink-muted">{t('footer.sampleContact')}</p>
-            <ul className="mt-2 space-y-1.5 text-sm text-ink-soft">
-              <li className="flex items-center gap-2">
+          <div className="mt-6 space-y-1.5 text-sm text-ink-soft">
+            {STORE.contact.email && (
+              <div className="flex items-center gap-2">
                 <Mail className="h-4 w-4 shrink-0 text-ink-muted" aria-hidden />
-                <span>{STORE.contact.email}</span>
-              </li>
-              <li className="flex items-center gap-2">
+                <a href={`mailto:${STORE.contact.email}`} className="hover:text-ink hover:underline">{STORE.contact.email}</a>
+              </div>
+            )}
+            {STORE.contact.phone && (
+              <div className="flex items-center gap-2">
                 <Phone className="h-4 w-4 shrink-0 text-ink-muted" aria-hidden />
                 <span>{STORE.contact.phone}</span>
-              </li>
-              <li className="flex items-start gap-2">
+              </div>
+            )}
+            {STORE.contact.address && (
+              <div className="flex items-start gap-2">
                 <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-ink-muted" aria-hidden />
                 <span>{STORE.contact.address}</span>
-              </li>
-            </ul>
+              </div>
+            )}
           </div>
         </div>
 
@@ -101,40 +103,30 @@ export function Footer() {
           <div className="mt-4">
             <NewsletterForm id="footer-newsletter" />
           </div>
-          <p className="mt-6 text-sm font-semibold text-ink">{t('footer.follow')}</p>
-          <ul className="mt-2 flex gap-2">
-            {SOCIAL.map(({ key, label, Icon }) => {
-              const url = STORE.social[key];
-              const icon = Icon ? <Icon className="h-5 w-5" aria-hidden /> : <PinterestIcon />;
-              return (
-                <li key={key}>
-                  {url ? (
-                    <a href={url} target="_blank" rel="noopener noreferrer" aria-label={label} className="flex h-10 w-10 items-center justify-center rounded-full border border-sand-300 text-ink hover:bg-white">
-                      {icon}
-                    </a>
-                  ) : (
-                    <span
-                      role="img"
-                      aria-label={t('footer.socialPlaceholder', { network: label })}
-                      title={t('footer.socialPlaceholder', { network: label })}
-                      className="flex h-10 w-10 cursor-not-allowed items-center justify-center rounded-full border border-dashed border-sand-400 text-ink-faint"
-                    >
-                      {icon}
-                    </span>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
+          {SOCIAL.some(({ key }) => !!STORE.social[key]) && (
+            <>
+              <p className="mt-6 text-sm font-semibold text-ink">{t('footer.follow')}</p>
+              <ul className="mt-2 flex gap-2">
+                {SOCIAL.filter(({ key }) => !!STORE.social[key]).map(({ key, label, Icon }) => {
+                  const url = STORE.social[key];
+                  const icon = Icon ? <Icon className="h-5 w-5" aria-hidden /> : <PinterestIcon />;
+                  return (
+                    <li key={key}>
+                      <a href={url} target="_blank" rel="noopener noreferrer" aria-label={label} className="flex h-10 w-10 items-center justify-center rounded-full border border-sand-300 text-ink hover:bg-white">
+                        {icon}
+                      </a>
+                    </li>
+                  );
+                })}
+              </ul>
+            </>
+          )}
         </div>
       </div>
       <div className="border-t border-sand-200">
         <div className="container-site space-y-1 py-5 text-xs text-ink-muted">
           <p>{t('footer.rights', { year, store: STORE.name })}</p>
           <p>{t('footer.ratesNote', { date: formatDate(RATE_SNAPSHOT.asOf, lang) })}</p>
-          <p className="text-ink-faint">
-            {apiModeLabel()}
-          </p>
         </div>
       </div>
     </footer>

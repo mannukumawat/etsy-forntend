@@ -1,0 +1,101 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-ivory font-sans text-[15px] leading-relaxed text-ink antialiased;
+    overflow-x: hidden;
+  }
+
+  h1,
+  h2,
+  h3,
+  .font-display {
+    @apply font-serif font-semibold tracking-[-0.01em] text-ink;
+  }
+
+  /* Devanagari needs a little more vertical room and a heavier serif fallback. */
+  :lang(hi) body {
+    @apply leading-[1.75];
+  }
+  :lang(hi) h1,
+  :lang(hi) h2,
+  :lang(hi) h3 {
+    @apply font-semibold leading-snug tracking-normal;
+  }
+
+  :focus-visible {
+    outline: 2px solid theme('colors.brand.600');
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  ::selection {
+    background: theme('colors.brand.100');
+  }
+
+  img {
+    @apply select-none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  .container-site {
+    @apply mx-auto w-full max-w-site px-4 sm:px-6 lg:px-8;
+  }
+
+  .input {
+    @apply block w-full rounded-lg border border-sand-300 bg-white px-3 py-2.5 text-[15px] text-ink shadow-sm transition-colors placeholder:text-ink-faint focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-600/25 disabled:cursor-not-allowed disabled:bg-ivory-200 disabled:text-ink-muted;
+  }
+  .input[aria-invalid='true'] {
+    @apply border-red-700 focus:border-red-700 focus:ring-red-700/20;
+  }
+
+  .label {
+    @apply mb-1.5 block text-sm font-medium text-ink;
+  }
+
+  .card {
+    @apply rounded-2xl border border-sand-200 bg-white shadow-card;
+  }
+
+  .link {
+    @apply font-medium text-brand-700 underline decoration-brand-300 underline-offset-[3px] transition-colors hover:text-brand-800 hover:decoration-brand-700;
+  }
+
+  .eyebrow {
+    @apply text-xs font-semibold uppercase tracking-[0.14em] text-brand-700;
+  }
+
+  .prose-store p + p {
+    @apply mt-3;
+  }
+}
+
+@layer utilities {
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+}

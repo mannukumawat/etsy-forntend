@@ -15,6 +15,8 @@ const fallback: SiteSettingsState = {
     name: STORE.name,
     tagline: STORE.tagline,
     logo: null,
+    location: STORE.location,
+    stats: STORE.stats,
     contact: STORE.contact,
     social: STORE.social,
   },

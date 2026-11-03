@@ -1,12 +1,15 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowRight, Globe2, Hand, Leaf } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { ProductGrid, ProductGridSkeleton } from '@/components/product/ProductCard';
 import { ButtonLink } from '@/components/ui/Button';
 import { ErrorState } from '@/components/ui/Feedback';
 import { NewsletterForm } from '@/components/layout/NewsletterForm';
-import { CATEGORIES, HERO_IMAGE, STORY_IMAGE } from '@/data/categories';
+import { ShopBanner } from '@/components/layout/ShopBanner';
+import { ShopProfile } from '@/components/layout/ShopProfile';
+import type { BannerSlide } from '@/components/layout/ShopBanner';
+import { CATEGORIES, STORY_IMAGE } from '@/data/categories';
 import { useAsync } from '@/hooks/useAsync';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useLocalized } from '@/hooks/useLocale';
@@ -50,15 +53,14 @@ export default function HomePage() {
   const { data: homepage } = useAsync('content:homepage', () => contentService.getHomepage());
   const live = homepage?.content;
 
-  const perks = [
-    { icon: Hand, label: t('home.perks.handmade') },
-    { icon: Globe2, label: t('home.perks.worldwide') },
-    { icon: Leaf, label: t('home.perks.packaging') },
-  ];
+  // Banner slides: prefer admin-set images, fall back to the Jaipur banner + category art
+  const bannerSlides: BannerSlide[] = live?.bannerSlides?.length
+    ? live.bannerSlides
+    : [
+        { image: '/banner-jaipur.webp', ctaHref: '/shop' },
+        ...CATEGORIES.map((cat) => ({ image: cat.banner, ctaHref: `/category/${cat.slug}` })),
+      ];
 
-  const heroImage = live?.hero.image ?? HERO_IMAGE;
-  const heroCtaLabel = live ? loc(live.hero.ctaLabel) : t('home.heroCta');
-  const heroCtaHref = live?.hero.ctaHref || '/shop';
   const storyImage = live?.story.image ?? STORY_IMAGE;
   const storyCtaLabel = live ? loc(live.story.ctaLabel) : t('home.storyCta');
   const storyCtaHref = live?.story.ctaHref || '/about';
@@ -67,50 +69,10 @@ export default function HomePage() {
 
   return (
     <>
-      {/* Hero */}
-      <section className="container-site pt-4 lg:pt-6" aria-labelledby="hero-title">
-        <div className="relative overflow-hidden rounded-2xl bg-sand-100">
-          <img
-            src={heroImage}
-            alt=""
-            width={1600}
-            height={760}
-            {...{ fetchpriority: 'high' }}
-            className="absolute inset-0 h-full w-full object-cover object-[78%_center] lg:object-right"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-ivory-50/95 via-ivory-50/70 to-transparent md:bg-gradient-to-r md:from-ivory-50/95 md:via-ivory-50/60 md:to-transparent" aria-hidden />
-          <div className="relative flex min-h-[460px] flex-col justify-start px-6 py-10 sm:px-10 md:min-h-[440px] md:justify-center lg:min-h-[520px] lg:px-16">
-            <h1 id="hero-title" className="max-w-lg text-5xl leading-[1.05] lg:text-6xl">
-              {live ? (
-                loc(live.hero.title)
-              ) : (
-                <>
-                  {t('home.heroTitle1')}
-                  <br />
-                  {t('home.heroTitle2')}
-                </>
-              )}
-            </h1>
-            <p className="mt-4 max-w-md text-base text-ink-soft lg:text-lg">{live ? loc(live.hero.subtitle) : t('home.heroBody')}</p>
-            <div className="mt-7 flex flex-wrap gap-3">
-              <ButtonLink to={heroCtaHref} size="lg">
-                {heroCtaLabel} <ArrowRight className="h-4 w-4" aria-hidden />
-              </ButtonLink>
-              <ButtonLink to="/about" size="lg" variant="ghost" className="bg-white/60 backdrop-blur">
-                {t('home.heroSecondary')}
-              </ButtonLink>
-            </div>
-          </div>
-        </div>
-        <ul className="mt-4 grid gap-2 sm:grid-cols-3">
-          {perks.map(({ icon: Icon, label }) => (
-            <li key={label} className="flex items-center gap-3 rounded-xl border border-sand-200 bg-white px-4 py-3 text-sm text-ink-soft">
-              <Icon className="h-5 w-5 shrink-0 text-brand-700" aria-hidden />
-              {label}
-            </li>
-          ))}
-        </ul>
-      </section>
+      {/* Shop banner + profile — full-width, outside container */}
+      <ShopBanner slides={bannerSlides} />
+      <ShopProfile />
+
 
       {/* Categories */}
       <Section title={t('home.categoriesHeading')}>

@@ -55,6 +55,9 @@ export interface StorefrontPageContent {
 export interface StorefrontHomepageContent {
   announcement: { enabled: boolean; text: Localized };
   hero: { title: Localized; subtitle: Localized; image: string | null; ctaLabel: Localized; ctaHref: string };
+  /** Admin-managed banner slides. Each entry is a full-width image URL for the shop banner carousel.
+   *  If absent or empty the storefront falls back to static category art. */
+  bannerSlides?: Array<{ image: string; ctaHref?: string }>;
   featuredCategoryIds: string[];
   featuredProductIds: string[];
   bestsellerProductIds: string[];
@@ -84,6 +87,10 @@ export interface PublicSettingsResponse {
     name: string;
     tagline: Localized;
     logo: { id: string } | null;
+    /** Short location string shown under store name, e.g. "Jaipur, Rajasthan" */
+    location?: string;
+    /** Public-facing store stats shown on the shop profile strip */
+    stats?: { rating: number; reviewCount: number; salesCount: number; yearsOnPlatform?: number };
     contact: { email: string; phone: string; address: string; hours: Localized };
     social: { instagram: string; pinterest: string; facebook: string; youtube: string };
   };

@@ -6,6 +6,8 @@ export const STORE = {
   tagline: {
     en: 'Thoughtfully made for a kinder, brighter home.',
   },
+  location: 'Jaipur, Rajasthan',
+  stats: { rating: 4.1, reviewCount: 45, salesCount: 214, yearsOnPlatform: 1 },
   /** Sample contact details — clearly fictional. Replace before launch. */
   contact: {
     email: 'hello@yourstore.example',

@@ -1,11 +1,8 @@
 import { useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Heart, Menu, Search, ShoppingBag, User, X } from 'lucide-react';
-import { API_MODE, fetchNavLinks } from '@/api';
 import logoMark from '@/assets/logo-mark.png';
-import { useLocalized } from '@/hooks/useLocale';
-import { useAsync } from '@/hooks/useAsync';
 import { selectCartCount, useCart } from '@/store/cart';
 import { useSiteSettings } from '@/store/siteSettings';
 import { useAuth } from '@/store/session';
@@ -39,19 +36,12 @@ export function Logo({ className }: { className?: string }) {
 
 export function Header() {
   const { t } = useTranslation();
-  const loc = useLocalized();
   const cartCount = useCart(selectCartCount);
   const wishCount = useWishlist((s) => s.items.length);
   const user = useAuth((s) => s.user);
   const openCart = useUi((s) => s.openCart);
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-
-  const navLinks = [
-    { to: '/new-in', label: t('nav.newIn'), end: true },
-  ];
-  // Admin-managed secondary row (Gifts, Top Gifts, Wedding Guide, ...). Empty in mock mode.
-  const { data: collectionLinks } = useAsync(API_MODE ? 'nav:links' : null, () => fetchNavLinks());
 
   return (
     <header className="sticky top-0 z-40 border-b border-sand-200 bg-ivory-50/95 backdrop-blur supports-[backdrop-filter]:bg-ivory-50/85">
@@ -111,31 +101,6 @@ export function Header() {
           <SearchBar autoFocus onNavigate={() => setSearchOpen(false)} />
         </div>
       )}
-
-      <nav aria-label={t('a11y.primaryNav')} className="hidden border-t border-sand-200/70 lg:block">
-        <ul className="container-site flex h-11 items-center justify-center gap-8 text-sm">
-          {navLinks.map((l) => (
-            <li key={l.to}>
-              <NavLink
-                to={l.to}
-                end={l.end}
-                className={({ isActive }) =>
-                  cn('py-3 font-medium text-ink-soft transition-colors hover:text-brand-700', isActive && !l.to.includes('?') && 'text-brand-700 underline decoration-2 underline-offset-[14px]')
-                }
-              >
-                {l.label}
-              </NavLink>
-            </li>
-          ))}
-          {collectionLinks?.map((l) => (
-            <li key={l.id}>
-              <NavLink to={l.href} className={({ isActive }) => cn('py-3 font-medium text-ink-soft transition-colors hover:text-brand-700', isActive && 'text-brand-700 underline decoration-2 underline-offset-[14px]')}>
-                {loc(l.label)}
-              </NavLink>
-            </li>
-          ))}
-        </ul>
-      </nav>
 
       <MobileMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
     </header>

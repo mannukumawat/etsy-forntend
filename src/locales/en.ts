@@ -148,7 +148,7 @@ const en = {
     heroBody: 'Handmade ceramics, bags, jewellery and home pieces from one small studio — for a brighter, more beautiful everyday.',
     heroCta: 'Shop collection',
     heroSecondary: 'Our story',
-    categoriesHeading: 'Shop by category',
+    categoriesHeading:'category',
     featuredHeading: 'Featured pieces',
     featuredSub: 'A few favourites from the studio shelves.',
     bestsellersHeading: 'Bestsellers',

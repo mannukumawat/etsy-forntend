@@ -149,7 +149,7 @@ const en = {
     heroCta: 'Explore Rugs',
     heroSecondary: 'Shop All',
     categoriesHeading: 'Find Your Finishing Touch',
-    featuredHeading: 'Featured pieces',
+    featuredHeading: 'Featured items',
     featuredSub: 'A few favourites from the studio shelves.',
     bestsellersHeading: 'Bestsellers',
     newHeading: 'New arrivals',

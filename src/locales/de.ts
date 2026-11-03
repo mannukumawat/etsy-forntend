@@ -151,7 +151,7 @@ const de: TranslationSchema = {
     heroCta: 'Kollektion entdecken',
     heroSecondary: 'Unsere Geschichte',
     categoriesHeading: 'Nach Kategorie shoppen',
-    featuredHeading: 'AusgewÃ¤hlte StÃ¼cke',
+    featuredHeading: 'AusgewÃ¤hlte Artikel',
     featuredSub: 'Einige LieblingsstÃ¼cke aus unserem Atelier.',
     bestsellersHeading: 'Bestseller',
     newHeading: 'Neuheiten',

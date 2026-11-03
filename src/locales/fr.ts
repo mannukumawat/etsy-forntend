@@ -151,7 +151,7 @@ const fr: TranslationSchema = {
     heroCta: 'DÃ©couvrir la collection',
     heroSecondary: 'Notre histoire',
     categoriesHeading: 'Acheter par catÃ©gorie',
-    featuredHeading: 'PiÃ¨ces Ã  la une',
+    featuredHeading: 'Articles à la une',
     featuredSub: 'Quelques coups de cÅ“ur de lâ€™atelier.',
     bestsellersHeading: 'Meilleures ventes',
     newHeading: 'NouveautÃ©s',
@@ -920,4 +920,3 @@ const fr: TranslationSchema = {
 };
 
 export default fr;
-

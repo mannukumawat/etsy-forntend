@@ -144,9 +144,9 @@ export const productService = {
 
   getCollections(): Promise<{ featured: Product[]; bestsellers: Product[]; newArrivals: Product[] }> {
     const splitByFlags = (all: Product[]) => ({
-      featured: all.filter((p) => p.isFeatured).sort((a, b) => a.featuredRank - b.featuredRank).slice(0, 8),
-      bestsellers: all.filter((p) => p.isBestseller).slice(0, 4),
-      newArrivals: all.filter((p) => p.isNew).sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 4),
+      featured: all.filter((p) => p.isFeatured).sort((a, b) => a.featuredRank - b.featuredRank).slice(0, 12),
+      bestsellers: all.filter((p) => p.isBestseller).slice(0, 8),
+      newArrivals: all.filter((p) => p.isNew).sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 8),
     });
     const byIds = (all: Product[], ids: string[]) => ids.map((id) => all.find((p) => p.id === id)).filter((p): p is Product => !!p);
 

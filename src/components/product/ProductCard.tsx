@@ -16,6 +16,8 @@ export function ProductCard({ product, eager = false }: { product: Product; eage
   const swatchOption = product.options.find((o) => o.type === 'swatch');
   const [first, second] = product.images;
 
+  if (!first) return null;
+
   return (
     <article className="group relative flex flex-col">
       <Link to={`/product/${product.slug}`} className="block rounded-xl">

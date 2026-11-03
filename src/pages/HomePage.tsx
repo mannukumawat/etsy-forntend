@@ -1,13 +1,12 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowRight, MessageCircle, RotateCcw, Shield, Truck } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { ProductGrid, ProductGridSkeleton } from '@/components/product/ProductCard';
 import { ButtonLink } from '@/components/ui/Button';
 import { ErrorState } from '@/components/ui/Feedback';
 import { HomeHero } from '@/components/layout/HomeHero';
 import { NewsletterForm } from '@/components/layout/NewsletterForm';
-import { CATEGORIES } from '@/data/categories';
 import { useAsync } from '@/hooks/useAsync';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useLocalized } from '@/hooks/useLocale';
@@ -43,13 +42,6 @@ function Collection({ products, loading, error, onRetry, count }: { products?: P
   return <ProductGrid products={products} />;
 }
 
-const SERVICES = [
-  { Icon: Truck, label: 'Ships from Jaipur', sub: 'Carefully packed orders', href: '/shipping' },
-  { Icon: RotateCcw, label: 'Easy Returns', sub: '30-day return window', href: '/returns' },
-  { Icon: Shield, label: 'Secure Checkout', sub: 'Safe & encrypted', href: null },
-  { Icon: MessageCircle, label: 'Customer Support', sub: 'Here to help', href: '/contact' },
-] as const;
-
 export default function HomePage() {
   const { t } = useTranslation();
   const loc = useLocalized();
@@ -59,16 +51,17 @@ export default function HomePage() {
   const { data: apiCategories } = useAsync('catalog:categories', () => productService.listCategories());
   const live = homepage?.content;
 
-  const categories = apiCategories ?? CATEGORIES;
+  const categories = apiCategories ?? [];
 
   const storyImage = live?.story.image ?? null;
-  const storyCtaLabel = live ? loc(live.story.ctaLabel) : t('home.storyCta');
-  const storyCtaHref = live?.story.ctaHref || '/about';
-  const newsletterTitle = live ? loc(live.newsletter.title) : t('home.newsletterTitle');
-  const newsletterBody = live ? loc(live.newsletter.body) : t('home.newsletterBody');
+  const storyCtaLabel = loc(live?.story.ctaLabel);
+  const storyCtaHref = live?.story.ctaHref;
+  const newsletterTitle = loc(live?.newsletter.title);
+  const newsletterBody = loc(live?.newsletter.body);
 
-  // Jute rugs category for featured collection section
-  const juteCategory = categories.find((c) => c.slug === 'jute-rugs') ?? categories[1];
+  const featuredCategory = live?.featuredCategoryIds?.length
+    ? categories.find((c) => c.id === live.featuredCategoryIds[0])
+    : null;
 
   return (
     <>
@@ -118,14 +111,14 @@ export default function HomePage() {
         </Section>
       )}
 
-      {/* Featured Collection — editorial jute rugs */}
-      {juteCategory && (
+      {/* Featured Collection — admin-managed via featuredCategoryIds */}
+      {featuredCategory && (
         <section aria-labelledby="featured-col-title" className="container-site mt-16 lg:mt-24">
           <div className="overflow-hidden rounded-2xl bg-sand-100">
             <div className="grid lg:grid-cols-2">
               <div className="aspect-[4/3] overflow-hidden lg:aspect-auto">
                 <img
-                  src={juteCategory.banner ?? juteCategory.image.src}
+                  src={featuredCategory.banner || featuredCategory.image.src}
                   alt=""
                   width={800}
                   height={600}
@@ -134,17 +127,16 @@ export default function HomePage() {
                 />
               </div>
               <div className="flex flex-col justify-center px-8 py-10 lg:px-12 lg:py-16">
-                <p className="eyebrow">Featured Collection</p>
                 <h2 id="featured-col-title" className="mt-3 text-3xl lg:text-4xl">
-                  Natural Texture,
-                  <br />
-                  Everyday Warmth
+                  {loc(featuredCategory.name)}
                 </h2>
-                <p className="mt-4 max-w-sm text-base leading-relaxed text-ink-soft">
-                  Handwoven jute rugs bring organic texture and warmth to any room. Durable, reversible and made to last.
-                </p>
-                <ButtonLink to="/category/jute-rugs" variant="outline" className="mt-8 self-start">
-                  Shop Jute Rugs
+                {loc(featuredCategory.description) && (
+                  <p className="mt-4 max-w-sm text-base leading-relaxed text-ink-soft">
+                    {loc(featuredCategory.description)}
+                  </p>
+                )}
+                <ButtonLink to={`/category/${featuredCategory.slug}`} variant="outline" className="mt-8 self-start">
+                  {t('home.featuredCta', { name: loc(featuredCategory.name) })}
                 </ButtonLink>
               </div>
             </div>
@@ -165,23 +157,21 @@ export default function HomePage() {
           <div className="grid items-center gap-0 overflow-hidden rounded-2xl bg-sand-100 md:grid-cols-2">
             {storyImage && <img src={storyImage} alt="" width={1200} height={900} loading="lazy" className="h-full max-h-[460px] w-full object-cover" />}
             <div className="px-6 pb-10 md:py-12 md:pr-12 lg:pr-16">
-              <p className="eyebrow">{t('home.storyEyebrow')}</p>
-              <h2 id="story-title" className="mt-3 text-4xl leading-tight">
-                {live ? loc(live.story.title) : t('home.storyTitle')}
+              <h2 id="story-title" className="text-4xl leading-tight">
+                {loc(live.story.title)}
               </h2>
               <div className="prose-store mt-4 text-ink-soft">
-                {live ? (
-                  <p>{loc(live.story.body)}</p>
-                ) : (
-                  <>
-                    <p>{t('home.storyBody1')}</p>
-                    <p>{t('home.storyBody2')}</p>
-                  </>
-                )}
+                <p>{loc(live.story.body)}</p>
               </div>
-              <ButtonLink to={storyCtaHref} variant="outline" className="mt-6">
-                {storyCtaLabel}
-              </ButtonLink>
+              {storyCtaLabel && storyCtaHref && (
+                storyCtaHref.startsWith('/') ? (
+                  <ButtonLink to={storyCtaHref} variant="outline" className="mt-6">{storyCtaLabel}</ButtonLink>
+                ) : (
+                  <a href={storyCtaHref} target="_blank" rel="noopener noreferrer" className="mt-6 inline-flex min-h-11 items-center justify-center rounded-full border border-ink/20 px-6 py-3 text-sm font-semibold text-ink transition-colors hover:border-ink/30 hover:bg-ink/5">
+                    {storyCtaLabel}
+                  </a>
+                )
+              )}
             </div>
           </div>
         </section>
@@ -193,29 +183,6 @@ export default function HomePage() {
           <Collection products={data?.bestsellers} loading={isLoading} error={isError} onRetry={reload} count={4} />
         </Section>
       )}
-
-      {/* Services row */}
-      <section aria-label="Shopping benefits" className="container-site mt-14 border-t border-sand-200 pt-12 lg:mt-20">
-        <ul className="grid grid-cols-2 gap-6 sm:grid-cols-4">
-          {SERVICES.map(({ Icon, label, sub, href }) => (
-            <li key={label} className="flex flex-col items-center gap-2 text-center">
-              {href ? (
-                <Link to={href} className="group flex flex-col items-center gap-2">
-                  <Icon className="h-6 w-6 text-brand-600" aria-hidden />
-                  <span className="text-sm font-semibold text-ink group-hover:underline">{label}</span>
-                  <span className="text-xs text-ink-muted">{sub}</span>
-                </Link>
-              ) : (
-                <>
-                  <Icon className="h-6 w-6 text-brand-600" aria-hidden />
-                  <span className="text-sm font-semibold text-ink">{label}</span>
-                  <span className="text-xs text-ink-muted">{sub}</span>
-                </>
-              )}
-            </li>
-          ))}
-        </ul>
-      </section>
 
       {/* Newsletter */}
       {live && (

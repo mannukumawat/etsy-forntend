@@ -7,11 +7,11 @@ React + Vite customer storefront. EN/Hindi, USD/INR/EUR/GBP (illustrative fixed 
 
 ## Navigation (new)
 - Header's secondary row now starts with a **Categories** button opening a scrollable dropdown of every category (was: flat inline links) — `src/components/layout/CategoriesMenu.tsx`.
-- Same row also renders the admin-managed **secondary nav links** (Gifts, Top Gifts, Wedding Guide, etc.) fetched live from `/api/nav-links`.
-- Mobile nav (`MobileMenu.tsx`) still lists categories as a plain scrollable list in the slide-out drawer — unchanged.
+- Same row also renders published collections marked **Show in storefront navigation** in admin, followed by custom secondary links from `/api/nav-links`. Collections keep their admin display order and open `/collection/:slug`.
+- Mobile nav (`MobileMenu.tsx`) includes the same selected collections and custom links, followed by the live category list.
 
 ## Collections (new)
-`/collection/:slug` → `CollectionPage.tsx`, fetches `/api/collections/:slug`. Renders: coloured hero (+ optional image) with title/subtitle, circular links row (to categories/other collections/URLs), optional description, then each named product section with its own "Show more" (client-side, 8 at a time). A collection with no circles and one section (e.g. Top Gifts) renders as a plain curated listing; one with circles and several sections (e.g. Wedding Guide) renders as a full landing page — same component either way.
+`/collection/:slug` → `CollectionPage.tsx`, fetches `/api/collections/:slug`. Admin can opt a published collection into storefront navigation; products and ordering are managed in its sections. Renders: coloured hero (+ optional image) with title/subtitle, circular links row (to categories/other collections/URLs), optional description, then each named product section with its own "Show more" (client-side, 8 at a time). A collection with no circles and one section (e.g. Top Gifts) renders as a plain curated listing; one with circles and several sections (e.g. Wedding Guide) renders as a full landing page — same component either way.
 
 ## Category page
 `/category/:slug` → `ShopPage.tsx`: heading, banner, filters, sort, pagination, real products from the live catalog API. The category's own name/description/banner still come from the bundled `data/categories.ts`, not the live Category API — an admin rename there won't show here (products listed under it are live either way). No subcategories exist (flat 4-category taxonomy).

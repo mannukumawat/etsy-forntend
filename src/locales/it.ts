@@ -167,6 +167,16 @@ const it: TranslationSchema = {
     },
     newsletterTitle: 'Lettere dal laboratorio',
     newsletterBody: 'Nuove collezioni, retroscena e accesso anticipato ai riassortimenti. Niente spam.',
+    featuredEyebrow: 'Collezione in evidenza',
+    featuredCta: 'Scopri {{name}}',
+    serviceShipping: 'Spedizione da Jaipur',
+    serviceShippingSub: 'Ordini imballati con cura',
+    serviceReturns: 'Resi facili',
+    serviceReturnsSub: 'Reso entro 30 giorni',
+    serviceSecure: 'Pagamento sicuro',
+    serviceSecureSub: 'Sicuro e crittografato',
+    serviceSupport: 'Assistenza clienti',
+    serviceSupportSub: 'Siamo qui per aiutarti',
   },
   shop: {
     title: 'Tutti i prodotti',
@@ -910,4 +920,3 @@ const it: TranslationSchema = {
 };
 
 export default it;
-

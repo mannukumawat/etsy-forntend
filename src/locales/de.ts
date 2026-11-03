@@ -167,6 +167,16 @@ const de: TranslationSchema = {
     },
     newsletterTitle: 'Post aus dem Atelier',
     newsletterBody: 'Neue Kollektionen, Blicke hinter die Kulissen und Vorabzugang zu Nachlieferungen. Kein Spam.',
+    featuredEyebrow: 'Ausgewählte Kollektion',
+    featuredCta: '{{name}} ansehen',
+    serviceShipping: 'Versand aus Jaipur',
+    serviceShippingSub: 'Sorgfältig verpackte Bestellungen',
+    serviceReturns: 'Einfache Rückgabe',
+    serviceReturnsSub: '30 Tage Rückgaberecht',
+    serviceSecure: 'Sicherer Checkout',
+    serviceSecureSub: 'Sicher und verschlüsselt',
+    serviceSupport: 'Kundenservice',
+    serviceSupportSub: 'Wir helfen gerne',
   },
   shop: {
     title: 'Alle Produkte',
@@ -910,4 +920,3 @@ const de: TranslationSchema = {
 };
 
 export default de;
-

@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ChevronRight, Heart, LogIn, Package, User } from 'lucide-react';
-import { CATEGORIES } from '@/data/categories';
+import { fetchCollections, fetchNavLinks } from '@/api';
+import { useAsync } from '@/hooks/useAsync';
 import { useLocalized } from '@/hooks/useLocale';
+import { productService } from '@/services/productService';
 import { useAuth } from '@/store/session';
 import { useSiteSettings } from '@/store/siteSettings';
 import { useWishlist } from '@/store/wishlist';
@@ -15,11 +17,38 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
   const user = useAuth((s) => s.user);
   const wishCount = useWishlist((s) => s.items.length);
   const storeName = useSiteSettings((s) => s.store.name);
+  const { data: navLinks } = useAsync(open ? 'nav-links' : null, () => fetchNavLinks());
+  const { data: collections } = useAsync(open ? 'collections:nav' : null, () => fetchCollections());
+  const { data: categories } = useAsync(open ? 'catalog:categories' : null, () => productService.listCategories());
+  const navCollections = collections?.filter((collection) => collection.showInNavigation) ?? [];
+  const collectionHrefs = new Set(navCollections.map((collection) => `/collection/${collection.slug}`));
+  const customLinks = navLinks?.filter((link) => !collectionHrefs.has(link.href)) ?? [];
 
   const item = 'flex items-center justify-between rounded-lg px-2 py-3 text-[15px] font-medium text-ink hover:bg-sand-100';
 
   return (
     <Drawer open={open} onClose={onClose} title={t('a11y.menu')} side="left">
+      {(navCollections.length > 0 || customLinks.length > 0) && (
+        <div className="scrollbar-none -mx-2 mb-4 flex gap-2 overflow-x-auto px-2">
+          {navCollections.map((collection) => (
+            <Link key={collection.slug} to={`/collection/${collection.slug}`} onClick={onClose} className="shrink-0 rounded-full bg-sand-100 px-4 py-2 text-sm font-semibold text-ink hover:bg-sand-200">
+              {loc(collection.title)}
+            </Link>
+          ))}
+          {customLinks.map((link) => (
+            link.href.startsWith('/') ? (
+              <Link key={link.id} to={link.href} onClick={onClose} className="shrink-0 rounded-full bg-sand-100 px-4 py-2 text-sm font-semibold text-ink hover:bg-sand-200">
+                {loc(link.label)}
+              </Link>
+            ) : (
+              <a key={link.id} href={link.href} target="_blank" rel="noopener noreferrer" onClick={onClose} className="shrink-0 rounded-full bg-sand-100 px-4 py-2 text-sm font-semibold text-ink hover:bg-sand-200">
+                {loc(link.label)}
+              </a>
+            )
+          ))}
+        </div>
+      )}
+
       <nav aria-label={t('a11y.primaryNav')}>
         <ul className="divide-y divide-sand-200/70">
           <li>
@@ -27,7 +56,7 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
               {t('nav.newIn')} <ChevronRight className="h-4 w-4 text-ink-muted" aria-hidden />
             </Link>
           </li>
-          {CATEGORIES.map((c) => (
+          {(categories ?? []).map((c) => (
             <li key={c.slug}>
               <Link to={`/category/${c.slug}`} className={item} onClick={onClose}>
                 <span className="flex items-center gap-3">

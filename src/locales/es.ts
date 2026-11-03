@@ -167,6 +167,16 @@ const es: TranslationSchema = {
     },
     newsletterTitle: 'Cartas desde el taller',
     newsletterBody: 'Nuevas colecciones, notas entre bastidores y acceso anticipado a las reposiciones. Sin spam.',
+    featuredEyebrow: 'Colección destacada',
+    featuredCta: 'Ver {{name}}',
+    serviceShipping: 'Envíos desde Jaipur',
+    serviceShippingSub: 'Pedidos embalados con cuidado',
+    serviceReturns: 'Devoluciones fáciles',
+    serviceReturnsSub: 'Plazo de devolución de 30 días',
+    serviceSecure: 'Pago seguro',
+    serviceSecureSub: 'Protegido y cifrado',
+    serviceSupport: 'Atención al cliente',
+    serviceSupportSub: 'Estamos para ayudarte',
   },
   shop: {
     title: 'Ver todo',
@@ -910,4 +920,3 @@ const es: TranslationSchema = {
 };
 
 export default es;
-

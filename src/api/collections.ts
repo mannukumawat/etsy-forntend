@@ -31,6 +31,7 @@ export interface CollectionSummary {
   slug: string;
   title: Localized;
   image: string | null;
+  showInNavigation: boolean;
 }
 
 /** Published collections (title + cover photo) for the Categories menu. */

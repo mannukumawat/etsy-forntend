@@ -4,20 +4,21 @@ import { useTranslation } from 'react-i18next';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/utils/cn';
 
-export function Breadcrumbs({ items }: { items: Array<{ label: string; to?: string }> }) {
+export function Breadcrumbs({ items, tone = 'default' }: { items: Array<{ label: string; to?: string }>; tone?: 'default' | 'light' }) {
   const { t } = useTranslation();
+  const light = tone === 'light';
   return (
-    <nav aria-label={t('a11y.breadcrumb')} className="text-sm text-ink-muted">
+    <nav aria-label={t('a11y.breadcrumb')} className={light ? 'text-sm text-white/75' : 'text-sm text-ink-muted'}>
       <ol className="flex flex-wrap items-center gap-1.5">
         {items.map((item, i) => (
           <Fragment key={i}>
             <li className="min-w-0">
               {item.to ? (
-                <Link to={item.to} className="hover:text-ink hover:underline">
+                <Link to={item.to} className={light ? 'hover:text-white hover:underline' : 'hover:text-ink hover:underline'}>
                   {item.label}
                 </Link>
               ) : (
-                <span aria-current="page" className="block truncate text-ink">
+                <span aria-current="page" className={light ? 'block truncate text-white' : 'block truncate text-ink'}>
                   {item.label}
                 </span>
               )}

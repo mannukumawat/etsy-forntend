@@ -1,14 +1,14 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, type ReactNode } from 'react';
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { ButtonLink } from '@/components/ui/Button';
 import { cn } from '@/utils/cn';
 
 export interface HeroSlide {
   image: string;
-  title: string;
+  title?: string;
   subtitle?: string;
-  ctaLabel: string;
-  ctaHref: string;
+  ctaLabel?: string;
+  ctaHref?: string;
   secondaryLabel?: string;
   secondaryHref?: string;
 }
@@ -16,10 +16,14 @@ export interface HeroSlide {
 interface HeroSliderProps {
   slides: HeroSlide[];
   autoplayMs?: number;
+  compact?: boolean;
+  /** Fixed content shown above every slide (e.g. page title). */
+  overlay?: ReactNode;
 }
 
-export function HeroSlider({ slides, autoplayMs = 5000 }: HeroSliderProps) {
+export function HeroSlider({ slides, autoplayMs = 5000, compact = false, overlay }: HeroSliderProps) {
   const [current, setCurrent] = useState(0);
+  if (current >= slides.length && slides.length > 0) setCurrent(0);
   const [prev3d, setPrev3d] = useState<number | null>(null);
   const [dir, setDir] = useState<'next' | 'prev'>('next');
   const [paused, setPaused] = useState(false);
@@ -118,7 +122,7 @@ export function HeroSlider({ slides, autoplayMs = 5000 }: HeroSliderProps) {
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
       >
-        <div className="relative min-h-[460px] md:min-h-[460px] lg:min-h-[540px]">
+        <div className={compact ? 'relative min-h-[320px] lg:min-h-[400px]' : 'relative min-h-[460px] lg:min-h-[540px]'}>
           {slides.map((slide, i) => {
             const isActive = i === current;
             const isExiting = i === prev3d;
@@ -147,16 +151,18 @@ export function HeroSlider({ slides, autoplayMs = 5000 }: HeroSliderProps) {
                   className="absolute inset-0 h-full w-full object-cover object-[78%_center] lg:object-right"
                 />
                 <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/30 to-transparent md:bg-gradient-to-r md:from-black/60 md:via-black/30 md:to-transparent" aria-hidden />
-                {isActive && (
+                {isActive && slide.title && (
                   <div className="relative flex h-full flex-col justify-center px-6 py-10 sm:px-12 lg:px-20">
-                    <h2 className="hero-text-in max-w-xl font-serif text-4xl font-semibold leading-[1.1] text-white drop-shadow-sm lg:text-6xl">{slide.title}</h2>
+                    <h2 className={cn('hero-text-in max-w-xl font-serif font-semibold leading-[1.1] text-white drop-shadow-sm line-clamp-3', compact ? 'text-3xl lg:text-4xl' : 'text-4xl lg:text-6xl')}>{slide.title}</h2>
                     {slide.subtitle && (
-                      <p className="hero-text-in-delay mt-4 max-w-md text-base text-white/85 lg:text-lg">{slide.subtitle}</p>
+                      <p className="hero-text-in-delay mt-4 max-w-md text-base text-white/85 line-clamp-2 lg:text-lg">{slide.subtitle}</p>
                     )}
                     <div className="hero-text-in-btn mt-7 flex flex-wrap gap-3">
-                      <ButtonLink to={slide.ctaHref} size="lg" className="!bg-white !text-gray-900 hover:!bg-sand-100 shadow-md font-semibold">
-                        {slide.ctaLabel} <ArrowRight className="h-4 w-4" aria-hidden />
-                      </ButtonLink>
+                      {slide.ctaHref && slide.ctaLabel && (
+                        <ButtonLink to={slide.ctaHref} size="lg" className="!bg-white !text-gray-900 hover:!bg-sand-100 shadow-md font-semibold">
+                          {slide.ctaLabel} <ArrowRight className="h-4 w-4" aria-hidden />
+                        </ButtonLink>
+                      )}
                       {slide.secondaryLabel && slide.secondaryHref && (
                         <ButtonLink to={slide.secondaryHref} size="lg" variant="ghost" className="border border-white/50 text-white hover:bg-white/15 backdrop-blur">
                           {slide.secondaryLabel}
@@ -169,6 +175,12 @@ export function HeroSlider({ slides, autoplayMs = 5000 }: HeroSliderProps) {
             );
           })}
         </div>
+
+        {overlay && (
+          <div className="pointer-events-none absolute inset-y-0 left-0 z-20 flex max-w-2xl flex-col justify-center pl-16 pr-6 lg:pl-20 [&_a]:pointer-events-auto">
+            <div className="hero-text-in">{overlay}</div>
+          </div>
+        )}
 
         {slides.length > 1 && (
           <>

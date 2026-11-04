@@ -2,8 +2,9 @@ import { useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { SearchX, SlidersHorizontal, X } from 'lucide-react';
+import { HeroSlider, type HeroSlide } from '@/components/layout/HeroSlider';
 import { ProductGrid, ProductGridSkeleton } from '@/components/product/ProductCard';
-import { FilterPanel } from '@/components/shop/FilterPanel';
+import { AvailabilityOptions, CategoryOptions, FilterDropdown, FilterPanel, PriceForm } from '@/components/shop/FilterPanel';
 import { Button } from '@/components/ui/Button';
 import { Drawer } from '@/components/ui/Dialog';
 import { EmptyState, ErrorState } from '@/components/ui/Feedback';
@@ -93,51 +94,91 @@ export default function ShopPage() {
   const clearAll = () => navigate(shopUrl({ q: '', categories: [], availability: [], sort: state.sort, page: 1 }), { preventScrollReset: true });
   const filterCount = activeFilterCount(state, true);
 
+  const onToggleCategory = (c: CategorySlug) => update({ categories: toggle(state.categories, c) });
+  const onPrice = (min?: number, max?: number) => update({ min, max });
+  const onToggleAvailability = (a: AvailabilityFilter) => update({ availability: toggle(state.availability, a) });
+
   const panel = (
     <FilterPanel
       state={state}
       facets={data?.facets}
       currency={currency}
-      onToggleCategory={(c: CategorySlug) => update({ categories: toggle(state.categories, c) })}
-      onPrice={(min, max) => update({ min, max })}
-      onRating={(rating) => update({ rating })}
-      onToggleAvailability={(a: AvailabilityFilter) => update({ availability: toggle(state.availability, a) })}
+      onToggleCategory={onToggleCategory}
+      onPrice={onPrice}
+      onToggleAvailability={onToggleAvailability}
+      hideCategory={!!activeGroup}
     />
   );
 
   const total = data?.total ?? 0;
 
+  const contextSlides: HeroSlide[] =
+    (activeGroup || category) && data
+      ? data.items
+          .filter((p) => p.images[0]?.src)
+          .slice(0, 5)
+          .map((p) => ({ image: p.images[0].src }))
+      : [];
+
+  const crumbs = [
+    { label: t('common.home'), to: '/' },
+    ...(category || activeGroup ? [{ label: t('nav.shop'), to: '/shop' }] : []),
+    { label: category ? loc(category.name) : activeGroup ? activeGroup.nameEn : t('nav.shop') },
+  ];
+  const description = category ? loc(category.description) : activeGroup ? '' : t('shop.subtitle');
+
   return (
     <div>
-      {/* Header / banner */}
-      <div className="container-site pt-4 lg:pt-6">
-        <div className="relative overflow-hidden rounded-2xl bg-sand-100">
-          {category ? (
-            <img src={category.banner} alt="" width={1600} height={420} className="absolute inset-0 h-full w-full object-cover object-right" />
-          ) : null}
-          <div className="absolute inset-0 bg-gradient-to-r from-ivory-50/95 via-ivory-50/70 to-transparent" aria-hidden />
-          <div className="relative px-6 py-8 sm:px-10 lg:py-12">
-            <Breadcrumbs items={[{ label: t('common.home'), to: '/' }, ...(category ? [{ label: t('nav.shop'), to: '/shop' }] : []), { label: category ? loc(category.name) : t('nav.shop') }]} />
-            <h1 className="mt-3 text-4xl lg:text-5xl">{title}</h1>
-            <p className="mt-2 max-w-md text-ink-soft">{category ? loc(category.description) : activeGroup ? '' : t('shop.subtitle')}</p>
-          </div>
+      {contextSlides.length > 0 ? (
+        <div className="container-site pt-3">
+          <HeroSlider
+            key={state.group ?? slug}
+            slides={contextSlides}
+            autoplayMs={4500}
+            compact
+            overlay={
+              <>
+                <Breadcrumbs items={crumbs} tone="light" />
+                <h1 className="mt-3 font-serif text-4xl font-semibold text-white drop-shadow-sm lg:text-6xl">{title}</h1>
+                {description && <p className="mt-3 max-w-md text-base text-white/85 line-clamp-2">{description}</p>}
+              </>
+            }
+          />
         </div>
-      </div>
+      ) : (
+        <div className="container-site pt-5 lg:pt-6">
+          <Breadcrumbs items={crumbs} />
+          <h1 className="mt-2 text-3xl lg:text-4xl">{title}</h1>
+          {description && <p className="mt-1.5 max-w-2xl text-sm text-ink-soft">{description}</p>}
+        </div>
+      )}
 
-      <div className="container-site mt-8 grid gap-8 lg:grid-cols-[240px_1fr] lg:gap-10">
-        <aside className="hidden lg:block" aria-label={t('shop.filters')}>
-          {panel}
-        </aside>
-
+      <div className="container-site mt-8">
         <section aria-labelledby="results-heading" className="min-w-0">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 id="results-heading" className="font-sans text-sm font-medium text-ink-soft" aria-live="polite">
               {data ? t('shop.results', { count: total }) : t('common.loading')}
             </h2>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <Button variant="outline" size="sm" className="lg:hidden" onClick={() => setFiltersOpen(true)} icon={<SlidersHorizontal className="h-4 w-4" aria-hidden />} aria-haspopup="dialog">
                 {filterCount ? t('shop.filtersCount', { count: filterCount }) : t('shop.filters')}
               </Button>
+              <div className="hidden items-center gap-2 lg:flex">
+                {!activeGroup && (
+                  <FilterDropdown label={t('shop.category')} activeCount={state.categories.length}>
+                    <div className="max-h-72 overflow-y-auto">
+                      <CategoryOptions state={state} facets={data?.facets} onToggleCategory={onToggleCategory} />
+                    </div>
+                  </FilterDropdown>
+                )}
+                <FilterDropdown label={t('shop.price', { currency })} activeCount={state.min !== undefined || state.max !== undefined ? 1 : 0}>
+                  {(close) => <PriceForm state={state} currency={currency} onPrice={onPrice} onDone={close} />}
+                </FilterDropdown>
+                <FilterDropdown label={t('shop.availability')} activeCount={state.availability.length}>
+                  <AvailabilityOptions state={state} facets={data?.facets} onToggleAvailability={onToggleAvailability} />
+                </FilterDropdown>
+                <span className="mx-1 h-6 w-px bg-sand-200" aria-hidden />
+              </div>
               <SelectField
                 label={t('shop.sortBy')}
                 value={state.sort}

@@ -155,6 +155,8 @@ const it: TranslationSchema = {
     featuredSub: 'Alcuni dei nostri preferiti dagli scaffali del laboratorio.',
     bestsellersHeading: 'PiÃ¹ venduti',
     newHeading: 'Nuovi arrivi',
+    itemsHeading: 'Articoli',
+    transferHeading: 'Trasferimento',
     storyEyebrow: 'La nostra storia',
     storyTitle: 'Fatto lentamente, a mano, in un piccolo laboratorio',
     storyBody1: 'Your Store Ã¨ un laboratorio artigianale gestito da una sola persona. Ogni tazza Ã¨ modellata al tornio, ogni borsa Ã¨ cucita e ogni ciondolo Ã¨ tagliato a mano â€” in piccoli lotti, cosÃ¬ niente va sprecato.',

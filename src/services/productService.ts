@@ -4,7 +4,8 @@ import { RATE_SNAPSHOT } from '@/data/currencies';
 import type { AvailabilityFilter, Category, CategorySlug, Product, ProductListResult, ProductQuery } from '@/types';
 import { convertFromBase } from '@/utils/money';
 import { effectivePrice, totalStock } from '@/utils/variants';
-import { fetchCategories, fetchProductBySlug, fetchProducts, fetchProductsByIds } from '@/api';
+import { fetchCategories, fetchItemGroups, fetchProductBySlug, fetchProducts, fetchProductsByIds } from '@/api';
+import type { PublicItemGroup } from '@/api/itemGroups';
 import { contentService } from './contentService';
 
 // Products and categories come from the backend API. Filtering, sorting and pagination run
@@ -69,6 +70,7 @@ function applyFilters(products: Product[], query: ProductQuery, skip?: Dimension
       if (query.maxPrice !== undefined && price > query.maxPrice) return false;
     }
     if (query.minRating && p.rating < query.minRating) return false;
+    if (query.onSale && !p.variants.some((v) => v.salePrice !== undefined)) return false;
     if (skip !== 'availability' && query.availability?.length && query.availability.length < 2) {
       const inStock = totalStock(p) > 0;
       if (query.availability[0] === 'in_stock' && !inStock) return false;
@@ -120,8 +122,15 @@ export function queryProducts(query: ProductQuery, source: Product[]): ProductLi
 }
 
 export const productService = {
-  list(query: ProductQuery): Promise<ProductListResult> {
-    return apiProducts().then((items) => queryProducts(query, items));
+  async list(query: ProductQuery): Promise<ProductListResult> {
+    let items = await apiProducts();
+    if (query.itemGroupSlug) {
+      const groups = await fetchItemGroups();
+      const group = groups.find((g) => g.slug === query.itemGroupSlug);
+      if (group) items = items.filter((p) => p.itemGroupId === group.id);
+      else items = [];
+    }
+    return queryProducts(query, items);
   },
 
   getBySlug(slug: string): Promise<Product> {
@@ -142,21 +151,27 @@ export const productService = {
     return apiProducts().then(pick);
   },
 
-  getCollections(): Promise<{ featured: Product[]; bestsellers: Product[]; newArrivals: Product[] }> {
+  getCollections(): Promise<{ featured: Product[]; bestsellers: Product[]; newArrivals: Product[]; items: Product[]; transfer: Product[] }> {
     const splitByFlags = (all: Product[]) => ({
       featured: all.filter((p) => p.isFeatured).sort((a, b) => a.featuredRank - b.featuredRank).slice(0, 12),
       bestsellers: all.filter((p) => p.isBestseller).slice(0, 8),
       newArrivals: all.filter((p) => p.isNew).sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 8),
+      items: [],
+      transfer: [],
     });
     const byIds = (all: Product[], ids: string[]) => ids.map((id) => all.find((p) => p.id === id)).filter((p): p is Product => !!p);
 
     return Promise.all([apiProducts(), contentService.getHomepage()]).then(([all, homepage]) => {
       const content = homepage.content;
       if (!content) return splitByFlags(all);
+      const flags = splitByFlags(all);
+      const pick = (ids: string[], fallback: Product[]) => (ids.length ? byIds(all, ids) : fallback);
       return {
-        featured: byIds(all, content.featuredProductIds),
-        bestsellers: byIds(all, content.bestsellerProductIds),
-        newArrivals: byIds(all, content.newArrivalProductIds),
+        featured: pick(content.featuredProductIds, flags.featured),
+        bestsellers: pick(content.bestsellerProductIds, flags.bestsellers),
+        newArrivals: pick(content.newArrivalProductIds, flags.newArrivals),
+        items: byIds(all, content.itemsProductIds ?? []),
+        transfer: byIds(all, content.transferProductIds ?? []),
       };
     });
   },
@@ -168,5 +183,45 @@ export const productService = {
 
   listCategories(): Promise<Category[]> {
     return fetchCategories();
+  },
+
+  /** Categories with live product counts — counts computed from cached catalog. */
+  async getCategoriesWithCounts(): Promise<Array<Category & { count: number; isOnSale?: boolean }>> {
+    const [cats, all] = await Promise.all([fetchCategories(), apiProducts()]);
+    const onSaleCount = all.filter((p) => p.variants.some((v) => v.salePrice !== undefined)).length;
+    const catRows = cats.map((c) => ({ ...c, count: all.filter((p) => p.categoryId === c.id).length }));
+    if (onSaleCount > 0) {
+      return [
+        { id: '__on_sale__', slug: '__on_sale__', name: { en: 'On sale' }, count: onSaleCount, isOnSale: true } as Category & { count: number; isOnSale: boolean },
+        ...catRows,
+      ];
+    }
+    return catRows;
+  },
+
+  /** Products for a nav-link href: /category/:slug → category products, other hrefs → empty. */
+  async getNavLinkProducts(href: string, limit = 8): Promise<Product[]> {
+    const catMatch = href.match(/^\/category\/([^/?#]+)/);
+    if (!catMatch) return [];
+    const slug = catMatch[1];
+    const cat = CATEGORY_BY_SLUG[slug as CategorySlug];
+    const catId = cat?.id ?? slug;
+    const all = await apiProducts();
+    return all.filter((p) => p.categoryId === catId).slice(0, limit);
+  },
+
+  /** Active item groups with their products (from product.itemGroupId). */
+  async getItemGroupsWithProducts(limit = 8): Promise<Array<PublicItemGroup & { products: Product[] }>> {
+    const [groups, all] = await Promise.all([fetchItemGroups(), apiProducts()]);
+    return groups
+      .filter((g) => g.isActive)
+      .map((g) => ({ ...g, products: all.filter((p) => p.itemGroupId === g.id).slice(0, limit) }))
+      .filter((g) => g.products.length > 0);
+  },
+
+  /** Products for a specific nav link by its id (from product.navLinkId). */
+  async getNavLinkProductsById(navLinkId: string, limit = 8): Promise<Product[]> {
+    const all = await apiProducts();
+    return all.filter((p) => p.navLinkId === navLinkId).slice(0, limit);
   },
 };

@@ -6,6 +6,7 @@ export * from './categories';
 export * from './content';
 export * from './checkout';
 export * from './nav';
+export * from './itemGroups';
 export * from './collections';
 export { setUnauthorizedHandler } from './client';
 export * as customerAuthApi from './customerAuth';

@@ -155,6 +155,8 @@ const fr: TranslationSchema = {
     featuredSub: 'Quelques coups de cÅ“ur de lâ€™atelier.',
     bestsellersHeading: 'Meilleures ventes',
     newHeading: 'NouveautÃ©s',
+    itemsHeading: 'Articles',
+    transferHeading: 'Transfert',
     storyEyebrow: 'Notre histoire',
     storyTitle: 'Fait lentement, Ã  la main, dans un petit atelier',
     storyBody1: 'Your Store est un atelier tenu par une seule personne. Chaque tasse est tournÃ©e, chaque sac est cousu et chaque pendentif est dÃ©coupÃ© Ã  la main â€” en petites sÃ©ries, pour ne rien gaspiller.',

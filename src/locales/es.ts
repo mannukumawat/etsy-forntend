@@ -155,6 +155,8 @@ const es: TranslationSchema = {
     featuredSub: 'Algunas de nuestras favoritas del taller.',
     bestsellersHeading: 'MÃ¡s vendidos',
     newHeading: 'Novedades',
+    itemsHeading: 'Artículos',
+    transferHeading: 'Transferencia',
     storyEyebrow: 'Nuestra historia',
     storyTitle: 'Hecho despacio, a mano, en un pequeÃ±o taller',
     storyBody1: 'Your Store es un taller de una sola persona. Cada taza se modela en el torno, cada bolso se cose y cada colgante se corta a mano, en pequeÃ±os lotes, para no desperdiciar nada.',

@@ -12,6 +12,8 @@ export interface ShopState {
   max?: number;
   rating?: number;
   availability: AvailabilityFilter[];
+  onSale?: boolean;
+  group?: string;
   sort: SortOption;
   page: number;
 }
@@ -37,6 +39,8 @@ export function parseShopState(params: URLSearchParams, slug?: string): ShopStat
     max: num(params.get('max')),
     rating: rating && rating >= 1 && rating <= 5 ? rating : undefined,
     availability: (params.get('avail') ?? '').split(',').filter((a): a is AvailabilityFilter => AVAIL.includes(a as AvailabilityFilter)),
+    onSale: params.get('onSale') === 'true' ? true : undefined,
+    group: params.get('group') ?? undefined,
     sort: SORTS.includes(sort) ? sort : 'featured',
     page: Math.max(1, Math.floor(num(params.get('page')) ?? 1)),
   };
@@ -52,6 +56,8 @@ export function shopUrl(state: ShopState): string {
   if (state.max !== undefined) params.set('max', String(state.max));
   if (state.rating) params.set('rating', String(state.rating));
   if (state.availability.length) params.set('avail', state.availability.join(','));
+  if (state.onSale) params.set('onSale', 'true');
+  if (state.group) params.set('group', state.group);
   if (state.sort !== 'featured') params.set('sort', state.sort);
   if (state.page > 1) params.set('page', String(state.page));
   const qs = params.toString();
@@ -63,6 +69,7 @@ export function activeFilterCount(state: ShopState, includeCategories: boolean):
     (includeCategories ? state.categories.length : 0) +
     (state.min !== undefined || state.max !== undefined ? 1 : 0) +
     (state.rating ? 1 : 0) +
-    state.availability.length
+    state.availability.length +
+    (state.onSale ? 1 : 0)
   );
 }

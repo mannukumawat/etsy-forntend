@@ -155,6 +155,8 @@ const de: TranslationSchema = {
     featuredSub: 'Einige LieblingsstÃ¼cke aus unserem Atelier.',
     bestsellersHeading: 'Bestseller',
     newHeading: 'Neuheiten',
+    itemsHeading: 'Artikel',
+    transferHeading: 'Transfer',
     storyEyebrow: 'Unsere Geschichte',
     storyTitle: 'Langsam und von Hand gefertigt â€“ in einem kleinen Atelier',
     storyBody1: 'Your Store ist ein Ein-Personen-Atelier. Jeder Becher wird auf der TÃ¶pferscheibe gedreht, jede Tasche genÃ¤ht und jeder AnhÃ¤nger von Hand gesÃ¤gt â€“ in kleinen Serien, damit nichts verschwendet wird.',

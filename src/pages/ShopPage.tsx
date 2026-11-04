@@ -13,6 +13,7 @@ import { CATEGORY_BY_SLUG, isCategorySlug } from '@/data/categories';
 import { useAsync } from '@/hooks/useAsync';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useLanguage, useLocalized } from '@/hooks/useLocale';
+import { fetchItemGroups } from '@/api';
 import { productService } from '@/services/productService';
 import { usePreferences } from '@/store/preferences';
 import type { AvailabilityFilter, CategorySlug, SortOption } from '@/types';
@@ -33,6 +34,9 @@ export default function ShopPage() {
   const state = useMemo(() => parseShopState(params, slug), [params, slug]);
   const category = slug && isCategorySlug(slug) ? CATEGORY_BY_SLUG[slug] : undefined;
 
+  const { data: itemGroups } = useAsync('nav:item-groups', () => fetchItemGroups());
+  const activeGroup = state.group ? itemGroups?.find((g) => g.slug === state.group) : undefined;
+
   const queryKey = `catalog:list:${currency}:${JSON.stringify(state)}`;
   const { data, isLoading, isError, reload } = useAsync(
     slug && !category ? null : queryKey,
@@ -45,13 +49,21 @@ export default function ShopPage() {
         currency,
         minRating: state.rating,
         availability: state.availability,
+        onSale: state.onSale,
+        itemGroupSlug: state.group,
         sort: state.sort,
         page: state.page,
       }),
     { keepPrevious: true },
   );
 
-  const title = state.q ? t('shop.searchTitle', { q: state.q }) : category ? loc(category.name) : t('shop.title');
+  const title = state.q
+    ? t('shop.searchTitle', { q: state.q })
+    : activeGroup
+      ? activeGroup.nameEn
+      : category
+        ? loc(category.name)
+        : t('shop.title');
   useDocumentTitle(title);
 
   if (slug && !category) return <NotFoundPage />;
@@ -76,6 +88,7 @@ export default function ShopPage() {
   }
   if (state.rating) chips.push({ key: 'rating', label: t('shop.ratingChip', { rating: state.rating }), onRemove: () => update({ rating: undefined }) });
   state.availability.forEach((a) => chips.push({ key: a, label: t(a === 'in_stock' ? 'shop.inStock' : 'shop.outOfStock'), onRemove: () => update({ availability: state.availability.filter((x) => x !== a) }) }));
+  if (state.onSale) chips.push({ key: 'onSale', label: 'On sale', onRemove: () => update({ onSale: undefined }) });
 
   const clearAll = () => navigate(shopUrl({ q: '', categories: [], availability: [], sort: state.sort, page: 1 }), { preventScrollReset: true });
   const filterCount = activeFilterCount(state, true);
@@ -106,7 +119,7 @@ export default function ShopPage() {
           <div className="relative px-6 py-8 sm:px-10 lg:py-12">
             <Breadcrumbs items={[{ label: t('common.home'), to: '/' }, ...(category ? [{ label: t('nav.shop'), to: '/shop' }] : []), { label: category ? loc(category.name) : t('nav.shop') }]} />
             <h1 className="mt-3 text-4xl lg:text-5xl">{title}</h1>
-            <p className="mt-2 max-w-md text-ink-soft">{category ? loc(category.description) : t('shop.subtitle')}</p>
+            <p className="mt-2 max-w-md text-ink-soft">{category ? loc(category.description) : activeGroup ? '' : t('shop.subtitle')}</p>
           </div>
         </div>
       </div>

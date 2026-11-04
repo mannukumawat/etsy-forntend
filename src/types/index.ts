@@ -120,6 +120,8 @@ export interface Product {
   shortDescription: Localized;
   description: Localized;
   categoryId: CategorySlug;
+  itemGroupId?: string | null;
+  navLinkId?: string | null;
   /** Lowest base price across variants (minor units, USD). */
   price: Minor;
   salePrice?: Minor;
@@ -159,6 +161,8 @@ export interface ProductQuery {
   currency: CurrencyCode;
   minRating?: number;
   availability?: AvailabilityFilter[];
+  onSale?: boolean;
+  itemGroupSlug?: string;
   sort?: SortOption;
   page?: number;
   pageSize?: number;

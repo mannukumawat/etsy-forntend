@@ -153,6 +153,8 @@ const en = {
     featuredSub: 'A few favourites from the studio shelves.',
     bestsellersHeading: 'Bestsellers',
     newHeading: 'New arrivals',
+    itemsHeading: 'Items',
+    transferHeading: 'Transfer',
     storyEyebrow: 'Our story',
     storyTitle: 'Rooted in craft, made for your home',
     storyBody1: 'Dignity ArtEdge is a Jaipur-based studio crafting handmade Kilim rugs, jute floor coverings, cushion covers, throws and benches. Every piece is made to bring texture, warmth and character to real homes.',

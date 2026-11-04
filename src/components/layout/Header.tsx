@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Heart, Menu, Search, ShoppingBag, User, X } from 'lucide-react';
 import logoMark from '@/assets/logo-mark.png';
@@ -7,7 +7,6 @@ import { fetchCollections, fetchNavLinks } from '@/api';
 import { useAsync } from '@/hooks/useAsync';
 import { useLocalized } from '@/hooks/useLocale';
 import { selectCartCount, useCart } from '@/store/cart';
-import { useSiteSettings } from '@/store/siteSettings';
 import { useAuth } from '@/store/session';
 import { useUi } from '@/store/ui';
 import { useWishlist } from '@/store/wishlist';
@@ -21,55 +20,72 @@ import { SearchBar } from './SearchBar';
 function CountBadge({ count }: { count: number }) {
   if (count <= 0) return null;
   return (
-    <span aria-hidden className="absolute -right-0.5 -top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-brand-600 px-1 text-[11px] font-semibold leading-none text-white">
+    <span aria-hidden className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-600 px-1 text-[10px] font-bold leading-none text-white shadow-sm ring-2 ring-white">
       {count > 99 ? '99+' : count}
     </span>
   );
 }
 
 export function Logo({ className }: { className?: string }) {
-  const name = useSiteSettings((s) => s.store.name);
   return (
-    <Link to="/" className={cn('flex shrink-0 items-center gap-2', className)}>
-      <img src={logoMark} alt="" className="h-9 w-9 object-contain lg:h-10 lg:w-10" />
-      <span className="font-serif text-[22px] font-semibold leading-none tracking-tight text-ink lg:text-[26px]">{name}</span>
+    <Link to="/" className={cn('flex shrink-0 items-center', className)}>
+      <img src={logoMark} alt="Home" className="h-14 w-14 object-contain lg:h-16 lg:w-16" />
     </Link>
   );
 }
 
 function NavLinksBar() {
   const loc = useLocalized();
+  const location = useLocation();
   const { data: navLinks } = useAsync('nav-links', () => fetchNavLinks());
   const { data: collections } = useAsync('collections:nav', () => fetchCollections());
-  const navCollections = collections?.filter((collection) => collection.showInNavigation) ?? [];
-  const collectionHrefs = new Set(navCollections.map((collection) => `/collection/${collection.slug}`));
-  const customLinks = navLinks?.filter((link) => !collectionHrefs.has(link.href)) ?? [];
-  if (!navCollections.length && !customLinks.length) return null;
+  const navCollections = collections?.filter((c) => c.showInNavigation) ?? [];
+  const collectionHrefs = new Set(navCollections.map((c) => `/collection/${c.slug}`));
+  const customLinks = navLinks?.filter((l) => !collectionHrefs.has(l.href)) ?? [];
+  const hasLinks = navCollections.length > 0 || customLinks.length > 0;
+
+  const linkCls = (href: string) =>
+    cn(
+      'whitespace-nowrap px-4 py-2.5 text-[13.5px] font-medium transition-colors',
+      location.pathname === href || location.pathname.startsWith(href + '/')
+        ? 'text-brand-700 font-semibold'
+        : 'text-ink-soft hover:text-ink',
+    );
+
   return (
-    <nav aria-label="Quick links" className="hidden border-t border-sand-200 lg:block">
-      <ul className="container-site scrollbar-none flex gap-1 overflow-x-auto py-2">
-        {navCollections.map((collection) => (
-          <li key={collection.slug}>
-            <Link to={`/collection/${collection.slug}`} className="whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-semibold text-ink transition-colors hover:bg-sand-100 hover:text-brand-700">
-              {loc(collection.title)}
-            </Link>
-          </li>
-        ))}
-        {customLinks.map((link) => (
-          <li key={link.id}>
-            {link.href.startsWith('/') ? (
-              <Link to={link.href} className="whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-semibold text-ink transition-colors hover:bg-sand-100 hover:text-brand-700">
-                {loc(link.label)}
-              </Link>
-            ) : (
-              <a href={link.href} target="_blank" rel="noopener noreferrer" className="whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-semibold text-ink transition-colors hover:bg-sand-100 hover:text-brand-700">
-                {loc(link.label)}
-              </a>
-            )}
-          </li>
-        ))}
-      </ul>
-    </nav>
+    <div className="hidden lg:block">
+      <div className="container-site flex h-11 items-center justify-end">
+        {/* All Categories pill */}
+        <CategoriesMenu className="shrink-0" />
+
+        {/* Divider */}
+        {hasLinks && <span className="mx-3 h-5 w-px shrink-0 bg-sand-200" aria-hidden />}
+
+        {/* Nav links */}
+        {hasLinks && (
+          <nav aria-label="Quick links" className="min-w-0 flex-1">
+            <ul className="scrollbar-none flex overflow-x-auto">
+              {navCollections.map((c) => (
+                <li key={c.slug}>
+                  <Link to={`/collection/${c.slug}`} className={linkCls(`/collection/${c.slug}`)}>
+                    {loc(c.title)}
+                  </Link>
+                </li>
+              ))}
+              {customLinks.map((l) => (
+                <li key={l.id}>
+                  {l.href.startsWith('/') ? (
+                    <Link to={l.href} className={linkCls(l.href)}>{loc(l.label)}</Link>
+                  ) : (
+                    <a href={l.href} target="_blank" rel="noopener noreferrer" className={linkCls('')}>{loc(l.label)}</a>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -83,64 +99,78 @@ export function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-sand-200 bg-ivory-50/95 backdrop-blur supports-[backdrop-filter]:bg-ivory-50/85">
-      <div className="container-site flex h-16 items-center gap-2 lg:h-[76px] lg:gap-6">
-        <IconButton label={t('a11y.openMenu')} className="-ml-2 lg:hidden" onClick={() => setMenuOpen(true)} aria-expanded={menuOpen} aria-haspopup="dialog">
-          <Menu className="h-6 w-6" aria-hidden />
-        </IconButton>
+    <header className="sticky top-0 z-40 bg-ivory-50/97 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-ivory-50/92">
+      {/* Row 1: Logo + Search + Icons */}
+      <div>
+        <div className="container-site flex h-[68px] items-center gap-4">
+          <IconButton label={t('a11y.openMenu')} className="-ml-2 lg:hidden" onClick={() => setMenuOpen(true)} aria-expanded={menuOpen} aria-haspopup="dialog">
+            <Menu className="h-6 w-6" aria-hidden />
+          </IconButton>
 
-        <Logo className="mr-auto md:mr-0" />
+          <Logo />
 
-        <CategoriesMenu className="hidden lg:block" />
-
-        <div className="hidden flex-1 justify-center md:flex">
-          <SearchBar className="max-w-xl" />
-        </div>
-
-        <div className="flex items-center gap-0.5 sm:gap-1">
-          <div className="hidden items-center gap-1 lg:flex">
-            <SettingsButton />
+          {/* Search — center */}
+          <div className="hidden flex-1 md:flex">
+            <SearchBar className="w-full max-w-2xl mx-auto" />
           </div>
-          <IconButton
-            label={searchOpen ? t('a11y.closeSearch') : t('a11y.openSearch')}
-            className="md:hidden"
-            onClick={() => setSearchOpen((v) => !v)}
-            aria-expanded={searchOpen}
-            aria-controls="mobile-search"
-          >
-            {searchOpen ? <X className="h-5 w-5" aria-hidden /> : <Search className="h-5 w-5" aria-hidden />}
-          </IconButton>
-          <Link
-            to={user ? '/account' : '/login'}
-            aria-label={user ? t('header.signedInAs', { name: user.name }) : t('a11y.accountLink')}
-            title={user ? t('header.signedInAs', { name: user.name }) : t('a11y.accountLink')}
-            className="relative hidden h-10 w-10 items-center justify-center rounded-full hover:bg-sand-100 sm:flex"
-          >
-            <User className="h-5 w-5" aria-hidden />
-            {user && <span className="absolute bottom-1.5 right-1.5 h-2 w-2 rounded-full bg-emerald-600 ring-2 ring-ivory-50" aria-hidden />}
-          </Link>
-          <Link
-            to="/wishlist"
-            aria-label={t('a11y.wishlistLink', { count: wishCount })}
-            title={t('common.wishlist')}
-            className="relative hidden h-10 w-10 items-center justify-center rounded-full hover:bg-sand-100 sm:flex"
-          >
-            <Heart className="h-5 w-5" aria-hidden />
-            <CountBadge count={wishCount} />
-          </Link>
-          <IconButton label={t('a11y.openCart', { count: cartCount })} onClick={openCart} aria-haspopup="dialog" className="-mr-2 sm:mr-0">
-            <ShoppingBag className="h-5 w-5" aria-hidden />
-            <CountBadge count={cartCount} />
-          </IconButton>
+
+          {/* Right icons */}
+          <div className="ml-auto flex items-center gap-0.5 lg:ml-0">
+            <div className="hidden lg:block">
+              <SettingsButton />
+            </div>
+
+            <IconButton
+              label={searchOpen ? t('a11y.closeSearch') : t('a11y.openSearch')}
+              className="md:hidden"
+              onClick={() => setSearchOpen((v) => !v)}
+              aria-expanded={searchOpen}
+              aria-controls="mobile-search"
+            >
+              {searchOpen ? <X className="h-5 w-5" aria-hidden /> : <Search className="h-5 w-5" aria-hidden />}
+            </IconButton>
+
+            <Link
+              to={user ? '/account' : '/login'}
+              aria-label={user ? t('header.signedInAs', { name: user.name }) : t('a11y.accountLink')}
+              title={user ? t('header.signedInAs', { name: user.name }) : t('a11y.accountLink')}
+              className="relative hidden h-10 w-10 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-sand-100 hover:text-ink sm:flex"
+            >
+              <User className="h-5 w-5" aria-hidden />
+              {user && <span className="absolute bottom-1.5 right-1.5 h-2 w-2 rounded-full bg-emerald-500 ring-2 ring-white" aria-hidden />}
+            </Link>
+
+            <Link
+              to="/wishlist"
+              aria-label={t('a11y.wishlistLink', { count: wishCount })}
+              title={t('common.wishlist')}
+              className="relative hidden h-10 w-10 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-sand-100 hover:text-ink sm:flex"
+            >
+              <Heart className="h-5 w-5" aria-hidden />
+              <CountBadge count={wishCount} />
+            </Link>
+
+            <button
+              type="button"
+              onClick={openCart}
+              aria-label={t('a11y.openCart', { count: cartCount })}
+              aria-haspopup="dialog"
+              className="relative flex h-10 w-10 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-sand-100 hover:text-ink"
+            >
+              <ShoppingBag className="h-5 w-5" aria-hidden />
+              <CountBadge count={cartCount} />
+            </button>
+          </div>
         </div>
+
+        {searchOpen && (
+          <div id="mobile-search" className="container-site pb-3 md:hidden">
+            <SearchBar autoFocus onNavigate={() => setSearchOpen(false)} />
+          </div>
+        )}
       </div>
 
-      {searchOpen && (
-        <div id="mobile-search" className="container-site pb-3 md:hidden">
-          <SearchBar autoFocus onNavigate={() => setSearchOpen(false)} />
-        </div>
-      )}
-
+      {/* Row 2: All Categories + Nav links */}
       <NavLinksBar />
 
       <MobileMenu open={menuOpen} onClose={() => setMenuOpen(false)} />

@@ -62,6 +62,8 @@ export interface StorefrontHomepageContent {
   featuredProductIds: string[];
   bestsellerProductIds: string[];
   newArrivalProductIds: string[];
+  itemsProductIds: string[];
+  transferProductIds: string[];
   story: { title: Localized; body: Localized; image: string | null; ctaLabel: Localized; ctaHref: string };
   newsletter: { title: Localized; body: Localized };
 }

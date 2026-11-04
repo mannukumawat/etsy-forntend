@@ -15,7 +15,8 @@
 
   body {
     @apply bg-ivory font-sans text-[15px] leading-relaxed text-ink antialiased;
-    overflow-x: hidden;
+    /* clip, not hidden: hidden can turn body into a scroll container and break the sticky header. */
+    overflow-x: clip;
   }
 
   h1,
@@ -66,6 +67,11 @@
 @layer components {
   .container-site {
     @apply mx-auto w-full px-[10px];
+  }
+
+  /* Header and footer get roomier side gutters than page content. */
+  .container-chrome {
+    @apply mx-auto w-full px-[30px];
   }
 
   .input {

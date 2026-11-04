@@ -58,8 +58,10 @@ export function MainLayout() {
       >
         {t('a11y.skipToContent')}
       </a>
-      <AnnouncementBar />
-      <Header />
+      <div className="sticky top-0 z-40">
+        <AnnouncementBar />
+        <Header />
+      </div>
       <main id="main" tabIndex={-1} className="flex-1 focus:outline-none">
         <Suspense fallback={<Spinner className="py-32" />}>
           <Outlet />

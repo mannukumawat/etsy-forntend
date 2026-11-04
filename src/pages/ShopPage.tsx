@@ -14,7 +14,7 @@ import { CATEGORY_BY_SLUG, isCategorySlug } from '@/data/categories';
 import { useAsync } from '@/hooks/useAsync';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useLanguage, useLocalized } from '@/hooks/useLocale';
-import { fetchItemGroups } from '@/api';
+import { fetchItemGroups, fetchNavLinks } from '@/api';
 import { productService } from '@/services/productService';
 import { usePreferences } from '@/store/preferences';
 import type { AvailabilityFilter, CategorySlug, SortOption } from '@/types';
@@ -37,6 +37,9 @@ export default function ShopPage() {
 
   const { data: itemGroups } = useAsync('nav:item-groups', () => fetchItemGroups());
   const activeGroup = state.group ? itemGroups?.find((g) => g.slug === state.group) : undefined;
+  const { data: navLinks } = useAsync('nav-links', () => fetchNavLinks());
+  const activeNav = state.nav ? navLinks?.find((l) => l.id === state.nav) : undefined;
+  const contextName = activeGroup?.nameEn ?? (activeNav ? loc(activeNav.label) : undefined);
 
   const queryKey = `catalog:list:${currency}:${JSON.stringify(state)}`;
   const { data, isLoading, isError, reload } = useAsync(
@@ -52,6 +55,7 @@ export default function ShopPage() {
         availability: state.availability,
         onSale: state.onSale,
         itemGroupSlug: state.group,
+        navLinkId: state.nav,
         sort: state.sort,
         page: state.page,
       }),
@@ -60,8 +64,8 @@ export default function ShopPage() {
 
   const title = state.q
     ? t('shop.searchTitle', { q: state.q })
-    : activeGroup
-      ? activeGroup.nameEn
+    : contextName
+      ? contextName
       : category
         ? loc(category.name)
         : t('shop.title');
@@ -91,7 +95,8 @@ export default function ShopPage() {
   state.availability.forEach((a) => chips.push({ key: a, label: t(a === 'in_stock' ? 'shop.inStock' : 'shop.outOfStock'), onRemove: () => update({ availability: state.availability.filter((x) => x !== a) }) }));
   if (state.onSale) chips.push({ key: 'onSale', label: 'On sale', onRemove: () => update({ onSale: undefined }) });
 
-  const clearAll = () => navigate(shopUrl({ q: '', categories: [], availability: [], sort: state.sort, page: 1 }), { preventScrollReset: true });
+  const clearAll = () =>
+    navigate(shopUrl({ q: '', categories: [], availability: [], group: state.group, nav: state.nav, sort: state.sort, page: 1 }), { preventScrollReset: true });
   const filterCount = activeFilterCount(state, true);
 
   const onToggleCategory = (c: CategorySlug) => update({ categories: toggle(state.categories, c) });
@@ -106,14 +111,14 @@ export default function ShopPage() {
       onToggleCategory={onToggleCategory}
       onPrice={onPrice}
       onToggleAvailability={onToggleAvailability}
-      hideCategory={!!activeGroup}
+      hideCategory={!!contextName}
     />
   );
 
   const total = data?.total ?? 0;
 
   const contextSlides: HeroSlide[] =
-    (activeGroup || category) && data
+    (contextName || category) && data
       ? data.items
           .filter((p) => p.images[0]?.src)
           .slice(0, 5)
@@ -122,17 +127,17 @@ export default function ShopPage() {
 
   const crumbs = [
     { label: t('common.home'), to: '/' },
-    ...(category || activeGroup ? [{ label: t('nav.shop'), to: '/shop' }] : []),
-    { label: category ? loc(category.name) : activeGroup ? activeGroup.nameEn : t('nav.shop') },
+    ...(category || contextName ? [{ label: t('nav.shop'), to: '/shop' }] : []),
+    { label: category ? loc(category.name) : (contextName ?? t('nav.shop')) },
   ];
-  const description = category ? loc(category.description) : activeGroup ? '' : t('shop.subtitle');
+  const description = category ? loc(category.description) : contextName ? '' : t('shop.subtitle');
 
   return (
     <div>
       {contextSlides.length > 0 ? (
         <div className="container-site pt-3">
           <HeroSlider
-            key={state.group ?? slug}
+            key={state.group ?? state.nav ?? slug}
             slides={contextSlides}
             autoplayMs={4500}
             compact
@@ -164,7 +169,7 @@ export default function ShopPage() {
                 {filterCount ? t('shop.filtersCount', { count: filterCount }) : t('shop.filters')}
               </Button>
               <div className="hidden items-center gap-2 lg:flex">
-                {!activeGroup && (
+                {!contextName && (
                   <FilterDropdown label={t('shop.category')} activeCount={state.categories.length}>
                     <div className="max-h-72 overflow-y-auto">
                       <CategoryOptions state={state} facets={data?.facets} onToggleCategory={onToggleCategory} />

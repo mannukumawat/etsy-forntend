@@ -14,6 +14,8 @@ export interface ShopState {
   availability: AvailabilityFilter[];
   onSale?: boolean;
   group?: string;
+  /** Nav link id: shows the products assigned to that header link. */
+  nav?: string;
   sort: SortOption;
   page: number;
 }
@@ -41,6 +43,7 @@ export function parseShopState(params: URLSearchParams, slug?: string): ShopStat
     availability: (params.get('avail') ?? '').split(',').filter((a): a is AvailabilityFilter => AVAIL.includes(a as AvailabilityFilter)),
     onSale: params.get('onSale') === 'true' ? true : undefined,
     group: params.get('group') ?? undefined,
+    nav: params.get('nav') ?? undefined,
     sort: SORTS.includes(sort) ? sort : 'featured',
     page: Math.max(1, Math.floor(num(params.get('page')) ?? 1)),
   };
@@ -58,6 +61,7 @@ export function shopUrl(state: ShopState): string {
   if (state.availability.length) params.set('avail', state.availability.join(','));
   if (state.onSale) params.set('onSale', 'true');
   if (state.group) params.set('group', state.group);
+  if (state.nav) params.set('nav', state.nav);
   if (state.sort !== 'featured') params.set('sort', state.sort);
   if (state.page > 1) params.set('page', String(state.page));
   const qs = params.toString();

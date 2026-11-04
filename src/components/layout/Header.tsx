@@ -44,27 +44,26 @@ function NavLinksBar() {
   const customLinks = navLinks?.filter((l) => !collectionHrefs.has(l.href)) ?? [];
   const hasLinks = navCollections.length > 0 || customLinks.length > 0;
 
-  const linkCls = (href: string) =>
+  const itemCls = (active: boolean) =>
     cn(
-      'whitespace-nowrap px-4 py-2.5 text-[13.5px] font-medium transition-colors',
-      location.pathname === href || location.pathname.startsWith(href + '/')
-        ? 'text-brand-700 font-semibold'
-        : 'text-ink-soft hover:text-ink',
+      'relative block whitespace-nowrap px-2 py-3 text-[14.5px] font-medium transition-colors',
+      'after:absolute after:inset-x-2 after:bottom-1.5 after:h-0.5 after:rounded-full after:transition-colors',
+      active ? 'text-brand-700 after:bg-brand-600' : 'text-ink hover:text-brand-700 after:bg-transparent hover:after:bg-brand-600/40',
     );
+  const linkCls = (href: string) => itemCls(location.pathname === href || location.pathname.startsWith(href + '/'));
+  const activeNavId = location.pathname === '/shop' ? new URLSearchParams(location.search).get('nav') : null;
+  const navCls = (id: string) => itemCls(activeNavId === id);
 
   return (
     <div className="hidden lg:block">
-      <div className="container-site flex h-11 items-center justify-end">
-        {/* All Categories pill */}
+      <div className="container-chrome flex h-12 items-center">
         <CategoriesMenu className="shrink-0" />
 
-        {/* Divider */}
-        {hasLinks && <span className="mx-3 h-5 w-px shrink-0 bg-sand-200" aria-hidden />}
+        {hasLinks && <span className="mx-5 h-6 w-px shrink-0 bg-sand-200" aria-hidden />}
 
-        {/* Nav links */}
         {hasLinks && (
           <nav aria-label="Quick links" className="min-w-0 flex-1">
-            <ul className="scrollbar-none flex overflow-x-auto">
+            <ul className="scrollbar-none flex items-center justify-between gap-6 overflow-x-auto">
               {navCollections.map((c) => (
                 <li key={c.slug}>
                   <Link to={`/collection/${c.slug}`} className={linkCls(`/collection/${c.slug}`)}>
@@ -75,7 +74,7 @@ function NavLinksBar() {
               {customLinks.map((l) => (
                 <li key={l.id}>
                   {l.href.startsWith('/') ? (
-                    <Link to={l.href} className={linkCls(l.href)}>{loc(l.label)}</Link>
+                    <Link to={`/shop?nav=${l.id}`} className={navCls(l.id)}>{loc(l.label)}</Link>
                   ) : (
                     <a href={l.href} target="_blank" rel="noopener noreferrer" className={linkCls('')}>{loc(l.label)}</a>
                   )}
@@ -99,24 +98,25 @@ export function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-40 bg-ivory-50/97 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-ivory-50/92">
-      {/* Row 1: Logo + Search + Icons */}
+    <header className="relative border-b border-sand-200 bg-ivory-50 shadow-sm">
       <div>
-        <div className="container-site flex h-[68px] items-center gap-4">
+        <div className="container-chrome flex h-[72px] items-center gap-4 lg:gap-0">
           <IconButton label={t('a11y.openMenu')} className="-ml-2 lg:hidden" onClick={() => setMenuOpen(true)} aria-expanded={menuOpen} aria-haspopup="dialog">
             <Menu className="h-6 w-6" aria-hidden />
           </IconButton>
 
           <Logo />
 
-          {/* Search — center */}
+          <span className="mx-6 hidden h-9 w-px shrink-0 bg-sand-200 lg:block" aria-hidden />
+
           <div className="hidden flex-1 md:flex">
-            <SearchBar className="w-full max-w-2xl mx-auto" />
+            <SearchBar className="w-full" />
           </div>
 
-          {/* Right icons */}
-          <div className="ml-auto flex items-center gap-0.5 lg:ml-0">
-            <div className="hidden lg:block">
+          <span className="mx-6 hidden h-9 w-px shrink-0 bg-sand-200 lg:block" aria-hidden />
+
+          <div className="ml-auto flex items-center gap-1 lg:ml-0">
+            <div className="hidden pr-2 lg:block">
               <SettingsButton />
             </div>
 
@@ -164,7 +164,7 @@ export function Header() {
         </div>
 
         {searchOpen && (
-          <div id="mobile-search" className="container-site pb-3 md:hidden">
+          <div id="mobile-search" className="container-chrome pb-3 md:hidden">
             <SearchBar autoFocus onNavigate={() => setSearchOpen(false)} />
           </div>
         )}

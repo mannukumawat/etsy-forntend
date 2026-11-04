@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { ChevronDown } from 'lucide-react';
 import { useLocalized } from '@/hooks/useLocale';
 import type { Product } from '@/types';
 import { cn } from '@/utils/cn';
@@ -13,6 +14,9 @@ interface VariantSelectorProps {
   missing?: string[];
   idPrefix?: string;
 }
+
+/** Above this many values a button option becomes a dropdown, so long size lists stay compact. */
+const DROPDOWN_AFTER = 6;
 
 /** Native radio groups (arrow-key accessible) styled as swatches or buttons. */
 export function VariantSelector({ product, selection, onChange, missing = [], idPrefix = 'opt' }: VariantSelectorProps) {
@@ -34,6 +38,37 @@ export function VariantSelector({ product, selection, onChange, missing = [], id
                 {selected ? loc(selected.label) : t('product.selectOption', { option: optionName.toLowerCase() })}
               </span>
             </legend>
+            {option.type !== 'swatch' && option.values.length > DROPDOWN_AFTER ? (
+              <div className="relative">
+                <label htmlFor={`${idPrefix}-${option.id}-select`} className="sr-only">
+                  {optionName}
+                </label>
+                <select
+                  id={`${idPrefix}-${option.id}-select`}
+                  value={selection[option.id] ?? ''}
+                  onChange={(e) => onChange(option.id, e.target.value)}
+                  aria-invalid={isMissing || undefined}
+                  className={cn(
+                    'h-12 w-full cursor-pointer appearance-none rounded-lg border bg-white pl-4 pr-10 text-[15px] text-ink transition-colors focus:outline-none focus:ring-2 focus:ring-brand-600/25',
+                    isMissing ? 'border-red-500' : 'border-sand-300 hover:border-ink focus:border-ink',
+                  )}
+                >
+                  <option value="" disabled>
+                    {t('product.selectOption', { option: optionName.toLowerCase() })}
+                  </option>
+                  {option.values.map((value) => {
+                    const label = loc(value.label);
+                    const inStock = isValueInStock(product, selection, option.id, value.id);
+                    return (
+                      <option key={value.id} value={value.id}>
+                        {inStock ? label : `${label} — ${t('common.soldOut')}`}
+                      </option>
+                    );
+                  })}
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-ink-muted" aria-hidden />
+              </div>
+            ) : (
             <div className="flex flex-wrap gap-2.5">
               {option.values.map((value) => {
                 const inStock = isValueInStock(product, selection, option.id, value.id);
@@ -82,6 +117,7 @@ export function VariantSelector({ product, selection, onChange, missing = [], id
                 );
               })}
             </div>
+            )}
             {isMissing && <FieldError id={errorId} message={t('product.chooseOption', { option: optionName.toLowerCase() })} />}
           </fieldset>
         );

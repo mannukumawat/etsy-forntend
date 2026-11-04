@@ -130,6 +130,7 @@ export const productService = {
       if (group) items = items.filter((p) => p.itemGroupId === group.id);
       else items = [];
     }
+    if (query.navLinkId) items = items.filter((p) => p.navLinkId === query.navLinkId);
     return queryProducts(query, items);
   },
 
@@ -217,6 +218,16 @@ export const productService = {
       .filter((g) => g.isActive)
       .map((g) => ({ ...g, products: all.filter((p) => p.itemGroupId === g.id).slice(0, limit) }))
       .filter((g) => g.products.length > 0);
+  },
+
+  /** First product photo per category slug, for categories that have no cover image of their own. */
+  async getCategoryCovers(): Promise<Record<string, string>> {
+    const covers: Record<string, string> = {};
+    for (const p of await apiProducts()) {
+      const src = p.images[0]?.src;
+      if (src && !covers[p.categoryId]) covers[p.categoryId] = src;
+    }
+    return covers;
   },
 
   /** Products for a specific nav link by its id (from product.navLinkId). */

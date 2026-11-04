@@ -39,7 +39,7 @@ export function ProductGallery({ images }: { images: ProductImage[] }) {
         ))}
       </ul>
       <div className="relative flex-1">
-        <div className="aspect-square overflow-hidden rounded-2xl bg-sand-100">
+        <div className="aspect-square overflow-hidden rounded-2xl bg-sand-100 lg:aspect-auto lg:h-[min(76vh,720px)]">
           <img key={current.src.slice(-60)} src={current.src} alt={loc(current.alt)} width={800} height={800} className="h-full w-full animate-fade-in object-cover" decoding="async" />
         </div>
         {images.length > 1 && (

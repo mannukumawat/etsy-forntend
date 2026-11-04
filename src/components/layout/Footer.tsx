@@ -35,7 +35,7 @@ export function Footer() {
 
   return (
     <footer className="mt-20 border-t border-sand-200 bg-ivory-200/60">
-      <div className="container-site grid gap-10 py-12 md:grid-cols-2 lg:grid-cols-12 lg:gap-8">
+      <div className="container-chrome grid gap-10 py-12 md:grid-cols-2 lg:grid-cols-12 lg:gap-8">
         <div className="lg:col-span-3">
           <div className="flex items-center gap-2">
             <img src={logoMark} alt="" className="h-9 w-9 object-contain" />
@@ -124,7 +124,7 @@ export function Footer() {
         </div>
       </div>
       <div className="border-t border-sand-200">
-        <div className="container-site space-y-1 py-5 text-xs text-ink-muted">
+        <div className="container-chrome space-y-1 py-5 text-xs text-ink-muted">
           <p>{t('footer.rights', { year, store: STORE.name })}</p>
           <p>{t('footer.ratesNote', { date: formatDate(RATE_SNAPSHOT.asOf, lang) })}</p>
         </div>

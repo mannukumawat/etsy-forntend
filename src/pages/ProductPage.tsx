@@ -153,27 +153,29 @@ function ProductDetail({ product, onReviewsChanged }: { product: Product; onRevi
         ]}
       />
 
-      <div className="mt-6 grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[minmax(0,1fr)_420px] lg:gap-x-12 xl:grid-cols-[minmax(0,1fr)_460px]">
+      <div className="mt-5 grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-x-10 xl:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] xl:gap-x-14">
         <div className="min-w-0 lg:col-start-1 lg:row-start-1">
           <ProductGallery images={images} />
         </div>
 
-        <div className="min-w-0 lg:col-start-2 lg:row-span-2 lg:row-start-1">
+        <div className="min-w-0 max-w-2xl lg:col-start-2 lg:row-span-2 lg:row-start-1">
           <Link to={`/category/${category.slug}`} className="eyebrow hover:underline">
             {loc(category.name)}
           </Link>
           <div className="mt-2 flex items-start justify-between gap-4">
-            <h1 className="text-4xl leading-tight lg:text-[44px]">{loc(product.name)}</h1>
+            <h1 className="font-serif text-[26px] font-semibold leading-snug text-ink lg:text-[32px]">{loc(product.name)}</h1>
             <WishlistButton product={product} variantId={variant?.id} className="mt-1 shrink-0 border border-sand-200" />
           </div>
-          <VariantPrice variants={candidates} size="lg" className="mt-3" />
-          {currency !== 'USD' && <p className="mt-1 text-xs text-ink-muted">{t('product.priceNote', { currency })}</p>}
           {product.reviewCount > 0 && (
             <button type="button" onClick={() => document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' })} className="mt-2 block rounded">
               <Rating value={product.rating} count={product.reviewCount} />
             </button>
           )}
-          <p className="mt-4 text-ink-soft">{loc(product.shortDescription)}</p>
+          <div className="mt-4 border-y border-sand-200 py-4">
+            <VariantPrice variants={candidates} size="lg" />
+            {currency !== 'USD' && <p className="mt-1 text-xs text-ink-muted">{t('product.priceNote', { currency })}</p>}
+          </div>
+          <p className="mt-4 leading-relaxed text-ink-soft">{loc(product.shortDescription)}</p>
 
           <div className="mt-6 space-y-6">
             {product.options.length > 0 && <VariantSelector product={product} selection={selection} onChange={choose} missing={missing} idPrefix="pdp" />}

@@ -37,7 +37,7 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
           ))}
           {customLinks.map((link) => (
             link.href.startsWith('/') ? (
-              <Link key={link.id} to={link.href} onClick={onClose} className="shrink-0 rounded-full bg-sand-100 px-4 py-2 text-sm font-semibold text-ink hover:bg-sand-200">
+              <Link key={link.id} to={`/shop?nav=${link.id}`} onClick={onClose} className="shrink-0 rounded-full bg-sand-100 px-4 py-2 text-sm font-semibold text-ink hover:bg-sand-200">
                 {loc(link.label)}
               </Link>
             ) : (

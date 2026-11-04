@@ -5,18 +5,21 @@ import { ArrowRight, Check, SlidersHorizontal, Star } from 'lucide-react';
 import { WishlistButton } from '@/components/product/WishlistButton';
 import { Drawer } from '@/components/ui/Dialog';
 import { CATEGORY_BY_SLUG } from '@/data/categories';
+import { useAsync } from '@/hooks/useAsync';
 import { useLocalized, useMoney } from '@/hooks/useLocale';
+import { productService } from '@/services/productService';
 import type { CurrencyCode, Product } from '@/types';
 import { cn } from '@/utils/cn';
 import { priceRange, stockStatus, totalStock } from '@/utils/variants';
 
 const PAGE_SIZE = 8;
 
-/** A circle without its own photo borrows the linked category's image. */
-export function circleImage(c: { href: string; image: string | null }): string | null {
+/** A circle without its own photo borrows the linked category's image, then that category's first product photo. */
+export function circleImage(c: { href: string; image: string | null }, covers?: Record<string, string>): string | null {
   if (c.image) return c.image;
   const m = /^\/category\/([^/?#]+)/.exec(c.href);
-  return m ? (CATEGORY_BY_SLUG[m[1]]?.image.src ?? null) : null;
+  if (!m) return null;
+  return CATEGORY_BY_SLUG[m[1]]?.image.src || covers?.[m[1]] || null;
 }
 
 /** Readable text on any admin-chosen hero colour. */
@@ -289,6 +292,7 @@ export interface HubCircle {
 export function HubHero({ title, subtitle, color, image, circles = [] }: { title: string; subtitle?: string; color: string; image?: string | null; circles?: HubCircle[] }) {
   const dark = isDark(color);
   const hasCircles = circles.length > 0;
+  const { data: covers } = useAsync(hasCircles ? 'catalog:category-covers' : null, () => productService.getCategoryCovers());
   return (
     <>
       <section className={cn('relative overflow-hidden text-center', hasCircles ? 'pb-36 pt-12 sm:pb-40' : 'py-16')} style={{ backgroundColor: color }}>
@@ -302,7 +306,7 @@ export function HubHero({ title, subtitle, color, image, circles = [] }: { title
         <div className="container-site relative -mt-28 sm:-mt-32">
           <ul className="flex flex-wrap justify-center gap-x-6 gap-y-8">
             {circles.map((c, i) => {
-              const img = circleImage(c);
+              const img = circleImage(c, covers);
               return (
                 <li key={i} className="w-[calc(50%-12px)] sm:w-[calc(33.333%-16px)] lg:w-[calc(16.666%-20px)]">
                   <Link to={c.href} className="group flex flex-col items-center gap-3 text-center">

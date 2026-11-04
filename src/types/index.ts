@@ -163,6 +163,7 @@ export interface ProductQuery {
   availability?: AvailabilityFilter[];
   onSale?: boolean;
   itemGroupSlug?: string;
+  navLinkId?: string;
   sort?: SortOption;
   page?: number;
   pageSize?: number;

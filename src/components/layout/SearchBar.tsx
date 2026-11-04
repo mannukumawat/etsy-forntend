@@ -111,14 +111,14 @@ export function SearchBar({ autoFocus, onNavigate, className }: { autoFocus?: bo
         onFocus={() => setOpen(true)}
         onBlur={() => setTimeout(() => setOpen(false), 150)}
         onKeyDown={onKeyDown}
-        className="h-11 w-full rounded-full border border-sand-300 bg-white pl-4 pr-12 text-[15px] text-ink shadow-sm placeholder:text-ink-faint focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-600/25 [&::-webkit-search-cancel-button]:hidden"
+        className="h-12 w-full rounded-full border border-transparent bg-sand-100 pl-12 pr-5 text-[15px] text-ink placeholder:text-ink-muted transition-colors hover:bg-sand-200/70 focus:border-brand-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-600/20 [&::-webkit-search-cancel-button]:hidden"
       />
       <button
         type="submit"
-        className="absolute right-1 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-brand-600 text-white transition-colors hover:bg-brand-700"
+        className="absolute left-1.5 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-white hover:text-brand-700"
         aria-label={t('header.searchSubmit')}
       >
-        <Search className="h-4 w-4" aria-hidden />
+        <Search className="h-5 w-5" aria-hidden />
       </button>
       <ul
         id={listId}

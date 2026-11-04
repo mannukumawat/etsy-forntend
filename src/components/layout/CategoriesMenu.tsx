@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowRight, ChevronRight, Menu, Sparkles } from 'lucide-react';
+import { ArrowRight, ChevronDown, ChevronRight, Menu, Sparkles } from 'lucide-react';
 import { fetchCollections } from '@/api';
 
 import { Skeleton } from '@/components/ui/Feedback';
@@ -103,10 +103,11 @@ export function CategoriesMenu({ className }: { className?: string }) {
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-haspopup="menu"
-        className={cn('flex items-center gap-2 whitespace-nowrap rounded-full px-3.5 py-2 text-[15px] font-semibold text-ink transition-colors hover:bg-sand-100', open && 'bg-sand-100')}
+        className={cn('flex h-9 items-center gap-2 whitespace-nowrap rounded-full px-4 text-[14.5px] font-semibold text-ink transition-colors', open ? 'bg-sand-200' : 'bg-sand-100 hover:bg-sand-200')}
       >
-        <Menu className="h-5 w-5" aria-hidden />
+        <Menu className="h-[18px] w-[18px]" aria-hidden />
         {t('nav.categories')}
+        <ChevronDown className={cn('h-4 w-4 text-ink-muted transition-transform duration-200', open && 'rotate-180')} aria-hidden />
       </button>
 
       {open && (

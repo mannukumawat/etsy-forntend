@@ -125,7 +125,8 @@ export function Footer() {
       </div>
       <div className="border-t border-sand-200">
         <div className="container-chrome space-y-1 py-5 text-xs text-ink-muted">
-          <p>{t('footer.rights', { year, store: STORE.name })}</p>
+          {/* The sentence already ends the name with a period, so drop one from names like "Pvt. Ltd." */}
+          <p>{t('footer.rights', { year, store: STORE.name.replace(/\.+$/, '') })}</p>
           <p>{t('footer.ratesNote', { date: formatDate(RATE_SNAPSHOT.asOf, lang) })}</p>
         </div>
       </div>

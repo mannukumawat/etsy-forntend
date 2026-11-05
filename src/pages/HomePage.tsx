@@ -37,7 +37,7 @@ function ItemGroupSection({ group }: { group: PublicItemGroup & { products: Prod
 }
 
 function ItemGroupSections() {
-  const { data: groups } = useAsync('catalog:item-groups', () => productService.getItemGroupsWithProducts(8));
+  const { data: groups } = useAsync('catalog:item-groups', () => productService.getItemGroupsWithProducts(10));
   if (!groups?.length) return null;
   return (
     <>

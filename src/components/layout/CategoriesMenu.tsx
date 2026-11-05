@@ -103,7 +103,7 @@ export function CategoriesMenu({ className }: { className?: string }) {
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-haspopup="menu"
-        className={cn('flex h-9 items-center gap-2 whitespace-nowrap rounded-full px-4 text-[14.5px] font-semibold text-ink transition-colors', open ? 'bg-sand-200' : 'bg-sand-100 hover:bg-sand-200')}
+        className={cn('flex h-12 items-center gap-2 whitespace-nowrap rounded-full px-5 text-[15px] font-semibold text-ink transition-colors', open ? 'bg-sand-200' : 'bg-sand-100 hover:bg-sand-200')}
       >
         <Menu className="h-[18px] w-[18px]" aria-hidden />
         {t('nav.categories')}

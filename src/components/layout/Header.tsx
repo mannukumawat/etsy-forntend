@@ -57,13 +57,9 @@ function NavLinksBar() {
   return (
     <div className="hidden lg:block">
       <div className="container-chrome flex h-12 items-center">
-        <CategoriesMenu className="shrink-0" />
-
-        {hasLinks && <span className="mx-5 h-6 w-px shrink-0 bg-sand-200" aria-hidden />}
-
         {hasLinks && (
-          <nav aria-label="Quick links" className="min-w-0 flex-1">
-            <ul className="scrollbar-none flex items-center justify-between gap-6 overflow-x-auto">
+          <nav aria-label="Quick links" className="scrollbar-none min-w-0 flex-1 overflow-x-auto">
+            <ul className="mx-auto flex w-max items-center gap-6">
               {navCollections.map((c) => (
                 <li key={c.slug}>
                   <Link to={`/collection/${c.slug}`} className={linkCls(`/collection/${c.slug}`)}>
@@ -108,6 +104,8 @@ export function Header() {
           <Logo />
 
           <span className="mx-6 hidden h-9 w-px shrink-0 bg-sand-200 lg:block" aria-hidden />
+
+          <CategoriesMenu className="mr-3 hidden shrink-0 lg:block" />
 
           <div className="hidden flex-1 md:flex">
             <SearchBar className="w-full" />

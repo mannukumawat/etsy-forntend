@@ -20,6 +20,7 @@ export const returnsApi = {
   createReturn: (data: {
     orderId: string; lineId: string; qty: number; reason: string;
     note?: string; photos?: string[]; shippingMethod?: 'self_ship' | 'pickup';
+    refundAccountId?: string;
   }) =>
     fetch(`${BASE}/api/customer/returns`, {
       method: 'POST', headers: headers(), credentials: 'include', body: JSON.stringify(data),

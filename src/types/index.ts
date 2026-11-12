@@ -334,6 +334,45 @@ export interface ReturnRequest {
   refund: { id: string; amount: number; method: string; status: string; reference: string | null; completedAt: string | null } | null;
 }
 
+// ---------- Exchanges ----------
+
+export type ExchangeStatus =
+  | 'requested' | 'approved' | 'rejected' | 'shipped' | 'delivered' | 'closed' | 'withdrawn';
+
+export interface ExchangeRequest {
+  id: string;
+  reference: string;
+  orderId: string;
+  lineId: string;
+  originalVariantId: string;
+  replacementVariantId: string;
+  requestedQty: number;
+  approvedQty: number | null;
+  reason: string;
+  customerNote: string | null;
+  status: ExchangeStatus;
+  priceDifference: number;
+  exchangeWindowDays: number;
+  replacementCarrier: string | null;
+  replacementTracking: string | null;
+  requestedAt: string;
+  decidedAt: string | null;
+  shippedAt: string | null;
+  deliveredAt: string | null;
+  closedAt: string | null;
+  events: Array<{ id: string; type: string; actor: string; message: string | null; createdAt: string }>;
+}
+
+// ---------- Bank accounts ----------
+
+export interface BankAccount {
+  id: string;
+  accountHolderName: string;
+  accountNumberMasked: string;
+  ifscCode: string;
+  createdAt: string;
+}
+
 // ---------- Account ----------
 
 export interface User {

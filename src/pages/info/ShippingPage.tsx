@@ -4,7 +4,8 @@ import { useAsync } from '@/hooks/useAsync';
 import { useLanguage, useLocalized, useMoney } from '@/hooks/useLocale';
 import { contentService } from '@/services/contentService';
 import { useSiteSettings } from '@/store/siteSettings';
-import { InfoShell, Sections, type InfoSection } from './InfoShell';
+import { CustomerCareShell } from '@/components/layout/CustomerCareShell';
+import { Sections, type InfoSection } from './InfoShell';
 
 export default function ShippingPage() {
   const { t } = useTranslation();
@@ -32,7 +33,7 @@ export default function ShippingPage() {
   }));
 
   return (
-    <InfoShell title={title} intro={intro} showUntranslatedNotice={showUntranslated}>
+    <CustomerCareShell title={title} intro={showUntranslated ? undefined : intro}>
       <section aria-labelledby="rates-title">
         <h2 id="rates-title" className="text-2xl">
           {t('pages.shipping.ratesTitle')}
@@ -88,6 +89,6 @@ export default function ShippingPage() {
       <div className="mt-10">
         <Sections sections={sections} />
       </div>
-    </InfoShell>
+    </CustomerCareShell>
   );
 }

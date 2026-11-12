@@ -1,73 +1,110 @@
 import { Link } from 'react-router-dom';
-import {
-  ArrowRight, CreditCard, HelpCircle, Package, RefreshCw,
-  Settings, ShoppingBag, Star, Truck, type LucideIcon,
-} from 'lucide-react';
-import { useAsync } from '@/hooks/useAsync';
-import { useLocalized } from '@/hooks/useLocale';
-import { helpService, type HelpCategory } from '@/services/miscService';
-import { InfoShell } from '@/pages/info/InfoShell';
+import { ChevronDown, HelpCircle, Mail, Package, RefreshCw, Truck } from 'lucide-react';
+import { CustomerCareShell } from '@/components/layout/CustomerCareShell';
 
-const ICON_MAP: Record<string, LucideIcon> = {
-  'help-circle': HelpCircle, 'package': Package, 'truck': Truck,
-  'credit-card': CreditCard, 'refresh-cw': RefreshCw, 'settings': Settings,
-  'shopping-bag': ShoppingBag, 'star': Star,
-};
+const QUICK_ACTIONS = [
+  {
+    to: '/track-order',
+    icon: Package,
+    label: 'Track Order',
+    desc: 'Check the status of your order with your order number and email.',
+  },
+  {
+    to: '/shipping',
+    icon: Truck,
+    label: 'Shipping Info',
+    desc: 'Delivery timelines, rates, and international shipping details.',
+  },
+  {
+    to: '/returns',
+    icon: RefreshCw,
+    label: 'Returns',
+    desc: 'Return window, eligibility, and how to start a return.',
+  },
+  {
+    to: '/contact',
+    icon: Mail,
+    label: 'Contact Us',
+    desc: 'Send a message and our team will respond within 1–2 business days.',
+  },
+] as const;
 
-function CategoryCard({ cat }: { cat: HelpCategory & { articleCount?: number } }) {
-  const loc = useLocalized();
-  const Icon = ICON_MAP[cat.icon] ?? HelpCircle;
-  return (
-    <Link
-      to={`/help/${cat.slug}`}
-      className="card group flex flex-col gap-3 p-5 transition-shadow hover:shadow-lift"
-    >
-      <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
-        <Icon className="h-5 w-5" aria-hidden />
-      </span>
-      <div className="min-w-0 flex-1">
-        <h2 className="font-sans text-base font-semibold text-ink group-hover:text-brand-700">
-          {loc(cat.name)}
-        </h2>
-        {loc(cat.description) && (
-          <p className="mt-1 line-clamp-2 text-sm text-ink-soft">{loc(cat.description)}</p>
-        )}
-      </div>
-      <span className="flex items-center gap-1 text-sm font-medium text-brand-600">
-        Browse articles <ArrowRight className="h-3.5 w-3.5" aria-hidden />
-      </span>
-    </Link>
-  );
-}
+const FAQS = [
+  {
+    q: 'How do I track my order?',
+    a: 'Use our Track Order page with your order number (format YS-XXXXXX) and the email address you used at checkout.',
+  },
+  {
+    q: 'What is your return policy?',
+    a: 'We accept returns within 30 days of delivery for unused items in their original condition and packaging.',
+  },
+  {
+    q: 'Do you ship internationally?',
+    a: 'Yes, we ship worldwide. Visit our Shipping page for destination-specific rates and estimated delivery times.',
+  },
+  {
+    q: 'How long does order processing take?',
+    a: 'Orders are processed and dispatched within 1–2 business days. Delivery time is additional and depends on your location.',
+  },
+  {
+    q: 'What payment methods do you accept?',
+    a: 'We accept all major credit and debit cards, UPI, net banking, and popular wallets at checkout.',
+  },
+  {
+    q: 'Can I cancel or change my order?',
+    a: 'Orders can be cancelled or changed before they are dispatched. Contact us as soon as possible with your order number.',
+  },
+];
 
 export default function HelpCenterPage() {
-  const { data, isLoading } = useAsync('help:categories', () => helpService.getCategories());
-
   return (
-    <InfoShell title="Help Center" intro="Browse articles or search for answers to your questions." className="!max-w-4xl">
-      <div className="mb-8 overflow-hidden rounded-2xl border border-brand-100 bg-brand-50 px-6 py-5">
-        <p className="text-sm text-brand-800">
-          Can't find what you're looking for?{' '}
-          <Link to="/contact" className="font-semibold underline hover:text-brand-900">
-            Contact us
-          </Link>{' '}
-          — we reply within 1–2 business days.
-        </p>
+    <CustomerCareShell title="How can we help?" isRoot>
+      {/* Quick action cards */}
+      <div className="grid gap-3 sm:grid-cols-2">
+        {QUICK_ACTIONS.map(({ to, icon: Icon, label, desc }) => (
+          <Link
+            key={to}
+            to={to}
+            className="card group flex items-start gap-4 p-5 transition-shadow hover:shadow-lift"
+          >
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
+              <Icon className="h-5 w-5" aria-hidden />
+            </span>
+            <div>
+              <p className="font-semibold text-ink group-hover:text-brand-700">{label}</p>
+              <p className="mt-0.5 text-sm text-ink-soft">{desc}</p>
+            </div>
+          </Link>
+        ))}
       </div>
 
-      {isLoading ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="card h-40 animate-pulse bg-sand-100" />
+      {/* Popular questions */}
+      <div className="mt-10">
+        <h2 className="flex items-center gap-2 text-xl font-semibold text-ink">
+          <HelpCircle className="h-5 w-5 text-brand-600" aria-hidden />
+          Popular questions
+        </h2>
+        <div className="mt-4 divide-y divide-sand-200 rounded-2xl border border-sand-200 bg-white">
+          {FAQS.map((item) => (
+            <details key={item.q} className="group px-5 py-1 [&_summary::-webkit-details-marker]:hidden">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-4 font-medium text-ink">
+                <span className="font-sans text-[15px] font-medium">{item.q}</span>
+                <ChevronDown className="h-4 w-4 shrink-0 text-ink-muted transition-transform group-open:rotate-180" aria-hidden />
+              </summary>
+              <p className="pb-4 text-sm leading-relaxed text-ink-soft">{item.a}</p>
+            </details>
           ))}
         </div>
-      ) : !data?.items.length ? (
-        <p className="text-ink-soft">No help articles yet. Check back soon.</p>
-      ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {data.items.map((cat) => <CategoryCard key={cat.id} cat={cat} />)}
-        </div>
-      )}
-    </InfoShell>
+      </div>
+
+      {/* Bottom CTA */}
+      <div className="mt-8 rounded-xl border border-sand-200 bg-ivory px-6 py-5 text-sm text-ink-soft">
+        Still need help?{' '}
+        <Link to="/contact" className="font-medium text-brand-700 underline decoration-brand-300 underline-offset-[3px] hover:text-brand-800">
+          Contact our team
+        </Link>{' '}
+        — we reply within 1–2 business days.
+      </div>
+    </CustomerCareShell>
   );
 }

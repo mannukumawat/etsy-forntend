@@ -13,7 +13,7 @@ import { contentService } from '@/services/contentService';
 import { useSiteSettings } from '@/store/siteSettings';
 import { useUi } from '@/store/ui';
 import { CONTACT_SUBJECTS, contactSchema, type ContactValues } from '@/utils/validation';
-import { InfoShell } from './InfoShell';
+import { CustomerCareShell } from '@/components/layout/CustomerCareShell';
 
 export default function ContactPage() {
   const { t } = useTranslation();
@@ -49,7 +49,7 @@ export default function ContactPage() {
   };
 
   return (
-    <InfoShell title={pageTitle} intro={pageIntro} className="!max-w-4xl">
+    <CustomerCareShell title={pageTitle} intro={pageIntro}>
       <div className="grid gap-6 lg:grid-cols-[1fr_280px]">
         <div>
           {sent ? (
@@ -132,6 +132,6 @@ export default function ContactPage() {
           </div>
         </aside>
       </div>
-    </InfoShell>
+    </CustomerCareShell>
   );
 }

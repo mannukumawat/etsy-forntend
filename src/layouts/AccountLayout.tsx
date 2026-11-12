@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Navigate, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { LogOut, MapPin, Package, RotateCcw, User } from 'lucide-react';
+import { CreditCard, LogOut, MapPin, Package, RotateCcw, User } from 'lucide-react';
 import { authService } from '@/services/authService';
 import { useAuth, useCheckout } from '@/store/session';
 import { useUi } from '@/store/ui';
@@ -40,7 +40,8 @@ export function AccountLayout() {
   const links = [
     { to: '/account', label: t('nav.profile'), icon: User, end: true },
     { to: '/account/orders', label: t('nav.orders'), icon: Package, end: false },
-    { to: '/account/returns', label: t('returns.title'), icon: RotateCcw, end: false },
+    { to: '/account/returns', label: t('account.returnsAndExchanges', { defaultValue: 'Returns & exchanges' }), icon: RotateCcw, end: false },
+    { to: '/account/bank-accounts', label: t('account.refundAccounts', { defaultValue: 'Refund accounts' }), icon: CreditCard, end: false },
     { to: '/account/addresses', label: t('nav.addresses'), icon: MapPin, end: false },
   ];
 

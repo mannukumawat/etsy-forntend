@@ -25,6 +25,8 @@ const OrderDetailPage = lazy(() => import('@/pages/account/OrderDetailPage'));
 const AddressesPage = lazy(() => import('@/pages/account/AddressesPage'));
 const ReturnsPage = lazy(() => import('@/pages/account/ReturnsPage'));
 const ReturnDetailPage = lazy(() => import('@/pages/account/ReturnDetailPage'));
+const ExchangeDetailPage = lazy(() => import('@/pages/account/ExchangeDetailPage'));
+const BankAccountsPage = lazy(() => import('@/pages/account/BankAccountsPage'));
 const WishlistPage = lazy(() => import('@/pages/WishlistPage'));
 const TrackOrderPage = lazy(() => import('@/pages/TrackOrderPage'));
 const AboutPage = lazy(() => import('@/pages/info/AboutPage'));
@@ -32,6 +34,7 @@ const ContactPage = lazy(() => import('@/pages/info/ContactPage'));
 const FaqPage = lazy(() => import('@/pages/info/FaqPage'));
 const ShippingPage = lazy(() => import('@/pages/info/ShippingPage'));
 const PolicyPage = lazy(() => import('@/pages/info/PolicyPage'));
+const InfoReturnsPage = lazy(() => import('@/pages/info/ReturnsPage'));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
 const HelpCenterPage = lazy(() => import('@/pages/help/HelpCenterPage'));
 const HelpCategoryPage = lazy(() => import('@/pages/help/HelpCategoryPage'));
@@ -65,6 +68,8 @@ export const router = createBrowserRouter([
           { path: 'orders/:orderId', element: <OrderDetailPage /> },
           { path: 'returns', element: <ReturnsPage /> },
           { path: 'returns/:ref', element: <ReturnDetailPage /> },
+          { path: 'exchanges/:ref', element: <ExchangeDetailPage /> },
+          { path: 'bank-accounts', element: <BankAccountsPage /> },
           { path: 'addresses', element: <AddressesPage /> },
         ],
       },
@@ -77,7 +82,7 @@ export const router = createBrowserRouter([
       { path: '/contact', element: <ContactPage /> },
       { path: '/faq', element: <FaqPage /> },
       { path: '/shipping', element: <ShippingPage /> },
-      { path: '/returns', element: <PolicyPage page="returns" /> },
+      { path: '/returns', element: <InfoReturnsPage /> },
       { path: '/privacy', element: <PolicyPage page="privacy" /> },
       { path: '/terms', element: <PolicyPage page="terms" /> },
       { path: '*', element: <NotFoundPage /> },

@@ -8,7 +8,7 @@ import { OrderLines, OrderStatusBadge, OrderTimeline } from '@/components/order/
 import { Button } from '@/components/ui/Button';
 import { Notice } from '@/components/ui/Feedback';
 import { TextField } from '@/components/ui/Form';
-import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+import { CustomerCareShell } from '@/components/layout/CustomerCareShell';
 import { useLanguage } from '@/hooks/useLocale';
 import { ApiError } from '@/services/api';
 import { orderService } from '@/services/orderService';
@@ -20,7 +20,6 @@ import { normalizeOrderNumber, trackSchema, type TrackValues } from '@/utils/val
 export default function TrackOrderPage() {
   const { t } = useTranslation();
   const lang = useLanguage();
-  useDocumentTitle(t('track.title'));
   const [params] = useSearchParams();
   const user = useAuth((s) => s.user);
   const [result, setResult] = useState<Order | null>(null);
@@ -51,11 +50,11 @@ export default function TrackOrderPage() {
   const eta = result ? deliveryWindow(result.shippingMethod.minDays, result.shippingMethod.maxDays, new Date(result.createdAt)) : null;
 
   return (
-    <div className="container-site max-w-3xl py-10 lg:py-14">
-      <h1 className="text-4xl lg:text-5xl">{t('track.title')}</h1>
-      <p className="mt-2 text-ink-muted">{t('track.subtitle')}</p>
-
-      <form onSubmit={handleSubmit(onSubmit)} noValidate className="card mt-6 grid gap-4 p-5 sm:grid-cols-[1fr_1fr_auto] sm:items-start">
+    <CustomerCareShell
+      title={t('track.title')}
+      intro={t('track.subtitle')}
+    >
+      <form onSubmit={handleSubmit(onSubmit)} noValidate className="card grid gap-4 p-5 sm:grid-cols-[1fr_1fr_auto] sm:items-start">
         <TextField id="track-order" label={t('track.orderNumber')} placeholder={t('track.orderPlaceholder')} required error={errors.orderNumber?.message} autoComplete="off" {...register('orderNumber')} />
         <TextField id="track-email" type="email" label={t('track.email')} required error={errors.email?.message} autoComplete="email" {...register('email')} />
         <Button type="submit" loading={isSubmitting} className="sm:mt-7">
@@ -63,7 +62,7 @@ export default function TrackOrderPage() {
         </Button>
       </form>
 
-      <div className="mt-8" aria-live="polite">
+      <div className="mt-6" aria-live="polite">
         {notFound && (
           <Notice tone="error" role="alert" title={t('track.notFoundTitle')}>
             {t('track.notFoundBody')}
@@ -77,7 +76,7 @@ export default function TrackOrderPage() {
         {result && eta && (
           <section aria-labelledby="track-result" className="card p-5 sm:p-6">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <h2 id="track-result" className="text-3xl">
+              <h2 id="track-result" className="text-2xl">
                 {t('track.resultTitle', { number: result.number })}
               </h2>
               <OrderStatusBadge status={result.status} />
@@ -120,11 +119,12 @@ export default function TrackOrderPage() {
           </section>
         )}
         {!result && !notFound && !failed && !isSubmitting && (
-          <div className="flex flex-col items-center py-8 text-center text-ink-muted">
+          <div className="flex flex-col items-center py-12 text-center text-ink-muted">
             <PackageSearch className="h-10 w-10" aria-hidden />
+            <p className="mt-3 text-sm">{t('track.orderPlaceholder') ? 'Enter your order number above to get started.' : ''}</p>
           </div>
         )}
       </div>
-    </div>
+    </CustomerCareShell>
   );
 }

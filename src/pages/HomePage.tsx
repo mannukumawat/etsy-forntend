@@ -90,13 +90,14 @@ export default function HomePage() {
       ctaHref: live.hero.ctaHref || '/shop',
     });
   }
-  if (live?.story?.image) {
+  for (const s of live?.slides ?? []) {
+    if (!s.image) continue;
     cmsSlides.push({
-      image: live.story.image,
-      title: loc(live.story.title) || 'Our Story',
-      subtitle: loc(live.story.body)?.slice(0, 120) || undefined,
-      ctaLabel: loc(live.story.ctaLabel) || 'Learn More',
-      ctaHref: live.story.ctaHref || '/shop',
+      image: s.image,
+      title: loc(s.title) || undefined,
+      subtitle: loc(s.subtitle) || undefined,
+      ctaLabel: loc(s.ctaLabel) || undefined,
+      ctaHref: s.ctaHref || undefined,
     });
   }
   const slides = cmsSlides.length > 0 ? cmsSlides : FALLBACK_SLIDES;

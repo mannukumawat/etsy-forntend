@@ -42,12 +42,16 @@ export interface StorefrontPageSection {
   id: string;
   heading: Localized;
   body: Localized;
+  /** Optional photo shown beside the section (About page). */
+  image?: string | null;
 }
 
 /** `GET /api/content/pages/:key` content shape. */
 export interface StorefrontPageContent {
   title: Localized;
   intro: Localized;
+  /** Optional banner image (About page). */
+  heroImage?: string | null;
   sections: StorefrontPageSection[];
 }
 
@@ -58,6 +62,8 @@ export interface StorefrontHomepageContent {
   /** Admin-managed banner slides. Each entry is a full-width image URL for the shop banner carousel.
    *  If absent or empty the storefront falls back to static category art. */
   bannerSlides?: Array<{ image: string; ctaHref?: string }>;
+  /** Extra homepage slider banners after the hero (admin-managed). */
+  slides?: Array<{ id: string; image: string | null; title: Localized; subtitle: Localized; ctaLabel: Localized; ctaHref: string }>;
   featuredCategoryIds: string[];
   featuredProductIds: string[];
   bestsellerProductIds: string[];

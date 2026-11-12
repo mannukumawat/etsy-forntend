@@ -108,7 +108,7 @@ export default function AddressesPage() {
   return (
     <section aria-labelledby="addr-title">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 id="addr-title" className="text-3xl">
+        <h2 id="addr-title" className="text-2xl">
           {t('account.addresses')}
         </h2>
         <Button onClick={() => setEditing('new')} icon={<Plus className="h-4 w-4" aria-hidden />}>

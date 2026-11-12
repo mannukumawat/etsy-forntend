@@ -49,7 +49,7 @@ export function VariantSelector({ product, selection, onChange, missing = [], id
                   onChange={(e) => onChange(option.id, e.target.value)}
                   aria-invalid={isMissing || undefined}
                   className={cn(
-                    'h-12 w-full cursor-pointer appearance-none rounded-lg border bg-white pl-4 pr-10 text-[15px] text-ink transition-colors focus:outline-none focus:ring-2 focus:ring-brand-600/25',
+                    'h-12 w-full cursor-pointer appearance-none rounded-lg border bg-white pl-4 pr-10 text-[14px] text-ink transition-colors focus:outline-none focus:ring-2 focus:ring-brand-600/25',
                     isMissing ? 'border-red-500' : 'border-sand-300 hover:border-ink focus:border-ink',
                   )}
                 >

@@ -26,7 +26,7 @@ function Stepper({ current, onGo }: { current: CheckoutStep; onGo: (s: CheckoutS
   const { t } = useTranslation();
   const index = STEPS.indexOf(current);
   return (
-    <ol className="flex flex-wrap items-center gap-x-2 gap-y-2 text-sm">
+    <ol className="flex w-full items-center text-sm">
       {STEPS.map((s, i) => {
         const done = i < index;
         const active = i === index;
@@ -34,28 +34,28 @@ function Stepper({ current, onGo }: { current: CheckoutStep; onGo: (s: CheckoutS
           <>
             <span
               className={cn(
-                'flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold',
-                active ? 'bg-brand-600 text-white' : done ? 'bg-ink text-white' : 'border border-sand-300 bg-white text-ink-muted',
+                'flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold transition-colors',
+                active ? 'bg-brand-600 text-white ring-4 ring-brand-100' : done ? 'bg-ink text-white' : 'border border-sand-300 bg-white text-ink-muted',
               )}
               aria-hidden
             >
               {done ? <Check className="h-3.5 w-3.5" /> : i + 1}
             </span>
-            <span className={cn(active ? 'font-semibold text-ink' : done ? 'text-ink' : 'text-ink-muted', 'hidden sm:inline')}>{t(`checkout.steps.${s}`)}</span>
-            <span className="sr-only sm:hidden">{t(`checkout.steps.${s}`)}</span>
+            <span className={cn(active ? 'font-semibold text-ink' : done ? 'text-ink' : 'text-ink-muted', active ? 'inline' : 'hidden sm:inline')}>{t(`checkout.steps.${s}`)}</span>
+            {!active && <span className="sr-only sm:hidden">{t(`checkout.steps.${s}`)}</span>}
             {(done || active) && <span className="sr-only">({done ? t('a11y.stepCompleted') : t('a11y.stepCurrent')})</span>}
           </>
         );
         return (
-          <li key={s} className="flex items-center gap-2" aria-current={active ? 'step' : undefined}>
+          <li key={s} className={cn('flex items-center', i < STEPS.length - 1 && 'flex-1')} aria-current={active ? 'step' : undefined}>
             {done ? (
-              <button type="button" onClick={() => onGo(s)} className="flex items-center gap-2 rounded-full pr-1 hover:underline">
+              <button type="button" onClick={() => onGo(s)} className="flex items-center gap-2.5 rounded-full pr-1 hover:underline">
                 {content}
               </button>
             ) : (
-              <span className="flex items-center gap-2">{content}</span>
+              <span className="flex items-center gap-2.5">{content}</span>
             )}
-            {i < STEPS.length - 1 && <span className="mx-1 h-px w-5 bg-sand-300 sm:w-8" aria-hidden />}
+            {i < STEPS.length - 1 && <span className={cn('mx-2 h-0.5 min-w-3 flex-1 rounded-full sm:mx-4', done ? 'bg-ink' : 'bg-sand-300')} aria-hidden />}
           </li>
         );
       })}
@@ -157,7 +157,7 @@ export default function CheckoutPage() {
 
   if (cart.isEmpty) {
     return (
-      <div className="container-site py-10">
+      <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
         <EmptyState
           icon={<ShoppingBag className="h-7 w-7" aria-hidden />}
           title={t('cart.empty')}
@@ -170,23 +170,21 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="container-site py-8 lg:py-12">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="text-4xl lg:text-5xl">{t('checkout.title')}</h1>
-          <p className="mt-1 text-sm text-ink-muted">{t('checkout.stepOf', { current: stepIndex + 1, total: STEPS.length })}</p>
-        </div>
-        <nav aria-label={t('checkout.title')}>
-          <Stepper current={step} onGo={goTo} />
-        </nav>
+    <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
+      <div className="flex items-end justify-between gap-4">
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl">{t('checkout.title')}</h1>
+        <p className="pb-1 text-sm text-ink-muted">{t('checkout.stepOf', { current: stepIndex + 1, total: STEPS.length })}</p>
       </div>
+      <nav aria-label={t('checkout.title')} className="card mt-5 px-4 py-4 sm:px-6">
+        <Stepper current={step} onGo={goTo} />
+      </nav>
 
-      <div className="mt-8 grid items-start gap-6 lg:grid-cols-[1fr_400px] lg:gap-12">
+      <div className="mt-6 grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-10">
         <div className="lg:order-last">
           <OrderSummary details={cart} />
         </div>
 
-        <div ref={contentRef} tabIndex={-1} className="min-w-0 scroll-mt-32 focus:outline-none">
+        <div ref={contentRef} tabIndex={-1} className="card min-w-0 scroll-mt-32 p-5 focus:outline-none sm:p-8">
           {cart.isError ? (
             <ErrorState onRetry={cart.reload} />
           ) : (

@@ -20,7 +20,7 @@ import { SearchBar } from './SearchBar';
 function CountBadge({ count }: { count: number }) {
   if (count <= 0) return null;
   return (
-    <span aria-hidden className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-600 px-1 text-[10px] font-bold leading-none text-white shadow-sm ring-2 ring-white">
+    <span aria-hidden className="absolute -right-1 -top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-brand-600 px-1 text-[10px] font-bold leading-none text-white shadow-sm ring-2 ring-white">
       {count > 99 ? '99+' : count}
     </span>
   );
@@ -29,7 +29,7 @@ function CountBadge({ count }: { count: number }) {
 export function Logo({ className }: { className?: string }) {
   return (
     <Link to="/" className={cn('flex shrink-0 items-center', className)}>
-      <img src={logoMark} alt="Home" className="h-14 w-14 object-contain lg:h-16 lg:w-16" />
+      <img src={logoMark} alt="Home" className="h-11 w-11 object-contain lg:h-12 lg:w-12" />
     </Link>
   );
 }
@@ -46,8 +46,8 @@ function NavLinksBar() {
 
   const itemCls = (active: boolean) =>
     cn(
-      'relative block whitespace-nowrap px-2 py-3 text-[14.5px] font-medium transition-colors',
-      'after:absolute after:inset-x-2 after:bottom-1.5 after:h-0.5 after:rounded-full after:transition-colors',
+      'relative block whitespace-nowrap px-2 py-2.5 text-[13px] font-medium transition-colors',
+      'after:absolute after:inset-x-2 after:bottom-1 after:h-0.5 after:rounded-full after:transition-colors',
       active ? 'text-brand-700 after:bg-brand-600' : 'text-ink hover:text-brand-700 after:bg-transparent hover:after:bg-brand-600/40',
     );
   const linkCls = (href: string) => itemCls(location.pathname === href || location.pathname.startsWith(href + '/'));
@@ -56,7 +56,7 @@ function NavLinksBar() {
 
   return (
     <div className="hidden lg:block">
-      <div className="container-chrome flex h-12 items-center">
+      <div className="container-chrome flex h-10 items-center">
         {hasLinks && (
           <nav aria-label="Quick links" className="scrollbar-none min-w-0 flex-1 overflow-x-auto">
             <ul className="mx-auto flex w-max items-center gap-6">
@@ -96,14 +96,14 @@ export function Header() {
   return (
     <header className="relative border-b border-sand-200 bg-ivory-50 shadow-sm">
       <div>
-        <div className="container-chrome flex h-[72px] items-center gap-4 lg:gap-0">
+        <div className="container-chrome flex h-16 items-center gap-4 lg:gap-0">
           <IconButton label={t('a11y.openMenu')} className="-ml-2 lg:hidden" onClick={() => setMenuOpen(true)} aria-expanded={menuOpen} aria-haspopup="dialog">
-            <Menu className="h-6 w-6" aria-hidden />
+            <Menu className="h-5 w-5" aria-hidden />
           </IconButton>
 
           <Logo />
 
-          <span className="mx-6 hidden h-9 w-px shrink-0 bg-sand-200 lg:block" aria-hidden />
+          <span className="mx-5 hidden h-7 w-px shrink-0 bg-sand-200 lg:block" aria-hidden />
 
           <CategoriesMenu className="mr-3 hidden shrink-0 lg:block" />
 
@@ -111,7 +111,7 @@ export function Header() {
             <SearchBar className="w-full" />
           </div>
 
-          <span className="mx-6 hidden h-9 w-px shrink-0 bg-sand-200 lg:block" aria-hidden />
+          <span className="mx-5 hidden h-7 w-px shrink-0 bg-sand-200 lg:block" aria-hidden />
 
           <div className="ml-auto flex items-center gap-1 lg:ml-0">
             <div className="hidden pr-2 lg:block">
@@ -132,9 +132,9 @@ export function Header() {
               to={user ? '/account' : '/login'}
               aria-label={user ? t('header.signedInAs', { name: user.name }) : t('a11y.accountLink')}
               title={user ? t('header.signedInAs', { name: user.name }) : t('a11y.accountLink')}
-              className="relative hidden h-10 w-10 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-sand-100 hover:text-ink sm:flex"
+              className="relative hidden h-9 w-9 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-sand-100 hover:text-ink sm:flex"
             >
-              <User className="h-5 w-5" aria-hidden />
+              <User className="h-[18px] w-[18px]" aria-hidden />
               {user && <span className="absolute bottom-1.5 right-1.5 h-2 w-2 rounded-full bg-emerald-500 ring-2 ring-white" aria-hidden />}
             </Link>
 
@@ -142,9 +142,9 @@ export function Header() {
               to="/wishlist"
               aria-label={t('a11y.wishlistLink', { count: wishCount })}
               title={t('common.wishlist')}
-              className="relative hidden h-10 w-10 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-sand-100 hover:text-ink sm:flex"
+              className="relative hidden h-9 w-9 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-sand-100 hover:text-ink sm:flex"
             >
-              <Heart className="h-5 w-5" aria-hidden />
+              <Heart className="h-[18px] w-[18px]" aria-hidden />
               <CountBadge count={wishCount} />
             </Link>
 
@@ -153,9 +153,9 @@ export function Header() {
               onClick={openCart}
               aria-label={t('a11y.openCart', { count: cartCount })}
               aria-haspopup="dialog"
-              className="relative flex h-10 w-10 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-sand-100 hover:text-ink"
+              className="relative flex h-9 w-9 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-sand-100 hover:text-ink"
             >
-              <ShoppingBag className="h-5 w-5" aria-hidden />
+              <ShoppingBag className="h-[18px] w-[18px]" aria-hidden />
               <CountBadge count={cartCount} />
             </button>
           </div>

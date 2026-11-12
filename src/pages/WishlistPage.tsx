@@ -142,7 +142,7 @@ export default function WishlistPage() {
                       <img src={product.images[0].src} alt={loc(product.images[0].alt)} className="h-full w-full object-cover" loading="lazy" />
                       {soldOut && <Badge tone="muted" className="absolute left-2.5 top-2.5">{t('wishlist.unavailable')}</Badge>}
                     </div>
-                    <h2 className="mt-3 font-sans text-[15px] font-medium leading-snug group-hover:underline">{name}</h2>
+                    <h2 className="mt-3 font-sans text-[14px] font-medium leading-snug group-hover:underline">{name}</h2>
                   </Link>
                   <VariantPrice variants={product.variants} size="sm" className="mt-1" />
                   <div className="mt-3 flex gap-2">

@@ -88,7 +88,7 @@ export function CategoriesMenu({ className }: { className?: string }) {
         onMouseEnter={() => setActive(id)}
         onFocus={() => setActive(id)}
         onClick={() => (active === id && href ? go(href) : setActive(id))}
-        className={cn('flex w-full items-center justify-between gap-3 px-6 py-3.5 text-left text-[17px] text-ink hover:bg-sand-100', active === id && 'bg-sand-100')}
+        className={cn('flex w-full items-center justify-between gap-3 px-6 py-3.5 text-left text-[15px] text-ink hover:bg-sand-100', active === id && 'bg-sand-100')}
       >
         {label}
         <ChevronRight className="h-5 w-5 shrink-0" aria-hidden />
@@ -103,7 +103,7 @@ export function CategoriesMenu({ className }: { className?: string }) {
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-haspopup="menu"
-        className={cn('flex h-12 items-center gap-2 whitespace-nowrap rounded-full px-5 text-[15px] font-semibold text-ink transition-colors', open ? 'bg-sand-200' : 'bg-sand-100 hover:bg-sand-200')}
+        className={cn('flex h-10 items-center gap-2 whitespace-nowrap rounded-full px-4 text-[14px] font-semibold text-ink transition-colors', open ? 'bg-sand-200' : 'bg-sand-100 hover:bg-sand-200')}
       >
         <Menu className="h-[18px] w-[18px]" aria-hidden />
         {t('nav.categories')}

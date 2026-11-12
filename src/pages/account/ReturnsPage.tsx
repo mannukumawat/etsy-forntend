@@ -38,7 +38,7 @@ export default function ReturnsPage() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-3xl">{t('returns.title')}</h2>
+      <h2 className="text-2xl">{t('returns.title')}</h2>
       {items.length === 0 ? (
         <EmptyState
           icon={<RotateCcw className="h-7 w-7" aria-hidden />}

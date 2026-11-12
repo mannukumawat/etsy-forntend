@@ -41,7 +41,7 @@ export default function OrderDetailPage() {
         <ArrowLeft className="h-4 w-4" aria-hidden /> {t('account.backToOrders')}
       </Link>
       <div className="flex flex-wrap items-center gap-3">
-        <h2 className="text-3xl">
+        <h2 className="text-2xl">
           {t('order.orderNumber')} <span className="font-mono text-2xl">{order.number}</span>
         </h2>
         <OrderStatusBadge status={order.status} />

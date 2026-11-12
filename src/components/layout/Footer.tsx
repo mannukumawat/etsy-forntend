@@ -79,6 +79,7 @@ export function Footer() {
           <div>
             <h2 className={heading}>{t('nav.help')}</h2>
             <ul className="mt-3 space-y-2">
+              <li><Link to="/help" className={link}>Help Center</Link></li>
               <li><Link to="/shipping" className={link}>{t('nav.shipping')}</Link></li>
               <li><Link to="/returns" className={link}>{t('nav.returns')}</Link></li>
               <li><Link to="/faq" className={link}>{t('nav.faq')}</Link></li>

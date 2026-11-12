@@ -33,6 +33,9 @@ const FaqPage = lazy(() => import('@/pages/info/FaqPage'));
 const ShippingPage = lazy(() => import('@/pages/info/ShippingPage'));
 const PolicyPage = lazy(() => import('@/pages/info/PolicyPage'));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
+const HelpCenterPage = lazy(() => import('@/pages/help/HelpCenterPage'));
+const HelpCategoryPage = lazy(() => import('@/pages/help/HelpCategoryPage'));
+const HelpArticlePage = lazy(() => import('@/pages/help/HelpArticlePage'));
 
 export const router = createBrowserRouter([
   {
@@ -67,6 +70,9 @@ export const router = createBrowserRouter([
       },
       { path: '/wishlist', element: <WishlistPage /> },
       { path: '/track-order', element: <TrackOrderPage /> },
+      { path: '/help', element: <HelpCenterPage /> },
+      { path: '/help/:category', element: <HelpCategoryPage /> },
+      { path: '/help/:category/:article', element: <HelpArticlePage /> },
       { path: '/about', element: <AboutPage /> },
       { path: '/contact', element: <ContactPage /> },
       { path: '/faq', element: <FaqPage /> },

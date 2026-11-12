@@ -10,7 +10,7 @@ export function VariantPrice({ variants, size = 'md', className }: { variants: P
   const money = useMoney();
   if (!variants.length) return null;
   const range = priceRange(variants);
-  const text = { sm: 'text-[15px]', md: 'text-base', lg: 'text-3xl' }[size];
+  const text = { sm: 'text-[14px]', md: 'text-base', lg: 'text-3xl' }[size];
   const onSale = range.compareAt !== undefined;
   return (
     <p className={cn('flex flex-wrap items-baseline gap-x-2', className)}>

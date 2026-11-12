@@ -22,7 +22,7 @@ export default function OrdersPage() {
 
   return (
     <section aria-labelledby="orders-title">
-      <h2 id="orders-title" className="text-3xl font-semibold text-ink">
+      <h2 id="orders-title" className="text-2xl font-semibold text-ink">
         {t('account.orders')}
       </h2>
       <div className="mt-6">
@@ -42,49 +42,38 @@ export default function OrdersPage() {
               <li key={o.id}>
                 <Link
                   to={`/account/orders/${o.id}`}
-                  className="card block p-4 transition hover:shadow-md sm:p-5"
+                  className="card block p-4 transition hover:border-sand-300 hover:shadow-lift sm:p-5"
                   aria-label={`${t('order.orderNumber')} ${o.number}`}
                 >
-                  {/* Header: order number + status badge + chevron */}
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div className="flex items-center gap-3">
-                      <span className="font-mono text-sm font-semibold text-ink">{o.number}</span>
-                      <OrderStatusBadge status={o.status} />
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="font-mono text-[13px] font-semibold text-ink">{o.number}</span>
+                        <OrderStatusBadge status={o.status} />
+                      </div>
+                      <p className="mt-1 text-xs text-ink-muted">{formatDate(o.createdAt, lang)}</p>
                     </div>
-                    <ChevronRight className="h-4 w-4 shrink-0 text-ink-muted" aria-hidden />
+                    <div className="flex shrink-0 items-center gap-2">
+                      <span className="text-[13px] font-semibold text-ink">
+                        <span className="mr-1 text-xs font-medium text-ink-muted">{o.currency}</span>
+                        {formatMoney(o.total, o.currency, lang)}
+                      </span>
+                      <ChevronRight className="h-4 w-4 text-ink-muted" aria-hidden />
+                    </div>
                   </div>
 
-                  {/* Date + total */}
-                  <div className="mt-2 flex flex-wrap gap-x-6 gap-y-0.5 text-sm text-ink-muted">
-                    <span>{formatDate(o.createdAt, lang)}</span>
-                    <span className="font-medium text-ink">
-                      {o.currency} {formatMoney(o.total, o.currency, lang)}
-                    </span>
-                  </div>
-
-                  {/* Product thumbnails + names */}
-                  <div className="mt-3 flex flex-wrap items-center gap-3">
-                    <ul className="flex -space-x-2" aria-hidden>
-                      {o.lines.slice(0, 5).map((l) => (
+                  <div className="mt-3 flex items-center gap-3 border-t border-sand-200 pt-3">
+                    <ul className="flex shrink-0 gap-1.5" aria-hidden>
+                      {o.lines.slice(0, 4).map((l) => (
                         <li key={l.variantId}>
-                          <img
-                            src={l.image.src}
-                            alt=""
-                            title={loc(l.name)}
-                            className="h-11 w-11 rounded-full border-2 border-white object-cover shadow-sm"
-                            loading="lazy"
-                          />
+                          <img src={l.image.src} alt="" title={loc(l.name)} className="h-11 w-11 rounded-lg border border-sand-200 object-cover" loading="lazy" />
                         </li>
                       ))}
-                      {o.lines.length > 5 && (
-                        <li className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-white bg-sand-100 text-xs font-semibold text-ink-muted shadow-sm">
-                          +{o.lines.length - 5}
-                        </li>
+                      {o.lines.length > 4 && (
+                        <li className="flex h-11 w-11 items-center justify-center rounded-lg border border-sand-200 bg-sand-100 text-xs font-semibold text-ink-muted">+{o.lines.length - 4}</li>
                       )}
                     </ul>
-                    <p className="min-w-0 flex-1 truncate text-sm text-ink-soft">
-                      {o.lines.map((l) => loc(l.name)).join(', ')}
-                    </p>
+                    <p className="line-clamp-2 min-w-0 flex-1 text-[13px] leading-snug text-ink-soft">{o.lines.map((l) => loc(l.name)).join(', ')}</p>
                   </div>
                 </Link>
               </li>

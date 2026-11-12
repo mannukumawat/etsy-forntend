@@ -100,9 +100,9 @@ export function DetailsStep({ onDone }: { onDone: () => void }) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-8">
       {user ? (
-        <p className="flex items-center gap-2 text-sm text-ink-soft">
-          <UserCircle2 className="h-5 w-5 text-ink-muted" aria-hidden />
-          {t('checkout.signedInAs', { email: user.email })}
+        <p className="flex items-center gap-2 rounded-lg bg-sage-100 px-3 py-2.5 text-sm text-sage-700">
+          <UserCircle2 className="h-5 w-5 shrink-0" aria-hidden />
+          <span className="min-w-0 break-words">{t('checkout.signedInAs', { email: user.email })}</span>
         </p>
       ) : (
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-sand-200 bg-white px-4 py-3 text-sm">
@@ -117,7 +117,7 @@ export function DetailsStep({ onDone }: { onDone: () => void }) {
       )}
 
       <section aria-labelledby="contact-title">
-        <h2 id="contact-title" className="mb-4 text-2xl">
+        <h2 id="contact-title" className="mb-4 text-xl sm:text-2xl">
           {t('checkout.contactTitle')}
         </h2>
         <div className="space-y-4">
@@ -126,8 +126,8 @@ export function DetailsStep({ onDone }: { onDone: () => void }) {
         </div>
       </section>
 
-      <section aria-labelledby="address-title">
-        <h2 id="address-title" className="mb-4 text-2xl">
+      <section aria-labelledby="address-title" className="border-t border-sand-200 pt-8">
+        <h2 id="address-title" className="mb-4 text-xl sm:text-2xl">
           {t('checkout.addressTitle')}
         </h2>
         {saved.length > 0 ? (
@@ -196,9 +196,11 @@ export function DetailsStep({ onDone }: { onDone: () => void }) {
         )}
       </section>
 
-      <Button type="submit" size="lg" loading={isSubmitting} disabled={unsupported} className="w-full sm:w-auto">
-        {t('checkout.continueToShipping')} <ArrowRight className="h-4 w-4" aria-hidden />
-      </Button>
+      <div className="border-t border-sand-200 pt-6">
+        <Button type="submit" size="lg" loading={isSubmitting} disabled={unsupported} className="w-full sm:w-auto">
+          {t('checkout.continueToShipping')} <ArrowRight className="h-4 w-4" aria-hidden />
+        </Button>
+      </div>
     </form>
   );
 }

@@ -54,7 +54,7 @@ export default function AccountPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-3xl">{t('account.welcome', { name: user.name.split(' ')[0] })}</h2>
+        <h2 className="text-2xl">{t('account.welcome', { name: user.name.split(' ')[0] })}</h2>
         <p className="mt-1 text-sm text-ink-muted">{t('account.memberSince', { date: formatDate(user.createdAt, lang, { month: 'long', year: 'numeric' }) })}</p>
       </div>
 

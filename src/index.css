@@ -11,10 +11,17 @@
   html {
     -webkit-text-size-adjust: 100%;
     scroll-behavior: smooth;
+    /* Slightly smaller than the 16px browser default so type and spacing (all rem-based) feel less oversized. */
+    font-size: 15px;
+  }
+  @media (min-width: 1024px) {
+    html {
+      font-size: 14px;
+    }
   }
 
   body {
-    @apply bg-ivory font-sans text-[15px] leading-relaxed text-ink antialiased;
+    @apply bg-ivory font-sans text-[14px] leading-relaxed text-ink antialiased;
     /* clip, not hidden: hidden can turn body into a scroll container and break the sticky header. */
     overflow-x: clip;
   }

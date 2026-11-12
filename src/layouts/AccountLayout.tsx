@@ -46,13 +46,11 @@ export function AccountLayout() {
 
   return (
     <RequireAuth>
-      <div className="container-site py-8 lg:py-12">
-        <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-4xl lg:text-5xl">{t('account.title')}</h1>
-        </div>
-        <div className="mt-8 grid gap-8 lg:grid-cols-[220px_1fr]">
+      <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
+        <h1 className="text-3xl lg:text-4xl">{t('account.title')}</h1>
+        <div className="mt-6 grid gap-6 lg:grid-cols-[210px_minmax(0,1fr)] lg:gap-10">
           <nav aria-label={t('account.title')}>
-            <ul className="scrollbar-none -mx-4 flex gap-2 overflow-x-auto px-4 lg:mx-0 lg:flex-col lg:px-0">
+            <ul className="scrollbar-none -mx-4 flex gap-1.5 overflow-x-auto px-4 lg:mx-0 lg:flex-col lg:gap-1 lg:px-0">
               {links.map(({ to, label, icon: Icon, end }) => (
                 <li key={to}>
                   <NavLink
@@ -60,7 +58,7 @@ export function AccountLayout() {
                     end={end}
                     className={({ isActive }) =>
                       cn(
-                        'flex items-center gap-3 whitespace-nowrap rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                        'flex items-center gap-3 whitespace-nowrap rounded-lg px-3 py-2 text-[13px] font-medium transition-colors',
                         isActive ? 'bg-ink text-white' : 'text-ink-soft hover:bg-sand-100',
                       )
                     }
@@ -74,7 +72,7 @@ export function AccountLayout() {
                 <button
                   type="button"
                   onClick={signOut}
-                  className="flex w-full items-center gap-3 whitespace-nowrap rounded-lg px-3 py-2.5 text-sm font-medium text-ink-soft hover:bg-sand-100"
+                  className="flex w-full items-center gap-3 whitespace-nowrap rounded-lg px-3 py-2 text-[13px] font-medium text-ink-soft hover:bg-sand-100"
                 >
                   <LogOut className="h-4 w-4" aria-hidden />
                   {t('common.signOut')}

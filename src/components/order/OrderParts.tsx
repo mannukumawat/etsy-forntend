@@ -1,13 +1,16 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Check, Circle, ImagePlus, X } from 'lucide-react';
+import { Check, Circle, ImagePlus, RotateCw, X } from 'lucide-react';
 import { useLanguage, useLocalized } from '@/hooks/useLocale';
 import type { Order, OrderLine, OrderStatus } from '@/types';
 import { cn } from '@/utils/cn';
 import { formatDate } from '@/utils/dates';
 import { formatMoney, formatRate } from '@/utils/money';
 import { invalidateQueries } from '@/hooks/useAsync';
+import { MAX_QTY_PER_LINE } from '@/config/store';
+import { useCart } from '@/store/cart';
+import { useUi } from '@/store/ui';
 import { returnsApi } from '@/api/returns';
 import { uploadReviewPhoto } from '@/api/reviews';
 import { TotalsTable } from '../cart/TotalsTable';
@@ -265,6 +268,8 @@ export function OrderLines({ order, reviewLinks = false }: { order: Order; revie
     <ul className="divide-y divide-sand-200">
       {order.lines.map((l) => {
         const active = activeAction?.variantId === l.variantId ? activeAction.action : null;
+        const cancelledQty: number = (l as any).cancelledQty ?? 0;
+        const fullyCancelled = cancelledQty >= l.quantity;
         return (
           <li key={l.variantId} className="py-3">
             <div className="flex items-center gap-4">
@@ -277,7 +282,26 @@ export function OrderLines({ order, reviewLinks = false }: { order: Order; revie
                 <p className="text-ink-muted">
                   {t('order.qty', { count: l.quantity })} · {formatMoney(l.unitPrice, order.currency, lang)}
                 </p>
-                {(canCancel || canReturn) && (
+                {cancelledQty > 0 && (
+                  <p className="mt-1 text-xs font-medium text-red-700">
+                    {t('order.status.cancelled')}
+                    {!fullyCancelled ? ` · ${cancelledQty} / ${l.quantity}` : ''}
+                  </p>
+                )}
+                {fullyCancelled && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      useCart.getState().addItem(l.productId, l.variantId, l.quantity, MAX_QTY_PER_LINE);
+                      useUi.getState().openCart();
+                    }}
+                    className="mt-1.5 inline-flex items-center gap-1.5 rounded-md border border-brand-600 px-2.5 py-1 text-xs font-semibold text-brand-700 transition-colors hover:bg-brand-50"
+                  >
+                    <RotateCw className="h-3.5 w-3.5" aria-hidden />
+                    {t('order.buyAgain', { defaultValue: 'Buy again' })}
+                  </button>
+                )}
+                {(canCancel || canReturn) && !fullyCancelled && (
                   <div className="mt-1.5 flex flex-wrap gap-2">
                     {canCancel && (
                       <button
@@ -349,6 +373,38 @@ export function OrderTimeline({ order }: { order: Order }) {
   const { t } = useTranslation();
   const lang = useLanguage();
   const reached = STATUSES.indexOf(order.status);
+
+  // A cancelled order stops here: placed -> cancelled, no shipping / delivery steps.
+  if (order.status === 'cancelled') {
+    const fmt = (d: string) => formatDate(d, lang, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    const placedAt = order.timeline.find((e) => e.status === 'placed')?.date ?? order.createdAt;
+    const cancelledAt = order.timeline.find((e) => e.status === 'cancelled')?.date;
+    return (
+      <ol className="relative space-y-6">
+        <li className="relative flex gap-4">
+          <span className="absolute left-[13px] top-7 h-[calc(100%+0.5rem)] w-0.5 bg-red-200" aria-hidden />
+          <span className="relative z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white" aria-hidden>
+            <Check className="h-4 w-4" />
+          </span>
+          <div className="pt-0.5">
+            <p className="font-medium text-ink">{t('order.status.placed')}</p>
+            <p className="text-sm text-ink-muted">{fmt(placedAt)}</p>
+          </div>
+        </li>
+        <li className="relative flex gap-4" aria-current="step">
+          <span className="relative z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-600 text-white" aria-hidden>
+            <X className="h-4 w-4" />
+          </span>
+          <div className="pt-0.5">
+            <p className="font-medium text-red-700">{t('order.status.cancelled')}</p>
+            {cancelledAt && <p className="text-sm text-ink-muted">{fmt(cancelledAt)}</p>}
+            <p className="mt-1 text-sm text-ink-muted">{t('order.cancelledNote', { defaultValue: 'This order was cancelled and will not be shipped.' })}</p>
+          </div>
+        </li>
+      </ol>
+    );
+  }
+
   return (
     <ol className="relative space-y-6">
       {STATUSES.map((s, i) => {

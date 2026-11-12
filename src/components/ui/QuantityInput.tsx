@@ -63,7 +63,7 @@ export function QuantityInput({ value, onChange, min = 1, max, label, hideLabel,
               commit();
             }
           }}
-          className={cn('w-12 border-x border-sand-200 bg-transparent text-center text-[15px] font-medium focus:outline-none', h)}
+          className={cn('w-12 border-x border-sand-200 bg-transparent text-center text-[14px] font-medium focus:outline-none', h)}
         />
         <button
           type="button"

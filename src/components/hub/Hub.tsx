@@ -64,7 +64,7 @@ export function HubProductCard({ product }: { product: Product }) {
             {soldOut && <span className="rounded-full bg-ink/80 px-3 py-1 text-xs font-medium text-white">{t('common.soldOut')}</span>}
           </div>
         </div>
-        <h3 className="mt-3 line-clamp-1 font-sans text-[15px] text-ink group-hover:underline">{loc(product.name)}</h3>
+        <h3 className="mt-3 line-clamp-1 font-sans text-[14px] text-ink group-hover:underline">{loc(product.name)}</h3>
       </Link>
       {product.reviewCount > 0 && (
         <p className="mt-0.5 flex items-center gap-1 text-sm text-ink">
@@ -85,7 +85,7 @@ export function HubProductCard({ product }: { product: Product }) {
           </>
         )}
       </p>
-      <Link to={`/category/${product.categoryId}`} className="mt-2 inline-flex w-fit items-center gap-1.5 text-[15px] font-semibold text-ink hover:underline">
+      <Link to={`/category/${product.categoryId}`} className="mt-2 inline-flex w-fit items-center gap-1.5 text-[14px] font-semibold text-ink hover:underline">
         {t('hub.moreLikeThis')}
         <ArrowRight className="h-4 w-4" aria-hidden />
       </Link>
@@ -241,7 +241,7 @@ export function HubSection({ title, products }: { title: string; products: Produ
           type="button"
           onClick={() => setOpen(true)}
           aria-haspopup="dialog"
-          className={cn('inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-[15px] font-semibold text-ink', count ? 'bg-ink text-white' : 'bg-sand-100 hover:bg-sand-200')}
+          className={cn('inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-[14px] font-semibold text-ink', count ? 'bg-ink text-white' : 'bg-sand-100 hover:bg-sand-200')}
         >
           <SlidersHorizontal className="h-4 w-4" aria-hidden />
           {t('hub.filters')}
@@ -313,7 +313,7 @@ export function HubHero({ title, subtitle, color, image, circles = [] }: { title
                     <span className="block aspect-square w-full max-w-[200px] overflow-hidden rounded-full bg-sand-100 shadow-sm ring-4 ring-ivory-50">
                       {img && <img src={img} alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />}
                     </span>
-                    <span className="inline-flex items-center gap-1.5 text-[15px] font-semibold text-ink group-hover:underline">
+                    <span className="inline-flex items-center gap-1.5 text-[14px] font-semibold text-ink group-hover:underline">
                       {c.label}
                       <ArrowRight className="h-4 w-4 shrink-0" aria-hidden />
                     </span>

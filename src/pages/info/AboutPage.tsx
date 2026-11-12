@@ -74,7 +74,7 @@ function SectionBlock({ section, index }: { section: AboutSection; index: number
             <h2 className="mt-1 text-3xl lg:text-4xl">{section.heading}</h2>
             <div className="mt-2 h-px w-14 bg-brand-500" aria-hidden />
             <div className="mt-5 space-y-4">
-              <Paragraphs text={section.body} className="text-base leading-relaxed text-ink-soft lg:text-[17px]" />
+              <Paragraphs text={section.body} className="text-base leading-relaxed text-ink-soft lg:text-[16px]" />
             </div>
           </div>
         </div>
@@ -91,7 +91,7 @@ function SectionBlock({ section, index }: { section: AboutSection; index: number
         <h2 className="mt-1 text-3xl lg:text-4xl">{section.heading}</h2>
         <div className="mx-auto mt-3 h-px w-14 bg-brand-500" aria-hidden />
         <div className="mt-5 space-y-4">
-          <Paragraphs text={section.body} className="text-base leading-relaxed text-ink-soft lg:text-[17px]" />
+          <Paragraphs text={section.body} className="text-base leading-relaxed text-ink-soft lg:text-[16px]" />
         </div>
       </div>
     </section>

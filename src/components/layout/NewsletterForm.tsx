@@ -52,7 +52,7 @@ export function NewsletterForm({ id = 'newsletter', tone = 'light' }: { id?: str
           placeholder={t('footer.emailPlaceholder')}
           aria-invalid={errors.email ? true : undefined}
           aria-describedby={errors.email ? `${id}-error` : undefined}
-          className="h-11 min-w-0 flex-1 bg-transparent px-3 text-[15px] placeholder:text-ink-faint focus:outline-none"
+          className="h-11 min-w-0 flex-1 bg-transparent px-3 text-[14px] placeholder:text-ink-faint focus:outline-none"
           {...register('email')}
         />
         <button

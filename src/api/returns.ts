@@ -7,7 +7,8 @@ const headers = () => ({ 'content-type': 'application/json', 'x-csrf-token': csr
 async function handle<T>(r: Response): Promise<T> {
   if (r.ok) return r.json();
   const j = await r.json().catch(() => ({}));
-  throw new Error((j as any).message ?? 'Error');
+  // The API wraps errors as { error: { code, message } }.
+  throw new Error((j as any).error?.message ?? (j as any).message ?? 'Something went wrong. Please try again.');
 }
 
 export const returnsApi = {

@@ -13,10 +13,12 @@ interface TotalsTableProps {
   showTax?: boolean;
   totalLabel?: string;
   snapshot?: RateSnapshot;
+  /** `sm` = smaller total, for tight spots like the checkout sidebar. */
+  size?: 'md' | 'sm';
 }
 
 /** Subtotal / discount / shipping / tax / total, always labelled with the currency code. */
-export function TotalsTable({ totals, currency, couponCode, shippingPlaceholder, showTax = true, totalLabel, snapshot }: TotalsTableProps) {
+export function TotalsTable({ totals, currency, couponCode, shippingPlaceholder, showTax = true, totalLabel, snapshot, size = 'md' }: TotalsTableProps) {
   const { t } = useTranslation();
   const lang = useLanguage();
   const fmt = (n: number) => formatMoney(n, currency, lang);
@@ -48,7 +50,7 @@ export function TotalsTable({ totals, currency, couponCode, shippingPlaceholder,
         )}
         <div className="mt-2 flex items-baseline justify-between gap-4 border-t border-sand-200 pt-3">
           <dt className="font-semibold text-ink">{totalLabel ?? t('cart.totalCode', { currency })}</dt>
-          <dd className="font-serif text-2xl font-semibold">
+          <dd className={size === 'sm' ? 'text-base font-semibold text-ink' : 'text-lg font-semibold text-ink'}>
             <span className="mr-1.5 font-sans text-xs font-medium text-ink-muted">{currency}</span>
             {fmt(totals.total)}
           </dd>

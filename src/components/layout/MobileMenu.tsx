@@ -24,7 +24,7 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
   const collectionHrefs = new Set(navCollections.map((collection) => `/collection/${collection.slug}`));
   const customLinks = navLinks?.filter((link) => !collectionHrefs.has(link.href)) ?? [];
 
-  const item = 'flex items-center justify-between rounded-lg px-2 py-3 text-[15px] font-medium text-ink hover:bg-sand-100';
+  const item = 'flex items-center justify-between rounded-lg px-2 py-3 text-[14px] font-medium text-ink hover:bg-sand-100';
 
   return (
     <Drawer open={open} onClose={onClose} title={t('a11y.menu')} side="left">
@@ -100,6 +100,11 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
       </section>
 
       <ul className="mt-8 grid grid-cols-2 gap-2 text-sm text-ink-muted">
+        <li>
+          <Link to="/help" className="hover:text-ink hover:underline" onClick={onClose}>
+            Help Center
+          </Link>
+        </li>
         {(['contact', 'faq', 'shipping', 'returns', 'privacy', 'terms'] as const).map((k) => (
           <li key={k}>
             <Link to={`/${k}`} className="hover:text-ink hover:underline" onClick={onClose}>

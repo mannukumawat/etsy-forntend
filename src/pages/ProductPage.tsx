@@ -163,7 +163,7 @@ function ProductDetail({ product, onReviewsChanged }: { product: Product; onRevi
             {loc(category.name)}
           </Link>
           <div className="mt-2 flex items-start justify-between gap-4">
-            <h1 className="font-serif text-[26px] font-semibold leading-snug text-ink lg:text-[32px]">{loc(product.name)}</h1>
+            <h1 className="font-serif text-[24px] font-semibold leading-snug text-ink lg:text-[28px]">{loc(product.name)}</h1>
             <WishlistButton product={product} variantId={variant?.id} className="mt-1 shrink-0 border border-sand-200" />
           </div>
           {product.reviewCount > 0 && (

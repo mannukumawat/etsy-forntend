@@ -8,6 +8,7 @@ import { invalidateQueries } from '@/hooks/useAsync';
 import { returnsApi } from '@/api/returns';
 import { uploadReviewPhoto } from '@/api/reviews';
 import { formatMoney } from '@/utils/money';
+import { estimatedReturnRefund } from '@/utils/refunds';
 import { RefundDestinationPicker } from '../refund/RefundDestinationPicker';
 import { RETURN_REASONS } from '../order.constants';
 
@@ -64,6 +65,10 @@ export function ReturnItemPanel({ line, order, onClose }: { line: OrderLine; ord
   }
 
   const submit = async () => {
+    if (isCod && !refundAccountId) {
+      setErr(t('returns.selectBankAccount', { defaultValue: 'Select a saved bank account for the refund.' }));
+      return;
+    }
     setErr(null);
     setLoading(true);
     try {
@@ -86,7 +91,7 @@ export function ReturnItemPanel({ line, order, onClose }: { line: OrderLine; ord
     }
   };
 
-  const estimatedRefund = Math.round(line.unitPrice * qty);
+  const estimatedRefund = estimatedReturnRefund(order, line, qty);
 
   return (
     <div className="mt-3 space-y-4 rounded-xl border border-sand-200 bg-sand-50/70 p-4 text-sm">
@@ -182,7 +187,7 @@ export function ReturnItemPanel({ line, order, onClose }: { line: OrderLine; ord
             <button
               type="button"
               onClick={submit}
-              disabled={loading || uploading}
+              disabled={loading || uploading || (isCod && !refundAccountId)}
               className="rounded-lg bg-ink px-4 py-2 text-xs font-semibold text-white hover:bg-ink/90 disabled:opacity-50"
             >
               {loading ? t('common.saving') : t('returns.submitReturn')}

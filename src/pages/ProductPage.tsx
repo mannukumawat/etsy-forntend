@@ -204,7 +204,7 @@ function ProductDetail({ product, onReviewsChanged }: { product: Product; onRevi
               </div>
             )}
 
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="sticky bottom-16 z-20 -mx-4 grid grid-cols-2 gap-2 border-y border-sand-200 bg-ivory-50/95 px-4 py-3 shadow-[0_-8px_24px_rgba(45,37,29,0.08)] backdrop-blur sm:static sm:mx-0 sm:gap-3 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
               <Button size="lg" onClick={onAdd} disabled={allSoldOut || variant?.stock === 0} fullWidth>
                 {allSoldOut || variant?.stock === 0 ? t('product.soldOut') : t('product.addToCart')}
               </Button>

@@ -24,6 +24,9 @@
     @apply bg-ivory font-sans text-[14px] leading-relaxed text-ink antialiased;
     /* clip, not hidden: hidden can turn body into a scroll container and break the sticky header. */
     overflow-x: clip;
+    min-width: 320px;
+    overscroll-behavior-y: none;
+    -webkit-tap-highlight-color: transparent;
   }
 
   h1,
@@ -73,7 +76,7 @@
 
 @layer components {
   .container-site {
-    @apply mx-auto w-full px-[10px];
+    @apply mx-auto w-full px-4 sm:px-6 lg:px-10;
   }
 
   /* Header and footer get roomier side gutters than page content. */
@@ -82,7 +85,7 @@
   }
 
   .input {
-    @apply block w-full rounded-lg border border-sand-300 bg-white px-3 py-2.5 text-[15px] text-ink shadow-sm transition-colors placeholder:text-ink-faint focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-600/25 disabled:cursor-not-allowed disabled:bg-ivory-200 disabled:text-ink-muted;
+    @apply block w-full rounded-lg border border-sand-300 bg-white px-3 py-2.5 text-base text-ink shadow-sm transition-colors placeholder:text-ink-faint focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-600/25 disabled:cursor-not-allowed disabled:bg-ivory-200 disabled:text-ink-muted sm:text-[15px];
   }
   .input[aria-invalid='true'] {
     @apply border-red-700 focus:border-red-700 focus:ring-red-700/20;
@@ -93,7 +96,7 @@
   }
 
   .card {
-    @apply rounded-2xl border border-sand-200 bg-white shadow-card;
+    @apply rounded-xl border border-sand-200 bg-white shadow-card sm:rounded-2xl;
   }
 
   .link {
@@ -106,6 +109,12 @@
 
   .prose-store p + p {
     @apply mt-3;
+  }
+}
+
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .mobile-bottom-nav {
+    padding-bottom: env(safe-area-inset-bottom);
   }
 }
 

@@ -49,20 +49,20 @@ export function AccountLayout() {
 
   return (
     <RequireAuth>
-      <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
+      <div className="mx-auto w-full max-w-6xl px-4 py-5 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
         <div className="mt-0 grid gap-6 lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-10">
           {/* Sidebar / mobile top nav */}
-          <nav aria-label={t('account.title')} className="lg:self-start lg:sticky lg:top-8">
+          <nav aria-label={t('account.title')} className="hidden lg:block lg:self-start lg:sticky lg:top-8">
             {/* Mobile: horizontal scroll strip */}
-            <ul className="scrollbar-none -mx-4 flex gap-1 overflow-x-auto px-4 pb-1 lg:hidden">
+            <ul className="scrollbar-none -mx-4 flex snap-x gap-2 overflow-x-auto px-4 pb-1 lg:hidden">
               {links.map(({ to, label, icon: Icon, end }) => (
-                <li key={to} className="shrink-0">
+                <li key={to} className="shrink-0 snap-start">
                   <NavLink
                     to={to}
                     end={end}
                     className={({ isActive }) =>
                       cn(
-                        'flex items-center gap-2 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium transition-colors',
+                        'flex h-10 items-center gap-2 whitespace-nowrap rounded-full border px-4 text-xs font-semibold transition-colors',
                         isActive ? 'border-ink bg-ink text-white' : 'border-sand-300 text-ink-soft hover:border-ink-muted hover:text-ink',
                       )
                     }
@@ -76,7 +76,7 @@ export function AccountLayout() {
                 <button
                   type="button"
                   onClick={signOut}
-                  className="flex items-center gap-2 whitespace-nowrap rounded-full border border-sand-300 px-3 py-1.5 text-xs font-medium text-ink-soft hover:border-ink-muted hover:text-ink"
+                  className="flex h-10 items-center gap-2 whitespace-nowrap rounded-full border border-sand-300 px-4 text-xs font-semibold text-ink-soft hover:border-ink-muted hover:text-ink"
                 >
                   <LogOut className="h-3.5 w-3.5" aria-hidden />
                   {t('common.signOut')}

@@ -102,7 +102,7 @@ export function ReturnItemPanel({ line, order, onClose }: { line: OrderLine; ord
         <p className="text-xs text-ink-muted">{t('returns.noEligibleQty')}</p>
       ) : (
         <>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <label className="block text-xs font-medium text-ink-muted mb-1.5">{t('returns.returnQty')}</label>
               <select

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
-import { MapPin, Plus } from 'lucide-react';
+import { Home, MapPin, Pencil, Plus, Trash2 } from 'lucide-react';
 import { AddressBlock } from '@/components/checkout/AddressBlock';
 import { AddressFields } from '@/components/checkout/AddressFields';
 import { Button } from '@/components/ui/Button';
@@ -39,11 +39,11 @@ function AddressForm({ initial, onCancel, onSave }: { initial?: SavedAddress; on
       <TextField id="addr-label" label={t('address.label')} placeholder={t('address.labelPlaceholder')} required error={errors.label?.message} {...register('label')} />
       <AddressFields form={form} idPrefix="addr" />
       <CheckboxField id="addr-default" label={t('address.makeDefault')} {...register('isDefault')} />
-      <div className="flex justify-end gap-2 border-t border-sand-200 pt-4">
-        <Button variant="ghost" onClick={onCancel}>
+      <div className="grid grid-cols-2 gap-2 border-t border-sand-200 pt-4 sm:flex sm:justify-end">
+        <Button variant="ghost" onClick={onCancel} className="w-full sm:w-auto">
           {t('common.cancel')}
         </Button>
-        <Button type="submit" loading={isSubmitting}>
+        <Button type="submit" loading={isSubmitting} className="w-full sm:w-auto">
           {isSubmitting ? t('common.saving') : t('common.save')}
         </Button>
       </div>
@@ -106,8 +106,8 @@ export default function AddressesPage() {
   };
 
   return (
-    <section aria-labelledby="addr-title">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <section aria-labelledby="addr-title" className="pb-4">
+      <div className="hidden items-center justify-between gap-3 md:flex">
         <h2 id="addr-title" className="text-2xl">
           {t('account.addresses')}
         </h2>
@@ -116,7 +116,15 @@ export default function AddressesPage() {
         </Button>
       </div>
 
-      <div className="mt-6">
+      <div className="md:hidden">
+        <p className="text-sm text-ink-muted">{t('account.addresses')}</p>
+        <button type="button" onClick={() => setEditing('new')} className="mt-3 flex min-h-14 w-full items-center gap-3 rounded-2xl border border-brand-300 bg-white px-4 text-left text-sm font-semibold text-brand-700 shadow-sm">
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-50"><Plus className="h-5 w-5" aria-hidden /></span>
+          <span className="flex-1">{t('account.addAddress')}</span>
+        </button>
+      </div>
+
+      <div className="mt-4 md:mt-6">
         {isError ? (
           <ErrorState onRetry={reload} />
         ) : !data ? (
@@ -127,27 +135,34 @@ export default function AddressesPage() {
         ) : data.length === 0 ? (
           <EmptyState icon={<MapPin className="h-7 w-7" aria-hidden />} title={t('account.noAddresses')} />
         ) : (
-          <ul className="grid gap-4 sm:grid-cols-2">
+          <ul className="grid gap-3 sm:grid-cols-2 md:gap-4">
             {data.map((a) => (
-              <li key={a.id} className="card flex flex-col p-5">
-                <div className="mb-2 flex items-center gap-2">
-                  <p className="font-semibold">{a.label}</p>
-                  {a.isDefault && <Badge tone="success">{t('address.default')}</Badge>}
+              <li key={a.id} className="card flex flex-col overflow-hidden p-0 md:p-5">
+                <div className="flex gap-3 p-4 md:block md:p-0">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sand-100 text-brand-700 md:hidden">
+                    <Home className="h-5 w-5" aria-hidden />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="mb-2 flex flex-wrap items-center gap-2">
+                      <p className="font-semibold text-ink">{a.label}</p>
+                      {a.isDefault && <Badge tone="success">{t('address.default')}</Badge>}
+                    </div>
+                    <div className="text-sm leading-6 text-ink-soft">
+                      <AddressBlock address={a} />
+                    </div>
+                  </div>
                 </div>
-                <div className="text-sm">
-                  <AddressBlock address={a} />
-                </div>
-                <div className="mt-auto flex flex-wrap gap-x-4 gap-y-2 pt-4 text-sm">
-                  <button type="button" className="link" onClick={() => setEditing(a)}>
-                    {t('common.edit')} <span className="sr-only">{a.label}</span>
+                <div className="mt-auto grid grid-cols-2 border-t border-sand-200 text-sm md:flex md:flex-wrap md:gap-x-4 md:gap-y-2 md:border-0 md:pt-4">
+                  <button type="button" className="flex min-h-12 items-center justify-center gap-2 border-r border-sand-200 font-semibold text-brand-700 md:min-h-0 md:justify-start md:border-0 md:font-medium md:underline md:underline-offset-2" onClick={() => setEditing(a)}>
+                    <Pencil className="h-4 w-4 md:hidden" aria-hidden /> {t('common.edit')} <span className="sr-only">{a.label}</span>
                   </button>
                   {!a.isDefault && (
-                    <button type="button" className="link" onClick={() => setDefault(a)} disabled={busy}>
+                    <button type="button" className="col-span-2 order-last min-h-11 border-t border-sand-200 px-3 font-medium text-brand-700 md:order-none md:min-h-0 md:border-0 md:p-0 md:underline md:underline-offset-2" onClick={() => setDefault(a)} disabled={busy}>
                       {t('account.makeDefault')} <span className="sr-only">{a.label}</span>
                     </button>
                   )}
-                  <button type="button" className="font-medium text-red-700 underline underline-offset-2 hover:text-red-800" onClick={() => setDeleting(a)}>
-                    {t('common.delete')} <span className="sr-only">{a.label}</span>
+                  <button type="button" className={`${a.isDefault ? 'col-start-2' : ''} flex min-h-12 items-center justify-center gap-2 font-semibold text-red-700 hover:text-red-800 md:min-h-0 md:font-medium md:underline md:underline-offset-2`} onClick={() => setDeleting(a)}>
+                    <Trash2 className="h-4 w-4 md:hidden" aria-hidden /> {t('common.delete')} <span className="sr-only">{a.label}</span>
                   </button>
                 </div>
               </li>

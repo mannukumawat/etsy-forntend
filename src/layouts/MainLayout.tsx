@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { CartDrawer } from '@/components/cart/CartDrawer';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
+import { MobileBottomNav } from '@/components/layout/MobileBottomNav';
 import { Spinner } from '@/components/ui/Feedback';
 import { ToastViewport } from '@/components/ui/Toasts';
 import { setUnauthorizedHandler } from '@/api';
@@ -62,12 +63,13 @@ export function MainLayout() {
         <AnnouncementBar />
         <Header />
       </div>
-      <main id="main" tabIndex={-1} className="flex-1 focus:outline-none">
+      <main id="main" tabIndex={-1} className="flex-1 pb-20 focus:outline-none md:pb-0">
         <Suspense fallback={<Spinner className="py-32" />}>
           <Outlet />
         </Suspense>
       </main>
-      <Footer />
+      <div className="hidden md:block"><Footer /></div>
+      <MobileBottomNav />
       <CartDrawer />
       <ToastViewport />
       <ScrollRestoration />

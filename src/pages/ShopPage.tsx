@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { SearchX, SlidersHorizontal, X } from 'lucide-react';
@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { Drawer } from '@/components/ui/Dialog';
 import { EmptyState, ErrorState } from '@/components/ui/Feedback';
 import { SelectField } from '@/components/ui/Form';
-import { Breadcrumbs, Pagination } from '@/components/ui/Navigation';
+import { Breadcrumbs } from '@/components/ui/Navigation';
 import { CATEGORY_BY_SLUG, isCategorySlug } from '@/data/categories';
 import { useAsync } from '@/hooks/useAsync';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
@@ -17,7 +17,7 @@ import { useLanguage, useLocalized } from '@/hooks/useLocale';
 import { fetchItemGroups, fetchNavLinks } from '@/api';
 import { productService } from '@/services/productService';
 import { usePreferences } from '@/store/preferences';
-import type { AvailabilityFilter, CategorySlug, SortOption } from '@/types';
+import type { AvailabilityFilter, CategorySlug, Product, SortOption } from '@/types';
 import { formatMoney } from '@/utils/money';
 import { activeFilterCount, parseShopState, shopUrl, type ShopState } from '@/utils/shopParams';
 import NotFoundPage from './NotFoundPage';
@@ -33,6 +33,10 @@ export default function ShopPage() {
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const state = useMemo(() => parseShopState(params, slug), [params, slug]);
+  const listStateKey = JSON.stringify({ ...state, page: 1 });
+  const [loadedPage, setLoadedPage] = useState(1);
+  const [visibleProducts, setVisibleProducts] = useState<Product[]>([]);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
   const category = slug && isCategorySlug(slug) ? CATEGORY_BY_SLUG[slug] : undefined;
 
   const { data: itemGroups } = useAsync('nav:item-groups', () => fetchItemGroups());
@@ -41,7 +45,12 @@ export default function ShopPage() {
   const activeNav = state.nav ? navLinks?.find((l) => l.id === state.nav) : undefined;
   const contextName = activeGroup?.nameEn ?? (activeNav ? loc(activeNav.label) : undefined);
 
-  const queryKey = `catalog:list:${currency}:${JSON.stringify(state)}`;
+  useEffect(() => {
+    setLoadedPage(1);
+    setVisibleProducts([]);
+  }, [listStateKey, currency]);
+
+  const queryKey = `catalog:list:${currency}:${listStateKey}:${loadedPage}`;
   const { data, isLoading, isError, reload } = useAsync(
     slug && !category ? null : queryKey,
     () =>
@@ -57,10 +66,32 @@ export default function ShopPage() {
         itemGroupSlug: state.group,
         navLinkId: state.nav,
         sort: state.sort,
-        page: state.page,
+        page: loadedPage,
       }),
     { keepPrevious: true },
   );
+
+  useEffect(() => {
+    if (!data || data.page !== loadedPage) return;
+    setVisibleProducts((current) => {
+      if (loadedPage === 1) return data.items;
+      const known = new Set(current.map((product) => product.id));
+      return [...current, ...data.items.filter((product) => !known.has(product.id))];
+    });
+  }, [data, loadedPage]);
+
+  useEffect(() => {
+    const node = loadMoreRef.current;
+    if (!node || !data || isLoading || loadedPage >= data.pageCount) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) setLoadedPage((page) => Math.min(page + 1, data.pageCount));
+      },
+      { rootMargin: '500px 0px' },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [data, isLoading, loadedPage]);
 
   const title = state.q
     ? t('shop.searchTitle', { q: state.q })
@@ -243,8 +274,12 @@ export default function ShopPage() {
               />
             ) : (
               <div className={isLoading ? 'opacity-60 transition-opacity' : undefined}>
-                <ProductGrid products={data.items} columns={3} eagerCount={3} />
-                <Pagination page={data.page} pageCount={data.pageCount} hrefFor={(p) => shopUrl({ ...state, page: p })} />
+                <ProductGrid products={visibleProducts.length ? visibleProducts : data.items} columns={3} eagerCount={3} />
+                <div ref={loadMoreRef} className="flex min-h-20 items-center justify-center py-6" aria-live="polite">
+                  {loadedPage < data.pageCount && (
+                    <span className="text-sm text-ink-muted">{t('common.loading', { defaultValue: 'Loading more products…' })}</span>
+                  )}
+                </div>
               </div>
             )}
           </div>

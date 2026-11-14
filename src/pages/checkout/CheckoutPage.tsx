@@ -170,9 +170,9 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
+    <div className="mx-auto w-full max-w-6xl px-4 py-5 sm:px-6 sm:py-8 lg:px-8 lg:py-12">
       <div className="flex items-end justify-between gap-4">
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl">{t('checkout.title')}</h1>
+        <h1 className="text-2xl sm:text-4xl lg:text-5xl">{t('checkout.title')}</h1>
         <p className="pb-1 text-sm text-ink-muted">{t('checkout.stepOf', { current: stepIndex + 1, total: STEPS.length })}</p>
       </div>
       <nav aria-label={t('checkout.title')} className="card mt-5 px-4 py-4 sm:px-6">
@@ -184,7 +184,7 @@ export default function CheckoutPage() {
           <OrderSummary details={cart} />
         </div>
 
-        <div ref={contentRef} tabIndex={-1} className="card min-w-0 scroll-mt-32 p-5 focus:outline-none sm:p-8">
+        <div ref={contentRef} tabIndex={-1} className="card min-w-0 scroll-mt-32 p-4 focus:outline-none sm:p-8">
           {cart.isError ? (
             <ErrorState onRetry={cart.reload} />
           ) : (

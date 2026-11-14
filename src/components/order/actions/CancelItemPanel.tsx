@@ -50,7 +50,7 @@ export function CancelItemPanel({ line, order, onClose }: { line: OrderLine; ord
       <p className="font-semibold text-ink">
         {t('order.cancelItem')}: <span className="font-normal text-ink-muted">{loc(line.name)}</span>
       </p>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div>
           <label className="block text-xs font-medium text-ink mb-1">{t('returns.cancelQty')}</label>
           <select

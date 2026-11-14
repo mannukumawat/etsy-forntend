@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Heart, Menu, Search, ShoppingBag, User, X } from 'lucide-react';
+import { ArrowLeft, ChevronRight, Heart, Menu, MapPin, Search, ShoppingBag, User, X } from 'lucide-react';
 import logoMark from '@/assets/logo-mark.png';
 import { fetchCollections, fetchNavLinks } from '@/api';
 import { useAsync } from '@/hooks/useAsync';
@@ -10,6 +10,8 @@ import { selectCartCount, useCart } from '@/store/cart';
 import { useAuth } from '@/store/session';
 import { useUi } from '@/store/ui';
 import { useWishlist } from '@/store/wishlist';
+import { usePreferences } from '@/store/preferences';
+import { getCountry } from '@/data/countries';
 import { cn } from '@/utils/cn';
 import { IconButton } from '../ui/Button';
 import { CategoriesMenu } from './CategoriesMenu';
@@ -29,7 +31,7 @@ function CountBadge({ count }: { count: number }) {
 export function Logo({ className }: { className?: string }) {
   return (
     <Link to="/" className={cn('flex shrink-0 items-center', className)}>
-      <img src={logoMark} alt="Home" className="h-11 w-11 object-contain lg:h-12 lg:w-12" />
+      <img src={logoMark} alt="Home" className="h-9 w-9 object-contain sm:h-11 sm:w-11 lg:h-12 lg:w-12" />
     </Link>
   );
 }
@@ -90,13 +92,77 @@ export function Header() {
   const wishCount = useWishlist((s) => s.items.length);
   const user = useAuth((s) => s.user);
   const openCart = useUi((s) => s.openCart);
+  const deliveryCountry = usePreferences((s) => s.deliveryCountry);
+  const delivery = getCountry(deliveryCountry);
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const isAccountRoute = pathname.startsWith('/account');
+  const accountMobileTitle = pathname.startsWith('/account/orders')
+    ? t('account.orders')
+    : pathname.startsWith('/account/addresses')
+      ? t('account.addresses')
+      : t('account.title');
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
 
   return (
     <header className="relative border-b border-sand-200 bg-ivory-50 shadow-sm">
-      <div>
-        <div className="container-chrome flex h-16 items-center gap-4 lg:gap-0">
+      {isAccountRoute ? (
+        <div className="md:hidden">
+          <div className="container-chrome flex h-16 items-center gap-2">
+            <button type="button" onClick={() => navigate(-1)} aria-label={t('common.back', { defaultValue: 'Back' })} className="-ml-2 flex h-10 w-10 items-center justify-center rounded-full text-ink">
+              <ArrowLeft className="h-5 w-5" aria-hidden />
+            </button>
+            <span className="ml-1 flex-1 text-sm font-semibold uppercase tracking-wide text-ink">
+              {accountMobileTitle}
+            </span>
+            <Link to="/shop" aria-label={t('a11y.openSearch')} className="flex h-10 w-10 items-center justify-center rounded-full text-ink">
+              <Search className="h-5 w-5" aria-hidden />
+            </Link>
+            <button type="button" onClick={openCart} aria-label={t('a11y.openCart', { count: cartCount })} className="relative flex h-10 w-10 items-center justify-center rounded-full text-ink">
+              <ShoppingBag className="h-5 w-5" aria-hidden />
+              <CountBadge count={cartCount} />
+            </button>
+          </div>
+        </div>
+      ) : (
+      <div className="md:hidden">
+        <div className="container-chrome flex h-14 items-center gap-2">
+          <Link
+            to={user ? '/account' : '/login'}
+            aria-label={user ? t('header.signedInAs', { name: user.name }) : t('a11y.accountLink')}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sand-200 font-semibold text-ink"
+          >
+            {user ? user.name.trim().charAt(0).toUpperCase() : <User className="h-5 w-5" aria-hidden />}
+          </Link>
+          <Logo className="ml-1" />
+          <div className="ml-auto flex items-center gap-1">
+            <SettingsButton />
+            <Link to="/wishlist" aria-label={t('a11y.wishlistLink', { count: wishCount })} className="relative flex h-10 w-10 items-center justify-center rounded-full text-ink">
+              <Heart className="h-5 w-5" aria-hidden />
+              <CountBadge count={wishCount} />
+            </Link>
+            <button type="button" onClick={openCart} aria-label={t('a11y.openCart', { count: cartCount })} className="relative flex h-10 w-10 items-center justify-center rounded-full text-ink">
+              <ShoppingBag className="h-5 w-5" aria-hidden />
+              <CountBadge count={cartCount} />
+            </button>
+          </div>
+        </div>
+        <div className="container-chrome pb-3">
+          <SearchBar />
+        </div>
+        <button type="button" onClick={() => setMenuOpen(true)} className="flex w-full items-center gap-2 border-t border-sand-200 bg-sand-100/70 px-4 py-2.5 text-left text-sm font-semibold text-ink">
+          <MapPin className="h-4 w-4 shrink-0 text-brand-700" aria-hidden />
+          <span className="min-w-0 flex-1 truncate">
+            {t('header.deliveringTo', { defaultValue: 'Delivering to' })} {delivery?.name ?? deliveryCountry}
+          </span>
+          <ChevronRight className="h-4 w-4 shrink-0 text-ink-muted" aria-hidden />
+        </button>
+      </div>
+      )}
+
+      <div className="hidden md:block">
+        <div className="container-chrome flex h-14 items-center gap-2 sm:h-16 sm:gap-4 lg:gap-0">
           <IconButton label={t('a11y.openMenu')} className="-ml-2 lg:hidden" onClick={() => setMenuOpen(true)} aria-expanded={menuOpen} aria-haspopup="dialog">
             <Menu className="h-5 w-5" aria-hidden />
           </IconButton>
@@ -153,7 +219,7 @@ export function Header() {
               onClick={openCart}
               aria-label={t('a11y.openCart', { count: cartCount })}
               aria-haspopup="dialog"
-              className="relative flex h-9 w-9 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-sand-100 hover:text-ink"
+              className="relative hidden h-10 w-10 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-sand-100 hover:text-ink sm:flex"
             >
               <ShoppingBag className="h-[18px] w-[18px]" aria-hidden />
               <CountBadge count={cartCount} />

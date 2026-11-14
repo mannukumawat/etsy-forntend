@@ -82,7 +82,7 @@ export default function OrderSuccessPage() {
           </h2>
           <OrderLines order={order} />
           <div className="mt-4 border-t border-sand-200 pt-4">
-            <h3 className="sr-only">{t('order.summary')}</h3>
+            <h3 className="sr-only">{t('order.totals', { defaultValue: 'Order totals' })}</h3>
             <OrderTotals order={order} />
           </div>
         </section>

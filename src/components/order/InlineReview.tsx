@@ -196,7 +196,7 @@ export function InlineReview({ productId, productName }: { productId: string; pr
   // Write / edit form
   if (open) {
     return (
-      <form onSubmit={submit} className="mt-2 space-y-2 rounded-xl border border-sand-200 bg-sand-50 p-3 text-sm">
+      <form onSubmit={submit} className="mt-3 basis-full space-y-3 rounded-xl border border-sand-200 bg-sand-50/70 p-4 text-sm">
         <p className="text-xs font-semibold text-ink">{existing ? t('product.editTitle') : t('product.writeTitle')}: <span className="font-normal text-ink-soft">{productName}</span></p>
         {err && <Notice tone="error" role="alert" className="text-xs">{err}</Notice>}
         <StarPicker value={rating} onChange={setRating} />
@@ -226,7 +226,7 @@ export function InlineReview({ productId, productName }: { productId: string; pr
     <button
       type="button"
       onClick={startEdit}
-      className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-sand-200 bg-sand-50 px-3 py-1.5 text-xs font-medium text-ink hover:bg-sand-100"
+      className="inline-flex items-center gap-1.5 rounded-lg border border-sand-300 bg-white px-3 py-2 text-xs font-semibold text-ink transition-colors hover:border-ink"
     >
       <Star className="h-3.5 w-3.5 text-star" fill="currentColor" strokeWidth={0} />
       {t('product.reviewThis')}

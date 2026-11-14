@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Navigate, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { CreditCard, LogOut, MapPin, Package, RotateCcw, User } from 'lucide-react';
+import { CreditCard, IndianRupee, LogOut, MapPin, Package, RotateCcw, User } from 'lucide-react';
 import { authService } from '@/services/authService';
 import { useAuth, useCheckout } from '@/store/session';
 import { useUi } from '@/store/ui';
@@ -38,49 +38,83 @@ export function AccountLayout() {
   };
 
   const links = [
-    { to: '/account', label: t('nav.profile'), icon: User, end: true },
+    { to: '/account/profile', label: t('nav.profile', { defaultValue: 'Profile' }), icon: User, end: false },
+    { to: '/account', label: t('nav.overview', { defaultValue: 'Overview' }), icon: User, end: true },
     { to: '/account/orders', label: t('nav.orders'), icon: Package, end: false },
     { to: '/account/returns', label: t('account.returnsAndExchanges', { defaultValue: 'Returns & exchanges' }), icon: RotateCcw, end: false },
-    { to: '/account/bank-accounts', label: t('account.refundAccounts', { defaultValue: 'Refund accounts' }), icon: CreditCard, end: false },
     { to: '/account/addresses', label: t('nav.addresses'), icon: MapPin, end: false },
+    { to: '/account/bank-upi', label: 'Bank & UPI', icon: CreditCard, end: false },
+    { to: '/account/payments', label: 'My Payments', icon: IndianRupee, end: false },
   ];
 
   return (
     <RequireAuth>
       <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
-        <h1 className="text-3xl lg:text-4xl">{t('account.title')}</h1>
-        <div className="mt-6 grid gap-6 lg:grid-cols-[210px_minmax(0,1fr)] lg:gap-10">
-          <nav aria-label={t('account.title')}>
-            <ul className="scrollbar-none -mx-4 flex gap-1.5 overflow-x-auto px-4 lg:mx-0 lg:flex-col lg:gap-1 lg:px-0">
+        <div className="mt-0 grid gap-6 lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-10">
+          {/* Sidebar / mobile top nav */}
+          <nav aria-label={t('account.title')} className="lg:self-start lg:sticky lg:top-8">
+            {/* Mobile: horizontal scroll strip */}
+            <ul className="scrollbar-none -mx-4 flex gap-1 overflow-x-auto px-4 pb-1 lg:hidden">
               {links.map(({ to, label, icon: Icon, end }) => (
-                <li key={to}>
+                <li key={to} className="shrink-0">
                   <NavLink
                     to={to}
                     end={end}
                     className={({ isActive }) =>
                       cn(
-                        'flex items-center gap-3 whitespace-nowrap rounded-lg px-3 py-2 text-[13px] font-medium transition-colors',
-                        isActive ? 'bg-ink text-white' : 'text-ink-soft hover:bg-sand-100',
+                        'flex items-center gap-2 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium transition-colors',
+                        isActive ? 'border-ink bg-ink text-white' : 'border-sand-300 text-ink-soft hover:border-ink-muted hover:text-ink',
                       )
                     }
                   >
-                    <Icon className="h-4 w-4" aria-hidden />
+                    <Icon className="h-3.5 w-3.5" aria-hidden />
                     {label}
                   </NavLink>
                 </li>
               ))}
-              <li>
+              <li className="shrink-0">
                 <button
                   type="button"
                   onClick={signOut}
-                  className="flex w-full items-center gap-3 whitespace-nowrap rounded-lg px-3 py-2 text-[13px] font-medium text-ink-soft hover:bg-sand-100"
+                  className="flex items-center gap-2 whitespace-nowrap rounded-full border border-sand-300 px-3 py-1.5 text-xs font-medium text-ink-soft hover:border-ink-muted hover:text-ink"
                 >
-                  <LogOut className="h-4 w-4" aria-hidden />
+                  <LogOut className="h-3.5 w-3.5" aria-hidden />
                   {t('common.signOut')}
                 </button>
               </li>
             </ul>
+
+            {/* Desktop: vertical sidebar */}
+            <div className="hidden lg:flex lg:flex-col lg:gap-0.5">
+              {links.map(({ to, label, icon: Icon, end }) => (
+                <NavLink
+                  key={to}
+                  to={to}
+                  end={end}
+                  className={({ isActive }) =>
+                    cn(
+                      'flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors',
+                      isActive ? 'bg-ink text-white' : 'text-ink-soft hover:bg-sand-100 hover:text-ink',
+                    )
+                  }
+                >
+                  <Icon className="h-4 w-4 shrink-0" aria-hidden />
+                  {label}
+                </NavLink>
+              ))}
+              <div className="mt-4 border-t border-sand-200 pt-4">
+                <button
+                  type="button"
+                  onClick={signOut}
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium text-ink-soft hover:bg-sand-100 hover:text-ink"
+                >
+                  <LogOut className="h-4 w-4 shrink-0" aria-hidden />
+                  {t('common.signOut')}
+                </button>
+              </div>
+            </div>
           </nav>
+
           <div className="min-w-0">
             <Outlet />
           </div>

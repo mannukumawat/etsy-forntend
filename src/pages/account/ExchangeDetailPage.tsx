@@ -83,7 +83,7 @@ export default function ExchangeDetailPage() {
   const { t } = useTranslation();
   const lang = useLanguage();
   const { ref = '' } = useParams();
-  const user = useAuth((s) => s.user)!;
+  useAuth((s) => s.user);
   useDocumentTitle(ref ? `${t('exchange.title', { defaultValue: 'Exchange' })} ${ref}` : t('account.title'));
 
   const { data: exc, error, isLoading, reload } = useAsync(
@@ -120,7 +120,7 @@ export default function ExchangeDetailPage() {
             <dl className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs">
               <dt className="text-ink-muted">{t('exchange.qty', { defaultValue: 'Quantity' })}</dt>
               <dd>{exc.requestedQty}</dd>
-              <dt className="text-ink-muted">{t('exchange.reason', { defaultValue: 'Reason' })}</dt>
+              <dt className="text-ink-muted">{t('exchange.reasonLabel', { defaultValue: 'Reason' })}</dt>
               <dd>{t(`exchange.reason.${exc.reason}`, { defaultValue: exc.reason.replace(/_/g, ' ') })}</dd>
               {exc.priceDifference !== 0 && (
                 <>

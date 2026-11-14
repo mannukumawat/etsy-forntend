@@ -263,6 +263,14 @@ export interface OrderLine {
   unitPrice: Minor;
   quantity: number;
   lineTotal: Minor;
+  /** Server-side fulfilment counters (present on order-detail responses). */
+  cancelledQty?: number;
+  returnedQty?: number;
+  exchangedQty?: number;
+  returnsAllowed?: boolean;
+  exchangeAllowed?: boolean;
+  returnRef?: string;
+  exchangeRef?: string;
 }
 
 export interface OrderTimelineEntry {
@@ -381,4 +389,16 @@ export interface User {
   email: string;
   phone?: string;
   createdAt: string;
+  avatarUrl?: string;
+  gender?: string;
+  languages?: string;
+  occupation?: string;
+  pincode?: string;
+  city?: string;
+  state?: string;
+  dateOfBirth?: string;
+  maritalStatus?: string;
+  numberOfKids?: string;
+  education?: string;
+  monthlyIncome?: string;
 }

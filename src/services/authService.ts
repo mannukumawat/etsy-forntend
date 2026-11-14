@@ -26,8 +26,17 @@ export const authService = {
     return customerAuthApi.confirmPasswordReset(token, password);
   },
 
-  updateProfile(patch: { name: string; email: string; phone?: string }): Promise<User> {
+  updateProfile(patch: {
+    name: string; email: string; phone?: string;
+    avatarUrl?: string; gender?: string; languages?: string; occupation?: string;
+    pincode?: string; city?: string; state?: string; dateOfBirth?: string;
+    maritalStatus?: string; numberOfKids?: string; education?: string; monthlyIncome?: string;
+  }): Promise<User> {
     return customerApi.updateProfile(patch);
+  },
+
+  deleteAccount(): Promise<void> {
+    return customerApi.deleteAccount();
   },
 
   listAddresses(): Promise<SavedAddress[]> {

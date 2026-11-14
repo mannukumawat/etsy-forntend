@@ -28,6 +28,9 @@ function AnnouncementBar() {
 export function MainLayout() {
   const { t } = useTranslation();
   const { pathname } = useLocation();
+  const isFeedbackRoute = /\/account\/orders\/[^/]+\/review\//.test(pathname);
+  const isProductRoute = pathname.startsWith('/product/');
+  const isCartRoute = pathname === '/cart';
   const closeCart = useUi((s) => s.closeCart);
   const setUser = useAuth((s) => s.setUser);
   const signOut = useAuth((s) => s.signOut);
@@ -63,7 +66,7 @@ export function MainLayout() {
         <AnnouncementBar />
         <Header />
       </div>
-      <main id="main" tabIndex={-1} className="flex-1 pb-20 focus:outline-none md:pb-0">
+      <main id="main" tabIndex={-1} className={isFeedbackRoute ? 'h-[calc(100dvh-4rem)] min-h-0 flex-none overflow-hidden pb-0 focus:outline-none' : isProductRoute || isCartRoute ? 'flex-1 pb-24 focus:outline-none md:pb-0' : 'flex-1 pb-20 focus:outline-none md:pb-0'}>
         <Suspense fallback={<Spinner className="py-32" />}>
           <Outlet />
         </Suspense>

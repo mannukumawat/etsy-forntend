@@ -20,7 +20,7 @@ export function MobileBottomNav() {
   const user = useAuth((s) => s.user);
   const wishlistCount = useWishlist((s) => s.items.length);
 
-  if (/^\/(login|register|forgot-password|reset-password|checkout)(\/|$)/.test(pathname)) return null;
+  if (/^\/(login|register|forgot-password|reset-password|checkout|product|cart)(\/|$)/.test(pathname) || /\/account\/orders\/[^/]+\/review\//.test(pathname)) return null;
 
   const items = [
     { to: '/', label: t('nav.home', { defaultValue: 'Home' }), icon: Home, active: pathname === '/' },

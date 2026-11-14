@@ -69,12 +69,13 @@ export function DetailsStep({ onDone }: { onDone: () => void }) {
       (list) => {
         if (cancelled) return;
         setSaved(list);
-        const def = list.find((a) => a.isDefault);
-        if (def && !details) {
-          reset({ ...getValues(), ...fromAddress(def) });
-          setSelectedSaved(def.id);
+        const preferredId = localStorage.getItem('etcy:delivery-address');
+        const preferred = list.find((a) => a.id === preferredId) ?? list.find((a) => a.isDefault) ?? list[0];
+        if (preferred && !details) {
+          reset({ ...getValues(), ...fromAddress(preferred) });
+          setSelectedSaved(preferred.id);
           setAddingNew(false);
-          setPrefCountry(def.country);
+          setPrefCountry(preferred.country);
         }
       },
       () => undefined,

@@ -25,6 +25,8 @@ export function RequireAuth({ children }: { children: JSX.Element }) {
 
 export function AccountLayout() {
   const { t } = useTranslation();
+  const { pathname } = useLocation();
+  const isFeedbackRoute = /\/account\/orders\/[^/]+\/review\//.test(pathname);
   const signOutUser = useAuth((s) => s.signOut);
   const resetCheckout = useCheckout((s) => s.reset);
   const toast = useUi((s) => s.toast);
@@ -49,10 +51,10 @@ export function AccountLayout() {
 
   return (
     <RequireAuth>
-      <div className="mx-auto w-full max-w-6xl px-4 py-5 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
-        <div className="mt-0 grid gap-6 lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-10">
+      <div className={cn('mx-auto w-full lg:px-8 lg:py-10', isFeedbackRoute ? 'h-full max-w-3xl overflow-hidden px-0 py-0 sm:px-6 sm:py-8' : 'max-w-6xl px-4 py-5 sm:px-6 sm:py-8')}>
+        <div className={cn('mt-0 grid', isFeedbackRoute ? 'h-full gap-0' : 'gap-6 lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-10')}>
           {/* Sidebar / mobile top nav */}
-          <nav aria-label={t('account.title')} className="hidden lg:block lg:self-start lg:sticky lg:top-8">
+          <nav aria-label={t('account.title')} className={cn('lg:self-start lg:sticky lg:top-8', isFeedbackRoute ? 'hidden' : 'hidden lg:block')}>
             {/* Mobile: horizontal scroll strip */}
             <ul className="scrollbar-none -mx-4 flex snap-x gap-2 overflow-x-auto px-4 pb-1 lg:hidden">
               {links.map(({ to, label, icon: Icon, end }) => (
@@ -115,7 +117,7 @@ export function AccountLayout() {
             </div>
           </nav>
 
-          <div className="min-w-0">
+          <div className={cn('min-w-0', isFeedbackRoute && 'h-full min-h-0')}>
             <Outlet />
           </div>
         </div>

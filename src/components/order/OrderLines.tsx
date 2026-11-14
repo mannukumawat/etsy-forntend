@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeftRight, RotateCcw, RotateCw } from 'lucide-react';
+import { ArrowLeftRight, RotateCcw, RotateCw, Star } from 'lucide-react';
 import { useLanguage, useLocalized } from '@/hooks/useLocale';
 import type { Order, OrderLine } from '@/types';
 import { MAX_QTY_PER_LINE } from '@/config/store';
@@ -9,7 +9,6 @@ import { useCart } from '@/store/cart';
 import { useUi } from '@/store/ui';
 import { formatMoney } from '@/utils/money';
 import { cn } from '@/utils/cn';
-import { InlineReview } from './InlineReview';
 import { CancelItemPanel } from './actions/CancelItemPanel';
 import { ReturnItemPanel } from './actions/ReturnItemPanel';
 import { ExchangeItemPanel } from './actions/ExchangeItemPanel';
@@ -33,6 +32,7 @@ export function OrderLines({ order, reviewLinks = false }: { order: Order; revie
 
   const canCancel = order.status === 'placed' || order.status === 'processing';
   const canReturn = order.status === 'delivered';
+  const canReview = order.status === 'delivered' || order.status === 'cancelled';
 
   return (
     <ul className="divide-y divide-sand-200">
@@ -101,7 +101,7 @@ export function OrderLines({ order, reviewLinks = false }: { order: Order; revie
                 </button>
               </div>
             )}
-            {(((canCancel || canReturn) && !fullyCancelled) || (reviewLinks && order.status === 'delivered' && l.productId)) && (
+            {(((canCancel || canReturn) && !fullyCancelled) || (reviewLinks && canReview && l.productId)) && (
               <div className="mt-4 border-t border-sand-200 pt-3">
                 <div className="flex flex-wrap items-center gap-2">
                 {canCancel && (
@@ -154,8 +154,11 @@ export function OrderLines({ order, reviewLinks = false }: { order: Order; revie
                     {t('returns.notAllowed', { defaultValue: 'Returns not accepted for this item' })}
                   </span>
                 )}
-                {reviewLinks && order.status === 'delivered' && l.productId && (
-                  <InlineReview productId={l.productId} productName={loc(l.name)} />
+                {reviewLinks && canReview && l.productId && (
+                  <Link to={`/account/orders/${order.id}/review/${l.productId}`} className="inline-flex items-center gap-1.5 rounded-lg border border-sand-300 bg-white px-3 py-2 text-xs font-semibold text-ink">
+                    <Star className="h-3.5 w-3.5 text-star" fill="currentColor" strokeWidth={0} />
+                    {t('product.reviewThis')}
+                  </Link>
                 )}
                 </div>
               </div>

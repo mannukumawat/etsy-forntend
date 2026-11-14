@@ -592,7 +592,7 @@ const en = {
     saveProfile: 'Save changes',
     profileSaved: 'Profile updated.',
     memberSince: 'Member since {{date}}',
-    orders: 'Order history',
+    orders: 'My orders',
     recentOrders: 'Recent orders',
     noOrders: "You haven't placed any orders yet.",
     viewOrder: 'View order',

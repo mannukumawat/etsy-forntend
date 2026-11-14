@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { CheckCircle2, ChevronDown, Gem, Globe2, Hand, Leaf, PackageX } from 'lucide-react';
+import { CheckCircle2, ChevronDown, Gem, Globe2, Hand, Leaf, PackageX, Share2 } from 'lucide-react';
 import { DeliveryEstimate } from '@/components/product/DeliveryEstimate';
 import { ProductGallery } from '@/components/product/ProductGallery';
 import { ProductReviews } from '@/components/product/ProductReviews';
 import { StoreReviews } from '@/components/product/StoreReviews';
-import { ProductGrid, ProductGridSkeleton } from '@/components/product/ProductCard';
+import { ProductCard, ProductGrid, ProductGridSkeleton } from '@/components/product/ProductCard';
 import { VariantSelector } from '@/components/product/VariantSelector';
 import { WishlistButton } from '@/components/product/WishlistButton';
 import { Button, ButtonLink } from '@/components/ui/Button';
@@ -142,29 +142,38 @@ function ProductDetail({ product, onReviewsChanged }: { product: Product; onRevi
   ];
 
   const related = useAsync(`catalog:related:${product.id}`, () => productService.getRelated(product));
+  const shareProduct = async () => {
+    const url = window.location.href;
+    const title = loc(product.name);
+    if (navigator.share) await navigator.share({ title, url }).catch(() => {});
+    else await navigator.clipboard.writeText(url).catch(() => {});
+  };
 
   return (
-    <div className="container-site py-6 lg:py-8">
-      <Breadcrumbs
-        items={[
+    <div className="container-site py-0 md:py-6 lg:py-8">
+      <div className="hidden md:block">
+        <Breadcrumbs items={[
           { label: t('common.home'), to: '/' },
           { label: loc(category.name), to: `/category/${category.slug}` },
           { label: loc(product.name) },
-        ]}
-      />
+        ]} />
+      </div>
 
-      <div className="mt-5 grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-x-10 xl:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] xl:gap-x-14">
-        <div className="min-w-0 lg:col-start-1 lg:row-start-1">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-0 md:mt-5 md:gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-x-10 xl:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] xl:gap-x-14">
+        <div className="-mx-4 min-w-0 md:mx-0 lg:col-start-1 lg:row-start-1">
           <ProductGallery images={images} />
         </div>
 
-        <div className="min-w-0 max-w-2xl lg:col-start-2 lg:row-span-2 lg:row-start-1">
+        <div className="-mx-4 mt-3 min-w-0 max-w-2xl border-t-8 border-sand-100 bg-white px-4 pt-4 md:mx-0 md:mt-0 md:border-0 md:p-0 lg:col-start-2 lg:row-span-2 lg:row-start-1">
           <Link to={`/category/${category.slug}`} className="eyebrow hover:underline">
             {loc(category.name)}
           </Link>
-          <div className="mt-2 flex items-start justify-between gap-4">
+          <div className="mt-2 flex items-start justify-between gap-3">
             <h1 className="font-serif text-[24px] font-semibold leading-snug text-ink lg:text-[28px]">{loc(product.name)}</h1>
-            <WishlistButton product={product} variantId={variant?.id} className="mt-1 shrink-0 border border-sand-200" />
+            <div className="flex shrink-0 items-center gap-1">
+              <WishlistButton product={product} variantId={variant?.id} className="mt-1 shrink-0 border border-sand-200" />
+              <button type="button" onClick={shareProduct} aria-label={t('common.share', { defaultValue: 'Share' })} className="mt-1 flex h-10 w-10 items-center justify-center rounded-full border border-sand-200 bg-white text-ink"><Share2 className="h-5 w-5" aria-hidden /></button>
+            </div>
           </div>
           {product.reviewCount > 0 && (
             <button type="button" onClick={() => document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' })} className="mt-2 block rounded">
@@ -204,7 +213,7 @@ function ProductDetail({ product, onReviewsChanged }: { product: Product; onRevi
               </div>
             )}
 
-            <div className="sticky bottom-16 z-20 -mx-4 grid grid-cols-2 gap-2 border-y border-sand-200 bg-ivory-50/95 px-4 py-3 shadow-[0_-8px_24px_rgba(45,37,29,0.08)] backdrop-blur sm:static sm:mx-0 sm:gap-3 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
+            <div className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-2 gap-2 border-t border-sand-200 bg-white/95 px-3 py-3 shadow-[0_-8px_24px_rgba(45,37,29,0.08)] backdrop-blur sm:static sm:mx-0 sm:gap-3 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
               <Button size="lg" onClick={onAdd} disabled={allSoldOut || variant?.stock === 0} fullWidth>
                 {allSoldOut || variant?.stock === 0 ? t('product.soldOut') : t('product.addToCart')}
               </Button>
@@ -322,15 +331,23 @@ function ProductDetail({ product, onReviewsChanged }: { product: Product; onRevi
           </div>
         </div>
 
-        <div className="min-w-0 space-y-12 lg:col-start-1 lg:row-start-2">
-          <div className="border-t border-sand-200 pt-10 lg:border-t-0 lg:pt-4">
+        <div className="-mx-4 min-w-0 space-y-0 lg:col-start-1 lg:row-start-2 lg:mx-0 lg:space-y-12">
+          <section aria-labelledby="mobile-related-title" className="border-t-8 border-sand-100 bg-white py-5 md:hidden">
+            <h2 id="mobile-related-title" className="mb-3 px-4 font-sans text-xl font-semibold text-ink">{t('product.relatedTitle')}</h2>
+            {related.data ? (
+              <ul className="scrollbar-none flex snap-x gap-3 overflow-x-auto px-4 pb-1">
+                {related.data.map((item) => <li key={item.id} className="w-[44vw] max-w-48 shrink-0 snap-start"><ProductCard product={item} /></li>)}
+              </ul>
+            ) : <div className="px-4"><ProductGridSkeleton count={2} /></div>}
+          </section>
+          <div className="border-t-8 border-sand-100 bg-white px-4 py-6 md:border-t md:border-sand-200 md:pt-10 lg:border-t-0 lg:px-0 lg:pt-4">
             <ProductReviews product={product} onChanged={onReviewsChanged} autoOpenForm={wantsReview} />
           </div>
-          <StoreReviews />
+          <div className="hidden md:block"><StoreReviews /></div>
         </div>
       </div>
 
-      <section aria-labelledby="related-title" className="mt-16">
+      <section aria-labelledby="related-title" className="mt-16 hidden md:block">
         <h2 id="related-title" className="mb-6 text-3xl">
           {t('product.relatedTitle')}
         </h2>

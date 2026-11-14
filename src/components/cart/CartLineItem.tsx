@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { AlertCircle, Trash2 } from 'lucide-react';
+import { AlertCircle, Heart, Trash2 } from 'lucide-react';
 import { useLocalized, useMoney } from '@/hooks/useLocale';
 import { useCart } from '@/store/cart';
 import { useUi } from '@/store/ui';
+import { useWishlist } from '@/store/wishlist';
 import type { ResolvedLine } from '@/utils/cart';
 import { cn } from '@/utils/cn';
 import { variantLabel } from '@/utils/variants';
@@ -18,6 +19,8 @@ export function CartLineItem({ item, index, compact, onNavigate }: { item: Resol
   const removeItem = useCart((s) => s.removeItem);
   const restoreLine = useCart((s) => s.restoreLine);
   const toast = useUi((s) => s.toast);
+  const wishlistHas = useWishlist((s) => s.has);
+  const toggleWishlist = useWishlist((s) => s.toggle);
 
   if (item.status === 'loading') {
     return (
@@ -43,6 +46,12 @@ export function CartLineItem({ item, index, compact, onNavigate }: { item: Resol
     toast(t('cart.removed', { name }), 'info', { label: t('cart.undo'), onClick: () => restoreLine(line, index) });
   };
 
+  const moveToWishlist = () => {
+    if (!wishlistHas(line.productId)) toggleWishlist(line.productId, line.variantId);
+    removeItem(line.productId, line.variantId);
+    toast(t('wishlist.savedToWishlist', { defaultValue: 'Moved to wishlist' }), 'success');
+  };
+
   const issueText =
     issue === 'unavailable'
       ? t('cart.issues.unavailable')
@@ -54,7 +63,7 @@ export function CartLineItem({ item, index, compact, onNavigate }: { item: Resol
   const issueId = `line-issue-${line.variantId}`;
 
   return (
-    <li className="flex gap-4 py-4">
+    <li className={cn('flex gap-4 py-4', !compact && '-mx-4 flex-wrap bg-white px-4 md:mx-0 md:flex-nowrap md:px-0')}>
       <div className={cn('shrink-0 overflow-hidden rounded-lg bg-sand-100', compact ? 'h-20 w-20' : 'h-24 w-24 sm:h-28 sm:w-28')}>
         {image && <img src={image.src} alt={loc(image.alt)} className={cn('h-full w-full object-cover', issue && issue !== 'insufficient' && 'opacity-60 grayscale')} loading="lazy" />}
       </div>
@@ -93,10 +102,11 @@ export function CartLineItem({ item, index, compact, onNavigate }: { item: Resol
           ) : (
             <span />
           )}
+          {!compact && <button type="button" onClick={moveToWishlist} className="ml-auto hidden items-center gap-1.5 text-sm text-ink-muted hover:text-brand-700 md:flex"><Heart className="h-4 w-4" aria-hidden />{t('wishlist.moveToWishlist', { defaultValue: 'Move to Wishlist' })}</button>}
           <button
             type="button"
             onClick={remove}
-            className="flex items-center gap-1.5 rounded px-1 text-sm text-ink-muted underline-offset-2 hover:text-red-700 hover:underline"
+            className={cn('items-center gap-1.5 rounded px-1 text-sm text-ink-muted underline-offset-2 hover:text-red-700 hover:underline', compact ? 'flex' : 'hidden md:flex')}
             aria-label={t('a11y.removeItem', { name })}
           >
             <Trash2 className="h-4 w-4" aria-hidden />
@@ -104,6 +114,12 @@ export function CartLineItem({ item, index, compact, onNavigate }: { item: Resol
           </button>
         </div>
       </div>
+      {!compact && (
+        <div className="-mx-4 -mb-4 grid w-[calc(100%+2rem)] basis-full grid-cols-2 border-t border-sand-200 md:hidden">
+          <button type="button" onClick={moveToWishlist} className="flex min-h-12 items-center justify-center gap-2 border-r border-sand-200 text-sm font-medium text-ink"><Heart className="h-5 w-5" aria-hidden />{t('wishlist.moveToWishlist', { defaultValue: 'Move to Wishlist' })}</button>
+          <button type="button" onClick={remove} className="flex min-h-12 items-center justify-center gap-2 text-sm font-medium text-ink"><Trash2 className="h-5 w-5" aria-hidden />{t('common.remove')}</button>
+        </div>
+      )}
     </li>
   );
 }

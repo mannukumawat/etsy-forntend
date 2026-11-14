@@ -1,26 +1,49 @@
-import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Lock, ShoppingBag } from 'lucide-react';
+import { ArrowLeft, Check, ChevronRight, Heart, Lock, MapPin, ShoppingBag } from 'lucide-react';
 import { CartLineItem } from '@/components/cart/CartLineItem';
 import { CouponForm } from '@/components/cart/CouponForm';
 import { TotalsTable } from '@/components/cart/TotalsTable';
 import { Button, ButtonLink } from '@/components/ui/Button';
+import { Modal } from '@/components/ui/Dialog';
 import { EmptyState, ErrorState, Notice, Skeleton } from '@/components/ui/Feedback';
 import { SelectField } from '@/components/ui/Form';
 import { RATE_SNAPSHOT } from '@/data/currencies';
 import { useCartDetails } from '@/hooks/useCartDetails';
 import { useCountries } from '@/hooks/useCountries';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+import { useAsync } from '@/hooks/useAsync';
+import { useLanguage } from '@/hooks/useLocale';
+import { authService } from '@/services/authService';
 import { usePreferences } from '@/store/preferences';
+import { useAuth } from '@/store/session';
+import { formatMoney } from '@/utils/money';
+import { cn } from '@/utils/cn';
 
 export default function CartPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const lang = useLanguage();
+  const user = useAuth((s) => s.user);
+  const addresses = useAsync(user ? `addresses:cart:${user.id}` : null, () => authService.listAddresses());
+  const [addressOpen, setAddressOpen] = useState(false);
+  const [priceOpen, setPriceOpen] = useState(false);
+  const [selectedAddressId, setSelectedAddressId] = useState(() => localStorage.getItem('etcy:delivery-address'));
   useDocumentTitle(t('cart.title'));
   const country = usePreferences((s) => s.deliveryCountry);
   const setCountry = usePreferences((s) => s.setDeliveryCountry);
   const { list } = useCountries();
   const { lines, totals, quote, couponCode, currency, isEmpty, isLoading, isError, hasIssues, reload } = useCartDetails({ country });
+  const selectedAddress = addresses.data?.find((address) => address.id === selectedAddressId) ?? addresses.data?.find((address) => address.isDefault) ?? addresses.data?.[0];
+  const deliveryLabel = selectedAddress ? `${selectedAddress.city}${selectedAddress.postalCode ? ` - ${selectedAddress.postalCode}` : ''}` : country;
+  const selectAddress = (id: string) => {
+    const address = addresses.data?.find((item) => item.id === id);
+    setSelectedAddressId(id);
+    localStorage.setItem('etcy:delivery-address', id);
+    if (address) setCountry(address.country);
+    setAddressOpen(false);
+  };
 
   if (isEmpty) {
     return (
@@ -37,8 +60,8 @@ export default function CartPage() {
   }
 
   return (
-    <div className="container-site py-8 lg:py-12">
-      <div className="flex flex-wrap items-baseline justify-between gap-3">
+    <div className="container-site py-0 md:py-8 lg:py-12">
+      <div className="hidden flex-wrap items-baseline justify-between gap-3 md:flex">
         <h1 className="text-4xl lg:text-5xl">{t('cart.title')}</h1>
         <p className="text-ink-muted">{t('common.items', { count: totals.itemCount })}</p>
       </div>
@@ -46,8 +69,12 @@ export default function CartPage() {
       {isError ? (
         <ErrorState onRetry={reload} />
       ) : (
-        <div className="mt-8 grid items-start gap-8 lg:grid-cols-[1fr_380px] lg:gap-10">
-          <section aria-labelledby="cart-items" className="card px-4 sm:px-6">
+        <div className="grid items-start gap-0 md:mt-8 md:gap-8 lg:grid-cols-[1fr_380px] lg:gap-10">
+          <div className="min-w-0">
+            <button type="button" onClick={() => setAddressOpen(true)} className="-mx-4 flex min-h-16 w-[calc(100%+2rem)] items-center gap-3 border-y border-sand-200 bg-white px-4 text-left md:mx-0 md:hidden md:w-full">
+              <MapPin className="h-5 w-5 text-brand-700" aria-hidden /><span className="flex-1 font-semibold text-ink">{t('cart.deliveryAt', { defaultValue: 'Delivery at' })} {deliveryLabel}</span><span className="rounded-lg border border-ink px-3 py-1.5 text-sm font-semibold">{t('common.change', { defaultValue: 'Change' })}</span>
+            </button>
+          <section aria-labelledby="cart-items" className="card -mx-4 mt-2 rounded-none border-x-0 px-4 md:mx-0 md:mt-0 md:rounded-2xl md:border-x sm:px-6">
             <h2 id="cart-items" className="sr-only">
               {t('checkout.items')}
             </h2>
@@ -57,8 +84,16 @@ export default function CartPage() {
               ))}
             </ul>
           </section>
+          <Link to="/wishlist" className="-mx-4 mt-2 flex min-h-16 items-center gap-3 border-y border-sand-200 bg-white px-4 text-ink md:mx-0 md:rounded-xl md:border"><Heart className="h-6 w-6" aria-hidden /><span className="flex-1 font-semibold">{t('common.wishlist')}</span><ChevronRight className="h-5 w-5 text-ink-muted" aria-hidden /></Link>
 
-          <aside aria-labelledby="summary-title" className="card space-y-5 p-5 lg:sticky lg:top-36">
+          <section className="-mx-4 mt-2 border-y border-sand-200 bg-white p-4 md:hidden">
+            <h2 className="mb-3 font-sans text-lg font-semibold">{t('cart.priceDetails', { defaultValue: `Price Details (${totals.itemCount} Items)` })}</h2>
+            <TotalsTable totals={totals} currency={currency} couponCode={couponCode} shippingPlaceholder={quote === null ? <span className="text-amber-800">{t('cart.notAvailable')}</span> : undefined} totalLabel={t('cart.total')} snapshot={RATE_SNAPSHOT} />
+            <button type="button" onClick={() => setPriceOpen(true)} className="mt-3 text-sm font-semibold text-brand-700">{t('cart.viewPriceDetails', { defaultValue: 'View price details' })}</button>
+          </section>
+          </div>
+
+          <aside aria-labelledby="summary-title" className="card hidden space-y-5 p-5 md:block lg:sticky lg:top-36">
             <h2 id="summary-title" className="text-2xl">
               {t('cart.summary')}
             </h2>
@@ -101,6 +136,17 @@ export default function CartPage() {
           </aside>
         </div>
       )}
+
+      {!isError && <div className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-[minmax(0,1fr)_1.4fr] items-center gap-3 border-t border-sand-200 bg-white px-4 py-3 shadow-[0_-8px_24px_rgba(45,37,29,0.08)] md:hidden"><button type="button" onClick={() => setPriceOpen(true)} className="text-left"><span className="block text-lg font-semibold">{formatMoney(totals.total, currency, lang)}</span><span className="text-[11px] font-semibold uppercase text-brand-700">{t('cart.viewPriceDetails', { defaultValue: 'View price details' })}</span></button><Button fullWidth disabled={hasIssues || isLoading} onClick={() => navigate('/checkout')}>{t('common.continue', { defaultValue: 'Continue' })}</Button></div>}
+
+      <Modal open={priceOpen} onClose={() => setPriceOpen(false)} title={t('cart.priceDetails', { defaultValue: 'Price details' })}>
+        <TotalsTable totals={totals} currency={currency} couponCode={couponCode} shippingPlaceholder={quote === null ? <span className="text-amber-800">{t('cart.notAvailable')}</span> : undefined} totalLabel={t('cart.total')} snapshot={RATE_SNAPSHOT} />
+        <p className="mt-4 text-xs text-ink-muted">{t('cart.taxNote')}</p>
+      </Modal>
+
+      <Modal open={addressOpen} onClose={() => setAddressOpen(false)} title={t('account.changeDeliveryLocation', { defaultValue: 'Change delivery location' })}>
+        {user && addresses.data?.length ? <ul className="grid grid-cols-2 gap-3">{addresses.data.map((address) => { const active = selectedAddress?.id === address.id; return <li key={address.id}><button type="button" onClick={() => selectAddress(address.id)} className={cn('relative min-h-40 w-full rounded-xl border p-3 text-left', active ? 'border-brand-600 ring-1 ring-brand-600' : 'border-sand-300')}>{active && <span className="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full bg-brand-600 text-white"><Check className="h-4 w-4" /></span>}<span className="font-semibold">{address.label}</span><span className="mt-2 line-clamp-4 block text-sm text-ink-soft">{address.fullName}<br />{address.line1}<br />{address.city}, {address.region} {address.postalCode}</span></button></li>; })}</ul> : <div className="py-6 text-center"><p className="text-sm text-ink-muted">{user ? t('account.noAddresses') : t('auth.loginSubtitle')}</p><Link to={user ? '/account/addresses' : '/login'} className="mt-4 inline-flex rounded-lg bg-ink px-5 py-2.5 text-sm font-semibold text-white">{user ? t('account.addAddress') : t('auth.submitLogin')}</Link></div>}
+      </Modal>
     </div>
   );
 }

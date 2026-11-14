@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, ChevronRight, Heart, Menu, MapPin, Search, ShoppingBag, User, X } from 'lucide-react';
+import { ArrowLeft, Check, ChevronRight, Heart, Menu, MapPin, Plus, Search, ShoppingBag, User, X } from 'lucide-react';
 import logoMark from '@/assets/logo-mark.png';
 import { fetchCollections, fetchNavLinks } from '@/api';
 import { useAsync } from '@/hooks/useAsync';
@@ -12,8 +12,10 @@ import { useUi } from '@/store/ui';
 import { useWishlist } from '@/store/wishlist';
 import { usePreferences } from '@/store/preferences';
 import { getCountry } from '@/data/countries';
+import { authService } from '@/services/authService';
 import { cn } from '@/utils/cn';
 import { IconButton } from '../ui/Button';
+import { Modal } from '../ui/Dialog';
 import { CategoriesMenu } from './CategoriesMenu';
 import { MobileMenu } from './MobileMenu';
 import { SettingsButton } from './Preferences';
@@ -94,20 +96,75 @@ export function Header() {
   const openCart = useUi((s) => s.openCart);
   const deliveryCountry = usePreferences((s) => s.deliveryCountry);
   const delivery = getCountry(deliveryCountry);
+  const addresses = useAsync(user ? `addresses:header:${user.id}` : null, () => authService.listAddresses());
+  const [selectedAddressId, setSelectedAddressId] = useState(() => localStorage.getItem('etcy:delivery-address'));
+  const [locationOpen, setLocationOpen] = useState(false);
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const isAccountRoute = pathname.startsWith('/account');
-  const accountMobileTitle = pathname.startsWith('/account/orders')
-    ? t('account.orders')
+  const isProductRoute = pathname.startsWith('/product/');
+  const isCartRoute = pathname === '/cart';
+  const isFeedbackRoute = /^\/account\/orders\/[^/]+\/review\/[^/]+/.test(pathname);
+  const isOrderDetailRoute = /^\/account\/orders\/[^/]+/.test(pathname);
+  const accountMobileTitle = isFeedbackRoute
+    ? t('product.writeTitle', { defaultValue: 'Add feedback' })
+    : isOrderDetailRoute
+    ? t('order.detailsTitle', { defaultValue: 'Order details' })
+    : pathname.startsWith('/account/orders')
+      ? t('account.orders')
     : pathname.startsWith('/account/addresses')
       ? t('account.addresses')
       : t('account.title');
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const selectedAddress = addresses.data?.find((address) => address.id === selectedAddressId)
+    ?? addresses.data?.find((address) => address.isDefault)
+    ?? addresses.data?.[0];
+  const deliveryLabel = selectedAddress
+    ? `${selectedAddress.city}${selectedAddress.postalCode ? ` - ${selectedAddress.postalCode}` : ''}`
+    : (delivery?.name ?? deliveryCountry);
+
+  useEffect(() => {
+    if (!selectedAddress || selectedAddressId) return;
+    setSelectedAddressId(selectedAddress.id);
+  }, [selectedAddress, selectedAddressId]);
+
+  const selectDeliveryAddress = (id: string) => {
+    setSelectedAddressId(id);
+    localStorage.setItem('etcy:delivery-address', id);
+    setLocationOpen(false);
+  };
 
   return (
     <header className="relative border-b border-sand-200 bg-ivory-50 shadow-sm">
-      {isAccountRoute ? (
+      {isCartRoute ? (
+        <div className="md:hidden">
+          <div className="container-chrome flex h-16 items-center gap-2">
+            <button type="button" onClick={() => navigate(-1)} aria-label={t('common.back', { defaultValue: 'Back' })} className="-ml-2 flex h-10 w-10 items-center justify-center rounded-full text-ink"><ArrowLeft className="h-5 w-5" aria-hidden /></button>
+            <span className="ml-1 flex-1 text-sm font-semibold uppercase tracking-wide text-ink">{t('cart.title')}</span>
+            <span className="rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-700">{t('checkout.stepCount', { defaultValue: 'Step 1/3' })}</span>
+          </div>
+        </div>
+      ) : isProductRoute ? (
+        <div className="md:hidden">
+          <div className="container-chrome flex h-14 items-center gap-1">
+            <button type="button" onClick={() => navigate(-1)} aria-label={t('common.back', { defaultValue: 'Back' })} className="-ml-2 flex h-10 w-10 items-center justify-center rounded-full text-ink">
+              <ArrowLeft className="h-5 w-5" aria-hidden />
+            </button>
+            <div className="ml-auto flex items-center gap-1">
+              <SettingsButton />
+              <Link to="/shop" aria-label={t('a11y.openSearch')} className="flex h-10 w-10 items-center justify-center rounded-full text-ink"><Search className="h-5 w-5" aria-hidden /></Link>
+              <Link to="/wishlist" aria-label={t('a11y.wishlistLink', { count: wishCount })} className="relative flex h-10 w-10 items-center justify-center rounded-full text-ink"><Heart className="h-5 w-5" aria-hidden /><CountBadge count={wishCount} /></Link>
+              <button type="button" onClick={openCart} aria-label={t('a11y.openCart', { count: cartCount })} className="relative flex h-10 w-10 items-center justify-center rounded-full text-ink"><ShoppingBag className="h-5 w-5" aria-hidden /><CountBadge count={cartCount} /></button>
+            </div>
+          </div>
+          <button type="button" onClick={() => setLocationOpen(true)} className="flex w-full items-center gap-2 border-t border-sand-200 bg-sand-100/70 px-4 py-2.5 text-left text-sm font-semibold text-ink">
+            <MapPin className="h-4 w-4 shrink-0 text-brand-700" aria-hidden />
+            <span className="min-w-0 flex-1 truncate">{t('header.deliveringTo', { defaultValue: 'Delivering to' })} {deliveryLabel}</span>
+            <ChevronRight className="h-4 w-4 shrink-0 text-ink-muted" aria-hidden />
+          </button>
+        </div>
+      ) : isAccountRoute ? (
         <div className="md:hidden">
           <div className="container-chrome flex h-16 items-center gap-2">
             <button type="button" onClick={() => navigate(-1)} aria-label={t('common.back', { defaultValue: 'Back' })} className="-ml-2 flex h-10 w-10 items-center justify-center rounded-full text-ink">
@@ -116,10 +173,10 @@ export function Header() {
             <span className="ml-1 flex-1 text-sm font-semibold uppercase tracking-wide text-ink">
               {accountMobileTitle}
             </span>
-            <Link to="/shop" aria-label={t('a11y.openSearch')} className="flex h-10 w-10 items-center justify-center rounded-full text-ink">
+            <Link to="/shop" aria-label={t('a11y.openSearch')} className={cn('h-10 w-10 items-center justify-center rounded-full text-ink', isFeedbackRoute ? 'hidden' : 'flex')}>
               <Search className="h-5 w-5" aria-hidden />
             </Link>
-            <button type="button" onClick={openCart} aria-label={t('a11y.openCart', { count: cartCount })} className="relative flex h-10 w-10 items-center justify-center rounded-full text-ink">
+            <button type="button" onClick={openCart} aria-label={t('a11y.openCart', { count: cartCount })} className={cn('relative h-10 w-10 items-center justify-center rounded-full text-ink', isFeedbackRoute ? 'hidden' : 'flex')}>
               <ShoppingBag className="h-5 w-5" aria-hidden />
               <CountBadge count={cartCount} />
             </button>
@@ -151,10 +208,10 @@ export function Header() {
         <div className="container-chrome pb-3">
           <SearchBar />
         </div>
-        <button type="button" onClick={() => setMenuOpen(true)} className="flex w-full items-center gap-2 border-t border-sand-200 bg-sand-100/70 px-4 py-2.5 text-left text-sm font-semibold text-ink">
+        <button type="button" onClick={() => setLocationOpen(true)} className="flex w-full items-center gap-2 border-t border-sand-200 bg-sand-100/70 px-4 py-2.5 text-left text-sm font-semibold text-ink">
           <MapPin className="h-4 w-4 shrink-0 text-brand-700" aria-hidden />
           <span className="min-w-0 flex-1 truncate">
-            {t('header.deliveringTo', { defaultValue: 'Delivering to' })} {delivery?.name ?? deliveryCountry}
+            {t('header.deliveringTo', { defaultValue: 'Delivering to' })} {deliveryLabel}
           </span>
           <ChevronRight className="h-4 w-4 shrink-0 text-ink-muted" aria-hidden />
         </button>
@@ -238,6 +295,31 @@ export function Header() {
       <NavLinksBar />
 
       <MobileMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
+      <Modal open={locationOpen} onClose={() => setLocationOpen(false)} title={t('account.changeDeliveryLocation', { defaultValue: 'Change delivery location' })} className="max-w-xl">
+        {user ? (
+          <div>
+            {addresses.data && addresses.data.length > 0 ? (
+              <ul className="grid grid-cols-2 gap-3">
+                {addresses.data.map((address) => {
+                  const active = selectedAddress?.id === address.id;
+                  return (
+                    <li key={address.id}>
+                      <button type="button" onClick={() => selectDeliveryAddress(address.id)} className={cn('relative h-full min-h-44 w-full rounded-xl border bg-white p-4 text-left transition', active ? 'border-brand-600 ring-1 ring-brand-600' : 'border-sand-300')}>
+                        {active && <span className="absolute -right-2 -top-2 flex h-8 w-8 items-center justify-center rounded-full bg-brand-600 text-white shadow"><Check className="h-5 w-5" aria-hidden /></span>}
+                        <span className="block font-semibold text-ink">{address.label || address.fullName}</span>
+                        <span className="mt-2 line-clamp-4 block text-sm leading-5 text-ink-soft">{address.fullName}<br />{address.line1}{address.line2 ? `, ${address.line2}` : ''}<br />{address.city}{address.region ? `, ${address.region}` : ''}{address.postalCode ? `, ${address.postalCode}` : ''}</span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : addresses.data ? <p className="py-6 text-center text-sm text-ink-muted">{t('account.noAddresses')}</p> : <div className="h-44 animate-pulse rounded-xl bg-sand-100" />}
+            <Link to="/account/addresses" onClick={() => setLocationOpen(false)} className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-brand-600 font-semibold text-brand-700"><Plus className="h-4 w-4" aria-hidden />{t('account.addAddress')}</Link>
+          </div>
+        ) : (
+          <div className="py-4 text-center"><p className="text-sm text-ink-muted">{t('auth.loginSubtitle')}</p><Link to="/login" onClick={() => setLocationOpen(false)} className="mt-4 inline-flex rounded-lg bg-ink px-5 py-2.5 text-sm font-semibold text-white">{t('auth.submitLogin')}</Link></div>
+        )}
+      </Modal>
     </header>
   );
 }

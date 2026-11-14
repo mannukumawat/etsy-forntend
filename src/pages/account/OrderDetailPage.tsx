@@ -1,8 +1,9 @@
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, ChevronDown, PackageSearch } from 'lucide-react';
+import { ArrowLeft, ChevronDown, CreditCard, MapPin, PackageSearch } from 'lucide-react';
 import { AddressBlock } from '@/components/checkout/AddressBlock';
 import { OrderLines, OrderStatusBadge, OrderTimeline, OrderTotals } from '@/components/order/OrderParts';
+import { ProductCard, ProductCardSkeleton } from '@/components/product/ProductCard';
 import { ButtonLink } from '@/components/ui/Button';
 import { EmptyState, ErrorState, Spinner } from '@/components/ui/Feedback';
 import { useAsync } from '@/hooks/useAsync';
@@ -10,6 +11,7 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useLanguage } from '@/hooks/useLocale';
 import { ApiError } from '@/services/api';
 import { orderService } from '@/services/orderService';
+import { productService } from '@/services/productService';
 import { useAuth } from '@/store/session';
 import { formatDate } from '@/utils/dates';
 
@@ -27,6 +29,12 @@ export default function OrderDetailPage() {
   const { orderId = '' } = useParams();
   const user = useAuth((s) => s.user)!;
   const { data: order, error, isLoading, reload } = useAsync(`order:${orderId}`, () => orderService.getMine(orderId));
+  const related = useAsync(order ? `order-related:${order.id}` : null, async () => {
+    const purchased = await productService.getByIds([...new Set(order!.lines.map((line) => line.productId))]);
+    const groups = await Promise.all(purchased.slice(0, 2).map((product) => productService.getRelated(product, 6)));
+    const purchasedIds = new Set(purchased.map((product) => product.id));
+    return [...new Map(groups.flat().filter((product) => !purchasedIds.has(product.id)).map((product) => [product.id, product])).values()].slice(0, 8);
+  });
   useDocumentTitle(order ? `${t('order.orderNumber')} ${order.number}` : t('account.orders'));
 
   if (isLoading) return <Spinner />;
@@ -50,17 +58,17 @@ export default function OrderDetailPage() {
   const codCollected = (order as any).codCollectedAt != null;
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4 md:space-y-5">
       {/* Back link */}
       <Link
         to="/account/orders"
-        className="inline-flex items-center gap-1.5 text-sm font-medium text-ink-muted hover:text-ink"
+        className="hidden items-center gap-1.5 text-sm font-medium text-ink-muted hover:text-ink md:inline-flex"
       >
         <ArrowLeft className="h-4 w-4" aria-hidden /> {t('account.backToOrders')}
       </Link>
 
       {/* Header */}
-      <div>
+      <div className="rounded-xl bg-white px-4 py-3 shadow-sm md:bg-transparent md:p-0 md:shadow-none">
         <div className="flex flex-wrap items-center gap-2">
           <h1 className="text-xl font-semibold text-ink">
             {t('order.orderNumber')} <span className="font-mono">{order.number}</span>
@@ -83,10 +91,10 @@ export default function OrderDetailPage() {
       </div>
 
       {/* Two-column on desktop */}
-      <div className="grid gap-5 lg:grid-cols-[1fr_280px]">
+      <div className="grid gap-3 md:gap-5 lg:grid-cols-[1fr_280px]">
         {/* Main: items */}
-        <div className="space-y-5 min-w-0">
-          <section aria-labelledby="od-items" className="card p-5">
+        <div className="min-w-0 space-y-3 md:space-y-5">
+          <section aria-labelledby="od-items" className="card -mx-4 rounded-none border-x-0 p-4 md:mx-0 md:rounded-2xl md:border-x md:p-5">
             <h2 id="od-items" className="mb-4 text-sm font-semibold text-ink">
               {t('order.items')}
             </h2>
@@ -94,12 +102,12 @@ export default function OrderDetailPage() {
           </section>
 
           {/* Shipment history — always collapsed for delivered orders */}
-          {!isCancelled && (
-            <section className="card overflow-hidden p-0">
+          {!isCancelled && !isDelivered && (
+            <section className="card -mx-4 overflow-hidden rounded-none border-x-0 p-0 md:mx-0 md:rounded-2xl md:border-x">
               {isDelivered ? (
                 <details className="group">
                   <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-5 py-4 text-sm font-semibold text-ink select-none hover:bg-sand-50">
-                    {t('order.viewShipmentHistory', { defaultValue: 'View shipment history' })}
+                    {t('order.detailsTitle', { defaultValue: 'Order details' })}
                     <ChevronDown className="h-4 w-4 shrink-0 text-ink-muted transition-transform group-open:rotate-180" aria-hidden />
                   </summary>
                   <div className="border-t border-sand-100 px-5 pb-5 pt-4">
@@ -143,16 +151,17 @@ export default function OrderDetailPage() {
         </div>
 
         {/* Sidebar */}
-        <div className="space-y-5">
-          <section aria-labelledby="od-summary" className="card p-5">
+        <div className="flex flex-col gap-3 md:gap-5">
+          <section aria-labelledby="od-summary" className="card order-2 -mx-4 rounded-none border-x-0 p-5 md:mx-0 md:rounded-2xl md:border-x lg:order-1">
             <h2 id="od-summary" className="mb-3 text-sm font-semibold text-ink">
               {t('order.summary', { defaultValue: 'Order summary' })}
             </h2>
             <OrderTotals order={order} />
           </section>
 
-          <section aria-labelledby="od-payment" className="card p-5 text-sm">
+          <section aria-labelledby="od-payment" className="card order-3 -mx-4 rounded-none border-x-0 p-5 text-sm md:mx-0 md:rounded-2xl md:border-x lg:order-2">
             <h2 id="od-payment" className="mb-3 text-sm font-semibold text-ink">
+              <CreditCard className="mr-2 inline h-4 w-4 text-brand-700" aria-hidden />
               {t('order.payment')}
             </h2>
             <div className="space-y-3 text-sm">
@@ -177,14 +186,38 @@ export default function OrderDetailPage() {
             </div>
           </section>
 
-          <section aria-labelledby="od-address" className="card p-5 text-sm">
+          <section aria-labelledby="od-address" className="card order-1 -mx-4 rounded-none border-x-0 p-5 text-sm md:mx-0 md:rounded-2xl md:border-x lg:order-3">
             <h2 id="od-address" className="mb-2 text-sm font-semibold text-ink">
+              <MapPin className="mr-2 inline h-4 w-4 text-brand-700" aria-hidden />
               {t('order.deliveryAddress')}
             </h2>
             <AddressBlock address={order.address} />
           </section>
         </div>
       </div>
+
+      <section aria-labelledby="order-related-title" className="-mx-4 border-t border-sand-200 bg-white py-5 md:mx-0 md:rounded-2xl md:border md:p-5">
+        <h2 id="order-related-title" className="mb-3 px-4 font-sans text-base font-semibold text-ink md:px-0">
+          {t('product.relatedTitle', { defaultValue: 'Related products' })}
+        </h2>
+        {related.data ? (
+          related.data.length > 0 && (
+            <ul className="scrollbar-none flex snap-x gap-3 overflow-x-auto px-4 pb-1 md:grid md:grid-cols-3 md:overflow-visible md:px-0 lg:grid-cols-4">
+              {related.data.map((product) => (
+                <li key={product.id} className="w-[44vw] max-w-48 shrink-0 snap-start md:w-auto md:max-w-none">
+                  <ProductCard product={product} />
+                </li>
+              ))}
+            </ul>
+          )
+        ) : !related.isError ? (
+          <div className="flex gap-3 overflow-hidden px-4 md:grid md:grid-cols-4 md:px-0">
+            {Array.from({ length: 4 }, (_, index) => (
+              <div key={index} className="w-[44vw] shrink-0 md:w-auto"><ProductCardSkeleton /></div>
+            ))}
+          </div>
+        ) : null}
+      </section>
     </div>
   );
 }

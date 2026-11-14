@@ -172,19 +172,19 @@ export default function CheckoutPage() {
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-5 sm:px-6 sm:py-8 lg:px-8 lg:py-12">
       <div className="flex items-end justify-between gap-4">
-        <h1 className="text-2xl sm:text-4xl lg:text-5xl">{t('checkout.title')}</h1>
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl">{t('checkout.title')}</h1>
         <p className="pb-1 text-sm text-ink-muted">{t('checkout.stepOf', { current: stepIndex + 1, total: STEPS.length })}</p>
       </div>
       <nav aria-label={t('checkout.title')} className="card mt-5 px-4 py-4 sm:px-6">
         <Stepper current={step} onGo={goTo} />
       </nav>
 
-      <div className="mt-6 grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-10">
+      <div className="mt-6 grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-8">
         <div className="lg:order-last">
           <OrderSummary details={cart} />
         </div>
 
-        <div ref={contentRef} tabIndex={-1} className="card min-w-0 scroll-mt-32 p-4 focus:outline-none sm:p-8">
+        <div ref={contentRef} tabIndex={-1} className="card min-w-0 scroll-mt-32 p-4 focus:outline-none sm:p-6">
           {cart.isError ? (
             <ErrorState onRetry={cart.reload} />
           ) : (

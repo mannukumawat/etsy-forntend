@@ -76,12 +76,12 @@
 
 @layer components {
   .container-site {
-    @apply mx-auto w-full px-4 sm:px-6 lg:px-10;
+    @apply mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8 xl:px-10;
   }
 
   /* Header and footer get roomier side gutters than page content. */
   .container-chrome {
-    @apply mx-auto w-full px-4 sm:px-8 lg:px-12 xl:px-20;
+    @apply mx-auto w-full max-w-[1600px] px-4 sm:px-8 lg:px-10 xl:px-12;
   }
 
   .input {
@@ -96,7 +96,7 @@
   }
 
   .card {
-    @apply rounded-xl border border-sand-200 bg-white shadow-card sm:rounded-2xl;
+    @apply rounded-xl border border-sand-200 bg-white shadow-card;
   }
 
   .link {

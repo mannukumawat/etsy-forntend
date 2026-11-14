@@ -148,28 +148,30 @@ function ProductDetail({ product, onReviewsChanged }: { product: Product; onRevi
     if (navigator.share) await navigator.share({ title, url }).catch(() => {});
     else await navigator.clipboard.writeText(url).catch(() => {});
   };
+  const productName = loc(product.name);
+  const breadcrumbName = productName.length > 64 ? `${productName.slice(0, 61).trim()}…` : productName;
 
   return (
-    <div className="container-site py-0 md:py-6 lg:py-8">
+    <div className="container-site py-0 md:py-5 lg:py-6 xl:max-w-[1320px]">
       <div className="hidden md:block">
         <Breadcrumbs items={[
           { label: t('common.home'), to: '/' },
           { label: loc(category.name), to: `/category/${category.slug}` },
-          { label: loc(product.name) },
+          { label: breadcrumbName },
         ]} />
       </div>
 
-      <div className="grid grid-cols-[minmax(0,1fr)] gap-0 md:mt-5 md:gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-x-10 xl:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] xl:gap-x-14">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-0 md:mt-4 md:gap-7 lg:grid-cols-[minmax(0,1.04fr)_minmax(380px,.96fr)] lg:gap-x-8 xl:gap-x-10">
         <div className="-mx-4 min-w-0 md:mx-0 lg:col-start-1 lg:row-start-1">
           <ProductGallery images={images} />
         </div>
 
-        <div className="-mx-4 mt-3 min-w-0 max-w-2xl border-t-8 border-sand-100 bg-white px-4 pt-4 md:mx-0 md:mt-0 md:border-0 md:p-0 lg:col-start-2 lg:row-span-2 lg:row-start-1">
+        <div className="-mx-4 mt-3 min-w-0 border-t-8 border-sand-100 bg-white px-4 pt-4 md:mx-0 md:mt-0 md:border-0 md:bg-transparent md:p-0 lg:col-start-2 lg:row-span-2 lg:row-start-1">
           <Link to={`/category/${category.slug}`} className="eyebrow hover:underline">
             {loc(category.name)}
           </Link>
           <div className="mt-2 flex items-start justify-between gap-3">
-            <h1 className="font-serif text-[24px] font-semibold leading-snug text-ink lg:text-[28px]">{loc(product.name)}</h1>
+            <h1 className="text-[22px] font-semibold leading-[1.32] tracking-[-0.01em] text-ink sm:text-[24px] lg:text-[25px]">{productName}</h1>
             <div className="flex shrink-0 items-center gap-1">
               <WishlistButton product={product} variantId={variant?.id} className="mt-1 shrink-0 border border-sand-200" />
               <button type="button" onClick={shareProduct} aria-label={t('common.share', { defaultValue: 'Share' })} className="mt-1 flex h-10 w-10 items-center justify-center rounded-full border border-sand-200 bg-white text-ink"><Share2 className="h-5 w-5" aria-hidden /></button>
@@ -180,13 +182,13 @@ function ProductDetail({ product, onReviewsChanged }: { product: Product; onRevi
               <Rating value={product.rating} count={product.reviewCount} />
             </button>
           )}
-          <div className="mt-4 border-y border-sand-200 py-4">
+          <div className="mt-4 border-y border-sand-200 py-3.5">
             <VariantPrice variants={candidates} size="lg" />
             {currency !== 'USD' && <p className="mt-1 text-xs text-ink-muted">{t('product.priceNote', { currency })}</p>}
           </div>
-          <p className="mt-4 leading-relaxed text-ink-soft">{loc(product.shortDescription)}</p>
+          <p className="mt-3.5 text-[15px] leading-relaxed text-ink-soft">{loc(product.shortDescription)}</p>
 
-          <div className="mt-6 space-y-6">
+          <div className="mt-5 space-y-5">
             {product.options.length > 0 && <VariantSelector product={product} selection={selection} onChange={choose} missing={missing} idPrefix="pdp" />}
 
             <div aria-live="polite" className="text-sm">

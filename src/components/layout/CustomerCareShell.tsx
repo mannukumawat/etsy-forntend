@@ -32,7 +32,7 @@ export function CustomerCareShell({ title, intro, children, isRoot }: CustomerCa
   const currentItem = NAV_ITEMS.find((n) => n.to === pathname);
 
   return (
-    <div className="container-site max-w-5xl py-8 lg:py-12">
+    <div className="container-site max-w-5xl py-8 lg:py-10">
       <Breadcrumbs items={breadcrumbs} />
 
       {/* Mobile topic menu */}
@@ -102,7 +102,7 @@ export function CustomerCareShell({ title, intro, children, isRoot }: CustomerCa
 
         {/* Page content */}
         <main>
-          <h1 className="text-3xl lg:text-4xl">{title}</h1>
+          <h1 className="text-3xl">{title}</h1>
           {intro && <p className="mt-2 text-base text-ink-soft">{intro}</p>}
           <div className="mt-6">{children}</div>
         </main>

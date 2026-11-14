@@ -27,7 +27,7 @@ export function StoreReviews() {
   const summary = data.data?.summary;
 
   return (
-    <section aria-labelledby="shop-reviews-title" className="overflow-hidden rounded-2xl border border-sand-200 bg-white p-5 sm:p-6">
+    <section aria-labelledby="shop-reviews-title" className="overflow-hidden rounded-xl border border-sand-200 bg-white p-5">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex items-center gap-4">
           <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl border border-sand-200 bg-ivory-50 p-1.5">

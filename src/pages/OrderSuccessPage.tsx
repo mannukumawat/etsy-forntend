@@ -49,10 +49,10 @@ export default function OrderSuccessPage() {
   const trackHref = `/track-order?order=${encodeURIComponent(order.number)}&email=${encodeURIComponent(order.email)}`;
 
   return (
-    <div className="container-site max-w-4xl py-10 lg:py-14">
+    <div className="container-site max-w-4xl py-8 lg:py-10">
       <div className="text-center">
         <CheckCircle2 className="mx-auto h-14 w-14 text-emerald-700" aria-hidden />
-        <h1 className="mt-4 text-4xl lg:text-5xl">{t('order.successTitle')}</h1>
+        <h1 className="mt-4 text-3xl lg:text-4xl">{t('order.successTitle')}</h1>
         <p className="mx-auto mt-3 max-w-xl text-ink-soft">{t('order.successBody')}</p>
         <dl className="mx-auto mt-6 inline-flex flex-wrap justify-center gap-x-8 gap-y-2 rounded-xl border border-sand-200 bg-white px-6 py-4 text-left">
           <div>

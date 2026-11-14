@@ -62,14 +62,14 @@ export default function CartPage() {
   return (
     <div className="container-site py-0 md:py-8 lg:py-12">
       <div className="hidden flex-wrap items-baseline justify-between gap-3 md:flex">
-        <h1 className="text-4xl lg:text-5xl">{t('cart.title')}</h1>
+        <h1 className="text-3xl lg:text-4xl">{t('cart.title')}</h1>
         <p className="text-ink-muted">{t('common.items', { count: totals.itemCount })}</p>
       </div>
 
       {isError ? (
         <ErrorState onRetry={reload} />
       ) : (
-        <div className="grid items-start gap-0 md:mt-8 md:gap-8 lg:grid-cols-[1fr_380px] lg:gap-10">
+        <div className="grid items-start gap-0 md:mt-6 md:gap-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-8">
           <div className="min-w-0">
             <button type="button" onClick={() => setAddressOpen(true)} className="-mx-4 flex min-h-16 w-[calc(100%+2rem)] items-center gap-3 border-y border-sand-200 bg-white px-4 text-left md:mx-0 md:hidden md:w-full">
               <MapPin className="h-5 w-5 text-brand-700" aria-hidden /><span className="flex-1 font-semibold text-ink">{t('cart.deliveryAt', { defaultValue: 'Delivery at' })} {deliveryLabel}</span><span className="rounded-lg border border-ink px-3 py-1.5 text-sm font-semibold">{t('common.change', { defaultValue: 'Change' })}</span>

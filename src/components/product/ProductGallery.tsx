@@ -20,7 +20,7 @@ export function ProductGallery({ images }: { images: ProductImage[] }) {
 
   return (
     <div className="flex flex-col-reverse gap-2 md:flex-row md:gap-4">
-      <ul className="scrollbar-none flex justify-center gap-2 overflow-x-auto px-4 md:w-20 md:flex-col md:justify-start md:overflow-visible md:px-0">
+      <ul className="scrollbar-none flex justify-center gap-2 overflow-x-auto px-4 md:w-[72px] md:flex-col md:justify-start md:overflow-visible md:px-0">
         {images.map((img, i) => (
           <li key={i} className="shrink-0">
             <button
@@ -29,7 +29,7 @@ export function ProductGallery({ images }: { images: ProductImage[] }) {
               aria-label={t('a11y.showImage', { index: i + 1, total: images.length })}
               aria-current={i === index ? 'true' : undefined}
               className={cn(
-                'block h-2 w-6 overflow-hidden rounded-full border-0 transition-colors md:h-20 md:w-20 md:rounded-lg md:border-2',
+                'block h-2 w-6 overflow-hidden rounded-full border-0 transition-colors md:h-[72px] md:w-[72px] md:rounded-lg md:border-2',
                 i === index ? 'border-ink' : 'border-transparent opacity-80 hover:opacity-100',
               )}
             >
@@ -39,7 +39,7 @@ export function ProductGallery({ images }: { images: ProductImage[] }) {
         ))}
       </ul>
       <div className="relative flex-1">
-        <div className="aspect-square overflow-hidden bg-sand-100 md:rounded-2xl lg:aspect-auto lg:h-[min(76vh,720px)]">
+        <div className="aspect-square overflow-hidden bg-sand-100 md:rounded-xl lg:aspect-auto lg:h-[min(66vh,560px)] xl:h-[min(68vh,600px)]">
           <img key={current.src.slice(-60)} src={current.src} alt={loc(current.alt)} width={800} height={800} className="h-full w-full animate-fade-in object-cover" decoding="async" />
         </div>
         {images.length > 1 && (

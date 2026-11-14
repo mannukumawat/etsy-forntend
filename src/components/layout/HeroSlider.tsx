@@ -122,7 +122,7 @@ export function HeroSlider({ slides, autoplayMs = 5000, compact = false, overlay
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
       >
-        <div className={compact ? 'relative min-h-[320px] lg:min-h-[400px]' : 'relative min-h-[460px] lg:min-h-[540px]'}>
+        <div className={compact ? 'relative min-h-[300px] sm:min-h-[320px] lg:min-h-[400px]' : 'relative min-h-[360px] sm:min-h-[430px] lg:min-h-[540px]'}>
           {slides.map((slide, i) => {
             const isActive = i === current;
             const isExiting = i === prev3d;
@@ -152,12 +152,12 @@ export function HeroSlider({ slides, autoplayMs = 5000, compact = false, overlay
                 />
                 <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/30 to-transparent md:bg-gradient-to-r md:from-black/60 md:via-black/30 md:to-transparent" aria-hidden />
                 {isActive && slide.title && (
-                  <div className="relative flex h-full flex-col justify-center px-6 py-10 sm:px-12 lg:px-20">
-                    <h2 className={cn('hero-text-in max-w-xl font-serif font-semibold leading-[1.1] text-white drop-shadow-sm line-clamp-3', compact ? 'text-3xl lg:text-4xl' : 'text-4xl lg:text-6xl')}>{slide.title}</h2>
+                  <div className="relative flex h-full flex-col justify-center px-5 py-8 sm:px-12 lg:px-20">
+                    <h2 className={cn('hero-text-in max-w-xl font-serif font-semibold leading-[1.1] text-white drop-shadow-sm line-clamp-3', compact ? 'text-3xl lg:text-4xl' : 'text-[30px] sm:text-4xl lg:text-6xl')}>{slide.title}</h2>
                     {slide.subtitle && (
                       <p className="hero-text-in-delay mt-4 max-w-md text-base text-white/85 line-clamp-2 lg:text-lg">{slide.subtitle}</p>
                     )}
-                    <div className="hero-text-in-btn mt-7 flex flex-wrap gap-3">
+                    <div className="hero-text-in-btn mt-5 flex flex-wrap gap-3 sm:mt-7">
                       {slide.ctaHref && slide.ctaLabel && (
                         <ButtonLink to={slide.ctaHref} size="lg" className="!bg-white !text-gray-900 hover:!bg-sand-100 shadow-md font-semibold">
                           {slide.ctaLabel} <ArrowRight className="h-4 w-4" aria-hidden />
@@ -184,10 +184,10 @@ export function HeroSlider({ slides, autoplayMs = 5000, compact = false, overlay
 
         {slides.length > 1 && (
           <>
-            <button onClick={goPrev} aria-label="Previous slide" className="absolute left-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/20 p-2.5 text-white backdrop-blur transition hover:bg-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">
+            <button onClick={goPrev} aria-label="Previous slide" className="absolute left-3 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/20 p-2 text-white backdrop-blur transition hover:bg-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:left-4 sm:p-2.5">
               <ChevronLeft className="h-5 w-5" />
             </button>
-            <button onClick={goNext} aria-label="Next slide" className="absolute right-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/20 p-2.5 text-white backdrop-blur transition hover:bg-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">
+            <button onClick={goNext} aria-label="Next slide" className="absolute right-3 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/20 p-2 text-white backdrop-blur transition hover:bg-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:right-4 sm:p-2.5">
               <ChevronRight className="h-5 w-5" />
             </button>
           </>

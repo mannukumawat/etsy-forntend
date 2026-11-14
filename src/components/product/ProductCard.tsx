@@ -20,7 +20,7 @@ export function ProductCard({ product, eager = false }: { product: Product; eage
   const [first, second] = product.images;
 
   return (
-    <article className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-sand-200 bg-white transition-all duration-300 hover:-translate-y-1 hover:border-sand-300 hover:shadow-lift motion-reduce:transition-none motion-reduce:hover:translate-y-0">
+    <article className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-sand-200 bg-white transition-all duration-300 hover:-translate-y-0.5 hover:border-sand-300 hover:shadow-lift motion-reduce:transition-none motion-reduce:hover:translate-y-0">
       <Link to={href} tabIndex={-1} aria-hidden className="block">
         <div className="relative aspect-square overflow-hidden bg-sand-100">
           {first?.src && (
@@ -53,7 +53,7 @@ export function ProductCard({ product, eager = false }: { product: Product; eage
         </div>
       </Link>
 
-      <div className="flex flex-1 flex-col px-4 pb-4 pt-3">
+      <div className="flex flex-1 flex-col px-3.5 pb-3.5 pt-3">
         {category && <p className="truncate text-[11px] font-semibold uppercase tracking-[0.1em] text-ink-muted">{loc(category.name)}</p>}
         <Link to={href} className="mt-1 rounded">
           <h3 className="line-clamp-2 font-sans text-[14px] font-medium leading-snug text-ink transition-colors group-hover:text-brand-700">{loc(product.name)}</h3>
@@ -80,9 +80,9 @@ export function ProductCard({ product, eager = false }: { product: Product; eage
 
 export function ProductCardSkeleton() {
   return (
-    <div aria-hidden className="overflow-hidden rounded-2xl border border-sand-200 bg-white">
+    <div aria-hidden className="overflow-hidden rounded-xl border border-sand-200 bg-white">
       <Skeleton className="aspect-square w-full rounded-none" />
-      <div className="px-4 pb-4 pt-3">
+      <div className="px-3.5 pb-3.5 pt-3">
         <Skeleton className="h-3 w-1/3" />
         <Skeleton className="mt-2 h-4 w-full" />
         <Skeleton className="mt-1.5 h-4 w-2/3" />
@@ -93,8 +93,8 @@ export function ProductCardSkeleton() {
 }
 
 const GRID = {
-  4: 'grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 lg:gap-5 xl:grid-cols-5',
-  3: 'grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:gap-5 xl:grid-cols-4 2xl:grid-cols-5',
+  4: 'grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 lg:gap-5 xl:grid-cols-5 2xl:grid-cols-6',
+  3: 'grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 lg:gap-5 xl:grid-cols-5 2xl:grid-cols-6',
 } as const;
 
 export function ProductGrid({ products, eagerCount = 0, columns = 4 }: { products: Product[]; eagerCount?: number; columns?: 3 | 4 }) {

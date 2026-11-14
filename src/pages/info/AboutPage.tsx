@@ -34,9 +34,9 @@ function Hero({ eyebrow, title, intro, image }: { eyebrow: string; title: string
       <header className="relative isolate overflow-hidden bg-ink">
         <img src={image} alt="" className="absolute inset-0 -z-10 h-full w-full object-cover opacity-80" />
         <div className="absolute inset-0 -z-10 bg-gradient-to-t from-ink/90 via-ink/50 to-ink/20" aria-hidden />
-        <div className="container-site flex min-h-[26rem] flex-col justify-end pb-12 pt-32 lg:min-h-[34rem] lg:pb-20">
+        <div className="container-site flex min-h-[26rem] flex-col justify-end pb-12 pt-32 lg:min-h-[30rem] lg:pb-16">
           <p className="text-xs font-semibold uppercase tracking-[0.28em] text-brand-200">{eyebrow}</p>
-          <h1 className="mt-4 max-w-3xl text-5xl leading-[1.05] !text-white lg:text-7xl">{title}</h1>
+          <h1 className="mt-4 max-w-3xl text-4xl leading-[1.05] !text-white lg:text-6xl">{title}</h1>
           {intro && <p className="mt-5 max-w-2xl text-lg leading-relaxed text-white/85 lg:text-xl">{intro}</p>}
         </div>
       </header>
@@ -46,9 +46,9 @@ function Hero({ eyebrow, title, intro, image }: { eyebrow: string; title: string
     <header className="relative isolate overflow-hidden bg-gradient-to-b from-brand-50 via-ivory to-ivory">
       <div className="pointer-events-none absolute -right-24 -top-24 -z-10 h-80 w-80 rounded-full bg-brand-100/60 blur-3xl" aria-hidden />
       <div className="pointer-events-none absolute -left-24 bottom-0 -z-10 h-64 w-64 rounded-full bg-sage-100 blur-3xl" aria-hidden />
-      <div className="container-site py-20 text-center lg:py-28">
+      <div className="container-site py-16 text-center lg:py-20">
         <p className="text-xs font-semibold uppercase tracking-[0.28em] text-brand-700">{eyebrow}</p>
-        <h1 className="mx-auto mt-4 max-w-3xl text-5xl leading-[1.05] lg:text-7xl">{title}</h1>
+        <h1 className="mx-auto mt-4 max-w-3xl text-4xl leading-[1.05] lg:text-6xl">{title}</h1>
         {intro && <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-ink-soft lg:text-xl">{intro}</p>}
       </div>
     </header>
@@ -61,8 +61,8 @@ function SectionBlock({ section, index }: { section: AboutSection; index: number
 
   if (section.image) {
     return (
-      <section className="container-site py-12 lg:py-20">
-        <div className="grid items-center gap-8 lg:grid-cols-2 lg:gap-16">
+      <section className="container-site py-12 lg:py-16">
+        <div className="grid items-center gap-8 lg:grid-cols-2 lg:gap-12">
           <div className={cn('relative', flip && 'lg:order-2')}>
             <div className="absolute -inset-3 -z-10 rounded-[1.75rem] border border-brand-200/70 lg:-inset-4" aria-hidden />
             <img src={section.image} alt="" loading="lazy" className="aspect-[4/3] w-full rounded-2xl object-cover shadow-lift" />
@@ -71,7 +71,7 @@ function SectionBlock({ section, index }: { section: AboutSection; index: number
             <span className="font-serif text-5xl font-semibold text-brand-200" aria-hidden>
               {number}
             </span>
-            <h2 className="mt-1 text-3xl lg:text-4xl">{section.heading}</h2>
+            <h2 className="mt-1 text-3xl">{section.heading}</h2>
             <div className="mt-2 h-px w-14 bg-brand-500" aria-hidden />
             <div className="mt-5 space-y-4">
               <Paragraphs text={section.body} className="text-base leading-relaxed text-ink-soft lg:text-[16px]" />
@@ -88,7 +88,7 @@ function SectionBlock({ section, index }: { section: AboutSection; index: number
         <span className="font-serif text-4xl font-semibold text-brand-200" aria-hidden>
           {number}
         </span>
-        <h2 className="mt-1 text-3xl lg:text-4xl">{section.heading}</h2>
+        <h2 className="mt-1 text-3xl">{section.heading}</h2>
         <div className="mx-auto mt-3 h-px w-14 bg-brand-500" aria-hidden />
         <div className="mt-5 space-y-4">
           <Paragraphs text={section.body} className="text-base leading-relaxed text-ink-soft lg:text-[16px]" />

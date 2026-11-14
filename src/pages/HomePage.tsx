@@ -14,9 +14,9 @@ import type { PublicItemGroup } from '@/api/itemGroups';
 function Section({ title, link, children }: { title: string; link?: { to: string; label: string }; children: ReactNode }) {
   const id = `sec-${title.replace(/\W+/g, '-').toLowerCase()}`;
   return (
-    <section aria-labelledby={id} className="container-site mt-14 lg:mt-18">
-      <div className="mb-5 flex items-end justify-between gap-4 border-b border-sand-200 pb-4">
-        <h2 id={id} className="text-2xl font-semibold tracking-tight text-ink lg:text-3xl">{title}</h2>
+    <section aria-labelledby={id} className="container-site mt-10 lg:mt-12">
+      <div className="mb-4 flex items-end justify-between gap-4 border-b border-sand-200 pb-3">
+        <h2 id={id} className="text-2xl font-semibold tracking-tight text-ink">{title}</h2>
         {link && (
           <Link to={link.to} className="flex shrink-0 items-center gap-1 text-sm font-medium text-brand-700 hover:underline">
             {link.label} <ArrowRight className="h-4 w-4" aria-hidden />

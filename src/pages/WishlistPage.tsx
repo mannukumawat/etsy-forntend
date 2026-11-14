@@ -118,7 +118,7 @@ export default function WishlistPage() {
   return (
     <div className="container-site py-0 md:py-8 lg:py-12">
       <div className="hidden flex-wrap items-baseline justify-between gap-3 md:flex">
-        <h1 className="text-4xl lg:text-5xl">{t('wishlist.title')}</h1>
+        <h1 className="text-3xl lg:text-4xl">{t('wishlist.title')}</h1>
         {items.length > 0 && <p className="text-ink-muted">{t('wishlist.subtitle', { count: items.length })}</p>}
       </div>
       <p className="mt-1 hidden text-sm text-ink-muted md:block">{t('wishlist.localNote')}</p>
@@ -180,7 +180,7 @@ export default function WishlistPage() {
               );
             })}
           </ul>
-          <ul className="hidden grid-cols-1 gap-6 min-[420px]:grid-cols-2 md:grid lg:grid-cols-4">
+          <ul className="hidden grid-cols-1 gap-5 min-[420px]:grid-cols-2 md:grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
             {items.map((item) => {
               const product = byId.get(item.productId);
               if (!product) {

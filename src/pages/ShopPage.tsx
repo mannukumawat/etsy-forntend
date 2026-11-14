@@ -175,7 +175,7 @@ export default function ShopPage() {
             overlay={
               <>
                 <Breadcrumbs items={crumbs} tone="light" />
-                <h1 className="mt-3 font-serif text-4xl font-semibold text-white drop-shadow-sm lg:text-6xl">{title}</h1>
+                <h1 className="mt-3 font-serif text-4xl font-semibold text-white drop-shadow-sm lg:text-5xl">{title}</h1>
                 {description && <p className="mt-3 max-w-md text-base text-white/85 line-clamp-2">{description}</p>}
               </>
             }
@@ -184,7 +184,7 @@ export default function ShopPage() {
       ) : (
         <div className="container-site pt-5 lg:pt-6">
           <Breadcrumbs items={crumbs} />
-          <h1 className="mt-2 text-3xl lg:text-4xl">{title}</h1>
+          <h1 className="mt-2 text-3xl">{title}</h1>
           {description && <p className="mt-1.5 max-w-2xl text-sm text-ink-soft">{description}</p>}
         </div>
       )}

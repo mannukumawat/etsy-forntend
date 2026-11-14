@@ -234,8 +234,8 @@ export function HubSection({ title, products }: { title: string; products: Produ
   const count = activeCount(filters);
 
   return (
-    <section className="container-site mt-16">
-      <h2 className="text-center font-serif text-4xl lg:text-5xl">{title}</h2>
+    <section className="container-site mt-12">
+      <h2 className="text-center font-serif text-3xl lg:text-4xl">{title}</h2>
       <div className="mt-6 flex flex-wrap items-center gap-3">
         <button
           type="button"
@@ -262,7 +262,7 @@ export function HubSection({ title, products }: { title: string; products: Produ
       {filtered.length === 0 ? (
         <p className="mt-10 text-center text-ink-muted">{t('hub.noMatch')}</p>
       ) : (
-        <div className="mt-6 grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-3 lg:grid-cols-4 lg:gap-x-6">
+        <div className="mt-6 grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 lg:grid-cols-4 lg:gap-x-5 xl:grid-cols-5 2xl:grid-cols-6">
           {filtered.slice(0, shown).map((p) => (
             <HubProductCard key={p.id} product={p} />
           ))}
@@ -298,8 +298,8 @@ export function HubHero({ title, subtitle, color, image, circles = [] }: { title
       <section className={cn('relative overflow-hidden text-center', hasCircles ? 'pb-36 pt-12 sm:pb-40' : 'py-16')} style={{ backgroundColor: color }}>
         {image && <img src={image} alt="" className="absolute inset-0 h-full w-full object-cover opacity-25" />}
         <div className="container-site relative">
-          <h1 className={cn('font-serif text-5xl leading-tight lg:text-7xl', dark ? 'text-white' : 'text-ink')}>{title}</h1>
-          {subtitle && <p className={cn('mx-auto mt-3 max-w-3xl text-lg font-semibold lg:text-xl', dark ? 'text-white' : 'text-ink-soft')}>{subtitle}</p>}
+          <h1 className={cn('font-serif text-4xl leading-tight lg:text-6xl', dark ? 'text-white' : 'text-ink')}>{title}</h1>
+          {subtitle && <p className={cn('mx-auto mt-3 max-w-3xl text-base font-semibold lg:text-lg', dark ? 'text-white' : 'text-ink-soft')}>{subtitle}</p>}
         </div>
       </section>
       {hasCircles && (
@@ -310,7 +310,7 @@ export function HubHero({ title, subtitle, color, image, circles = [] }: { title
               return (
                 <li key={i} className="w-[calc(50%-12px)] sm:w-[calc(33.333%-16px)] lg:w-[calc(16.666%-20px)]">
                   <Link to={c.href} className="group flex flex-col items-center gap-3 text-center">
-                    <span className="block aspect-square w-full max-w-[200px] overflow-hidden rounded-full bg-sand-100 shadow-sm ring-4 ring-ivory-50">
+                    <span className="block aspect-square w-full max-w-[168px] overflow-hidden rounded-full bg-sand-100 shadow-sm ring-4 ring-ivory-50">
                       {img && <img src={img} alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />}
                     </span>
                     <span className="inline-flex items-center gap-1.5 text-[14px] font-semibold text-ink group-hover:underline">

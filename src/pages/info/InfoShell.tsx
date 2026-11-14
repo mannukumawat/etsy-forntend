@@ -17,9 +17,9 @@ export function InfoShell({ title, intro, showUntranslatedNotice, children, clas
   useDocumentTitle(title);
   const untranslated = t('pages.untranslated');
   return (
-    <div className={`container-site max-w-3xl py-8 lg:py-12 ${className ?? ''}`}>
+    <div className={`container-site max-w-3xl py-8 lg:py-10 ${className ?? ''}`}>
       <Breadcrumbs items={[{ label: t('common.home'), to: '/' }, { label: title }]} />
-      <h1 className="mt-4 text-4xl lg:text-5xl">{title}</h1>
+      <h1 className="mt-4 text-3xl lg:text-4xl">{title}</h1>
       {intro && <p className="mt-3 text-lg text-ink-soft">{intro}</p>}
       {showUntranslatedNotice && untranslated && (
         <Notice tone="info" className="mt-6">

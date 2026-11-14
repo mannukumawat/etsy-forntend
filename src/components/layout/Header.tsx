@@ -152,7 +152,7 @@ export function Header() {
               <ArrowLeft className="h-5 w-5" aria-hidden />
             </button>
             <div className="ml-auto flex items-center gap-1">
-              <SettingsButton />
+              <SettingsButton variant="icon" />
               <Link to="/shop" aria-label={t('a11y.openSearch')} className="flex h-10 w-10 items-center justify-center rounded-full text-ink"><Search className="h-5 w-5" aria-hidden /></Link>
               <Link to="/wishlist" aria-label={t('a11y.wishlistLink', { count: wishCount })} className="relative flex h-10 w-10 items-center justify-center rounded-full text-ink"><Heart className="h-5 w-5" aria-hidden /><CountBadge count={wishCount} /></Link>
               <button type="button" onClick={openCart} aria-label={t('a11y.openCart', { count: cartCount })} className="relative flex h-10 w-10 items-center justify-center rounded-full text-ink"><ShoppingBag className="h-5 w-5" aria-hidden /><CountBadge count={cartCount} /></button>
@@ -192,9 +192,8 @@ export function Header() {
           >
             {user ? user.name.trim().charAt(0).toUpperCase() : <User className="h-5 w-5" aria-hidden />}
           </Link>
-          <Logo className="ml-1" />
           <div className="ml-auto flex items-center gap-1">
-            <SettingsButton />
+            <SettingsButton variant="icon" />
             <Link to="/wishlist" aria-label={t('a11y.wishlistLink', { count: wishCount })} className="relative flex h-10 w-10 items-center justify-center rounded-full text-ink">
               <Heart className="h-5 w-5" aria-hidden />
               <CountBadge count={wishCount} />

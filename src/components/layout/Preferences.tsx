@@ -144,7 +144,7 @@ export function SettingsDialog({ open, onClose }: { open: boolean; onClose: () =
 }
 
 /** Header/mobile trigger showing the current region and currency. */
-export function SettingsButton({ variant = 'compact', className }: { variant?: 'compact' | 'full'; className?: string }) {
+export function SettingsButton({ variant = 'compact', className }: { variant?: 'compact' | 'full' | 'icon'; className?: string }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const { currency, deliveryCountry } = usePreferences();
@@ -156,20 +156,22 @@ export function SettingsButton({ variant = 'compact', className }: { variant?: '
         aria-haspopup="dialog"
         aria-label={t('prefs.open', { region: regionName(deliveryCountry), currency })}
         className={cn(
-          variant === 'compact'
+          variant === 'icon'
+            ? 'flex h-10 w-10 items-center justify-center rounded-full text-ink hover:bg-sand-100'
+            : variant === 'compact'
             ? 'flex h-10 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-ink hover:bg-sand-100'
             : 'input flex h-12 w-full items-center justify-between text-left',
           className,
         )}
       >
-        <span className="flex items-center gap-1.5">
-          <Globe className="h-4 w-4 text-ink-muted" aria-hidden />
-          {variant === 'compact' ? deliveryCountry : regionName(deliveryCountry)}
-          <span className="text-sand-300" aria-hidden>
-            |
+        {variant === 'icon' ? <Globe className="h-5 w-5" aria-hidden /> : (
+          <span className="flex items-center gap-1.5">
+            <Globe className="h-4 w-4 text-ink-muted" aria-hidden />
+            {variant === 'compact' ? deliveryCountry : regionName(deliveryCountry)}
+            <span className="text-sand-300" aria-hidden>|</span>
+            {SYMBOL[currency]} {currency}
           </span>
-          {SYMBOL[currency]} {currency}
-        </span>
+        )}
         {variant === 'full' && <ChevronDown className="h-4 w-4 text-ink-muted" aria-hidden />}
       </button>
       {open && <SettingsDialog open onClose={() => setOpen(false)} />}

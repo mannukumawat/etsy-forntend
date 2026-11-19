@@ -115,7 +115,7 @@ export function CartLineItem({ item, index, compact, onNavigate }: { item: Resol
         </div>
       </div>
       {!compact && (
-        <div className="-mx-4 -mb-4 grid w-[calc(100%+2rem)] basis-full grid-cols-2 border-t border-sand-200 md:hidden">
+        <div className="-mx-4 -mb-4 grid basis-full grid-cols-2 border-t border-sand-200 md:hidden" style={{width: 'calc(100% + 2rem)', maxWidth: '100vw'}}>
           <button type="button" onClick={moveToWishlist} className="flex min-h-12 items-center justify-center gap-2 border-r border-sand-200 text-sm font-medium text-ink"><Heart className="h-5 w-5" aria-hidden />{t('wishlist.moveToWishlist', { defaultValue: 'Move to Wishlist' })}</button>
           <button type="button" onClick={remove} className="flex min-h-12 items-center justify-center gap-2 text-sm font-medium text-ink"><Trash2 className="h-5 w-5" aria-hidden />{t('common.remove')}</button>
         </div>

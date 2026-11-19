@@ -117,7 +117,7 @@ export default function BankAccountsPage() {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl">{t('account.refundAccounts', { defaultValue: 'Refund accounts' })}</h2>
-        <p className="mt-1 text-sm text-ink-muted">{t('account.refundAccountsDesc', { defaultValue: 'Saved bank accounts for COD refunds. Account numbers are stored encrypted.' })}</p>
+        <p className="mt-1 text-sm text-ink-muted">{t('account.refundAccountsDesc', { defaultValue: 'Saved bank accounts for refunds. Account numbers are stored encrypted.' })}</p>
       </div>
 
       {items.length > 0 ? (
@@ -130,7 +130,7 @@ export default function BankAccountsPage() {
         <EmptyState
           icon={<CreditCard className="h-7 w-7" aria-hidden />}
           title={t('account.noBankAccounts', { defaultValue: 'No saved accounts' })}
-          body={t('account.noBankAccountsDesc', { defaultValue: 'Add a bank account to receive COD refunds.' })}
+          body={t('account.noBankAccountsDesc', { defaultValue: 'Add a bank account to receive refunds.' })}
         />
       )}
 

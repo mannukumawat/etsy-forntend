@@ -25,7 +25,7 @@ export let RATE_SNAPSHOT: RateSnapshot = {
 
 /** Called by initSiteSettings after /api/settings resolves. */
 export function syncCurrenciesFromSettings(
-  currencies: Array<{ code: CurrencyCode; name: string; rate: number; fractionDigits: number }>,
+  currencies: Array<{ code: CurrencyCode; name: string; rate: number; fractionDigits: number; roundingIncrement?: number }>,
 ) {
   if (!currencies.length) return;
   CURRENCIES = Object.fromEntries(
@@ -35,7 +35,8 @@ export function syncCurrenciesFromSettings(
         code: c.code,
         name: { en: c.name },
         fractionDigits: c.fractionDigits,
-        roundingIncrement: c.fractionDigits === 0 ? 100 : 1,
+        // Use server-configured increment when available; fall back for older API responses.
+        roundingIncrement: c.roundingIncrement ?? (c.fractionDigits === 0 ? 100 : 1),
       },
     ]),
   ) as Record<CurrencyCode, CurrencyConfig>;

@@ -18,6 +18,7 @@ import { IconButton } from '../ui/Button';
 import { Modal } from '../ui/Dialog';
 import { CategoriesMenu } from './CategoriesMenu';
 import { MobileMenu } from './MobileMenu';
+import { NotificationBell } from './NotificationBell';
 import { SettingsButton } from './Preferences';
 import { SearchBar } from './SearchBar';
 
@@ -249,6 +250,8 @@ export function Header() {
             >
               {searchOpen ? <X className="h-5 w-5" aria-hidden /> : <Search className="h-5 w-5" aria-hidden />}
             </IconButton>
+
+            {user && <NotificationBell className="hidden sm:flex" />}
 
             <Link
               to={user ? '/account' : '/login'}

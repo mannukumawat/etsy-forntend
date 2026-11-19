@@ -447,7 +447,6 @@ const de: TranslationSchema = {
     paymentDemoBanner: 'Demo-Zahlung â€“ es werden keine Kartendaten erfasst und nichts abgebucht.',
     paymentMethod: 'Zahlungsart (Vorschau)',
     paymentMethods: {
-      cod: 'Nachnahme',
       card: 'Karte',
       upi: 'UPI',
       wallet: 'Digitale GeldbÃ¶rse',
@@ -1009,3 +1008,4 @@ const de: TranslationSchema = {
 };
 
 export default de;
+

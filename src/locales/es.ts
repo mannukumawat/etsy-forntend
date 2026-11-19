@@ -447,7 +447,6 @@ const es: TranslationSchema = {
     paymentDemoBanner: 'Pago de demo: no se recogen datos de tarjeta ni se realizarÃ¡ ningÃºn cargo.',
     paymentMethod: 'MÃ©todo de pago (vista previa)',
     paymentMethods: {
-      cod: 'Contra reembolso',
       card: 'Tarjeta',
       upi: 'UPI',
       wallet: 'Monedero digital',
@@ -1009,3 +1008,4 @@ const es: TranslationSchema = {
 };
 
 export default es;
+

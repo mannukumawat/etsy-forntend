@@ -20,8 +20,6 @@ export function ReturnItemPanel({ line, order, onClose }: { line: OrderLine; ord
   const cancelledQty = line.cancelledQty ?? 0;
   const returnedQty = line.returnedQty ?? 0;
   const maxQty = line.quantity - cancelledQty - returnedQty;
-  const isCod = order.paymentMethod === 'cod';
-
   const [qty, setQty] = useState(maxQty > 0 ? 1 : 0);
   const [reason, setReason] = useState<string>(RETURN_REASONS[0]);
   const [note, setNote] = useState('');
@@ -65,10 +63,6 @@ export function ReturnItemPanel({ line, order, onClose }: { line: OrderLine; ord
   }
 
   const submit = async () => {
-    if (isCod && !refundAccountId) {
-      setErr(t('returns.selectBankAccount', { defaultValue: 'Select a saved bank account for the refund.' }));
-      return;
-    }
     setErr(null);
     setLoading(true);
     try {
@@ -173,21 +167,16 @@ export function ReturnItemPanel({ line, order, onClose }: { line: OrderLine; ord
           <div className="rounded-lg bg-white border border-sand-200 px-4 py-3">
             <p className="text-xs text-ink-muted">{t('returns.estimatedRefund', { defaultValue: 'Estimated refund' })}</p>
             <p className="mt-1 text-base font-semibold text-ink">{formatMoney(estimatedRefund, order.currency, lang)}</p>
-            {isCod && (
-              <p className="mt-0.5 text-xs text-ink-muted">
-                {t('returns.codRefundMethod', { defaultValue: 'Via bank transfer (COD order)' })}
-              </p>
-            )}
           </div>
 
-          <RefundDestinationPicker isCod={isCod} selectedAccountId={refundAccountId} onSelect={setRefundAccountId} />
+          <RefundDestinationPicker selectedAccountId={refundAccountId} onSelect={setRefundAccountId} />
 
           {err && <p className="text-xs text-red-700">{err}</p>}
           <div className="flex gap-2 pt-1">
             <button
               type="button"
               onClick={submit}
-              disabled={loading || uploading || (isCod && !refundAccountId)}
+              disabled={loading || uploading}
               className="rounded-lg bg-ink px-4 py-2 text-xs font-semibold text-white hover:bg-ink/90 disabled:opacity-50"
             >
               {loading ? t('common.saving') : t('returns.submitReturn')}

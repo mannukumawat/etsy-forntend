@@ -445,14 +445,13 @@ const en = {
     paymentDemoBanner: 'Demo payment — no card details are collected and no payment will be charged.',
     paymentMethod: 'Payment method (preview)',
     paymentMethods: {
-      cod: 'Cash on delivery',
       card: 'Card',
       upi: 'UPI',
       wallet: 'Digital wallet',
     },
     paymentMethodNote: 'In the live store, payment would be handled securely by a payment provider. Here, these options are visual only.',
-    codNote: 'Pay with cash when your order arrives.',
-    gatewayNotConfigured: 'Not available yet — no payment gateway is configured. Use cash on delivery for now.',
+    codNote: '',
+    gatewayNotConfigured: 'Not available yet — no payment gateway is configured.',
     scenarioTitle: 'Choose a simulated outcome',
     scenarios: {
       success: { label: 'Payment succeeds', desc: 'Creates a demo order and empties your cart.' },
@@ -875,7 +874,7 @@ const en = {
         { q: 'Where do you ship?', a: 'We ship to India, much of Europe, North America, parts of Asia and the Middle East, Australia and New Zealand. See the Shipping page for rates and delivery times.' },
         { q: 'Will I pay customs duties?', a: 'International orders may be subject to import duties and taxes charged by the destination country. Estimated amounts are shown at checkout.' },
         { q: 'Can I change or cancel my order?', a: 'Orders can usually be changed within a few hours of being placed. Contact us as soon as possible.' },
-        { q: 'How do I care for handmade ceramics?', a: 'Most of our ceramics are dishwasher and microwave safe. Avoid sudden temperature changes. Each product page lists specific care instructions.' },
+        { q: 'How do I care for handmade rugs?', a: 'Shake or vacuum regularly. For small spills, blot immediately with a clean cloth — do not rub. Avoid prolonged exposure to direct sunlight. Each product page lists specific care instructions.' },
         { q: 'Do you take custom orders?', a: "Custom and bulk orders can be discussed through the contact form. Lead times depend on the studio's schedule." },
         { q: 'Which currencies can I shop in?', a: 'Prices can be shown in multiple currencies. Conversions use illustrative rates and may differ from your bank rate.' },
       ],
@@ -906,6 +905,10 @@ const en = {
     returns: {
       title: 'Returns & exchanges',
       intro: 'Our returns and exchanges policy.',
+      window: '30-day return window',
+      windowBody: 'Unused items in original condition can be returned within 30 days of delivery.',
+      viewOrders: 'View orders',
+      questions: 'Have questions?',
       sections: [
         { heading: 'Return window', body: 'Unused items in their original condition can be returned within 30 days of delivery.' },
         { heading: "Items that can't be returned", body: 'For hygiene reasons, earrings can only be returned if unworn and sealed. Custom pieces are final sale.' },

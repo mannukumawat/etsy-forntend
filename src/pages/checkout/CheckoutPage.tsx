@@ -10,7 +10,9 @@ import { useCartDetails } from '@/hooks/useCartDetails';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useMoney } from '@/hooks/useLocale';
 import { ApiError } from '@/services/api';
-import { orderService, PaymentError } from '@/services/orderService';
+import { openRazorpayModal, orderService, PaymentError, previewTotals } from '@/services/orderService';
+import { createRazorpayOrder } from '@/api';
+import type { CheckoutTotalsResponse } from '@/api/checkout';
 import { useCart } from '@/store/cart';
 import { usePreferences } from '@/store/preferences';
 import { useCheckout, type CheckoutStep } from '@/store/session';
@@ -20,7 +22,7 @@ import { PaymentStep } from './PaymentStep';
 import { ReviewStep } from './ReviewStep';
 import { ShippingStep } from './ShippingStep';
 
-const STEPS: CheckoutStep[] = ['details', 'shipping', 'payment', 'review'];
+const STEPS: CheckoutStep[] = ['details', 'shipping', 'review', 'payment'];
 
 function Stepper({ current, onGo }: { current: CheckoutStep; onGo: (s: CheckoutStep) => void }) {
   const { t } = useTranslation();
@@ -75,6 +77,9 @@ export default function CheckoutPage() {
   const country = checkout.details?.country ?? prefCountry;
   const cart = useCartDetails({ country, shippingMethod: checkout.shippingMethod });
 
+  // Server-computed quote — fetched whenever we have a complete destination + shipping method.
+  // Used for the sidebar totals, the review total, and the Razorpay/wallet amount.
+  const [serverTotals, setServerTotals] = useState<CheckoutTotalsResponse | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [placed, setPlaced] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -84,6 +89,26 @@ export default function CheckoutPage() {
 
   const step: CheckoutStep = checkout.step !== 'details' && !checkout.details ? 'details' : checkout.step;
   const stepIndex = STEPS.indexOf(step);
+
+  // Refresh the server quote whenever destination, shipping method, coupon, or currency changes
+  // and we're past the details step. The displayed total must always match what will be charged.
+  useEffect(() => {
+    const { details, shippingMethod } = checkout;
+    if (!details || step === 'details') { setServerTotals(null); return; }
+    const { lines, couponCode } = useCart.getState();
+    if (!lines.length) return;
+    const ctrl = new AbortController();
+    previewTotals({
+      lines,
+      currency: money.currency,
+      country: details.country,
+      region: details.region,
+      shippingMethodId: shippingMethod,
+      couponCode: couponCode ?? undefined,
+    }).then(setServerTotals).catch(() => { /* non-fatal — sidebar falls back to client totals */ });
+    return () => ctrl.abort();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [checkout.details, checkout.shippingMethod, money.currency, step]);
 
   // Move focus to the step content when the step changes (not on first load).
   useEffect(() => {
@@ -101,7 +126,7 @@ export default function CheckoutPage() {
   };
 
   const placeOrder = async () => {
-    if (lock.current || !checkout.details) return; // duplicate-click guard
+    if (lock.current || !checkout.details) return;
     if (cart.hasIssues) {
       setError(t('checkout.cartIssues'));
       return;
@@ -111,7 +136,76 @@ export default function CheckoutPage() {
     setError(null);
     const { email, marketing: _marketing, ...address } = checkout.details;
     const { lines, couponCode } = useCart.getState();
+
+    // Always fetch a fresh server quote immediately before payment so the amount is never stale
+    // (e.g. FX rate changed, admin changed a shipping fee, coupon was invalidated).
+    const checkoutParams = {
+      lines,
+      currency: money.currency,
+      country: checkout.details.country,
+      region: checkout.details.region,
+      shippingMethodId: checkout.shippingMethod,
+      couponCode: couponCode ?? undefined,
+    };
+
     try {
+      const freshTotals = await previewTotals(checkoutParams);
+      // Show updated total to the customer before proceeding; they already confirmed once in the
+      // review step, so only interrupt if the amount changed since they last saw it.
+      if (serverTotals && freshTotals.totals.total !== serverTotals.totals.total) {
+        setServerTotals(freshTotals);
+        setError(t('checkout.totalChanged', { defaultValue: 'The order total has changed. Please review and confirm.' }));
+        setSubmitting(false);
+        lock.current = false;
+        return;
+      }
+      setServerTotals(freshTotals);
+
+      if (checkout.useWallet) {
+        // Full wallet payment — skip Razorpay entirely.
+        const order = await orderService.place({
+          idempotencyKey: checkout.idempotencyKey,
+          lines,
+          couponCode: couponCode ?? undefined,
+          currency: money.currency,
+          email,
+          address,
+          shippingMethodId: checkout.shippingMethod,
+          paymentMethod: 'wallet',
+          walletAmountPaise: freshTotals.totals.total,
+        });
+        setPlaced(true);
+        invalidateQueries('catalog:');
+        invalidateQueries('orders:');
+        navigate(`/order/success/${order.id}`, { replace: true });
+        clearCart();
+        checkout.reset();
+        return;
+      }
+
+      // Razorpay payment path (full or partial-wallet).
+      const keyId = (import.meta.env.VITE_RAZORPAY_KEY_ID as string | undefined)?.trim();
+      if (!keyId) throw new Error('Razorpay not configured.');
+
+      const walletPartialPaise = checkout.walletPartialPaise ?? 0;
+      // For partial wallet, Razorpay only charges the shortfall.
+      // Pass walletPartialPaise in the create-order request so the server computes the reduced amount.
+      const rzpOrder = await createRazorpayOrder({
+        ...checkoutParams,
+        lines: lines.map((l) => ({ productId: l.productId, variantId: l.variantId, quantity: l.quantity })),
+        receipt: checkout.idempotencyKey.slice(0, 40),
+        ...(walletPartialPaise > 0 ? { walletPartialPaise } : {}),
+      });
+
+      const razorpayResult = await openRazorpayModal({
+        keyId,
+        amount: rzpOrder.amount,
+        currency: rzpOrder.currency,
+        razorpayOrderId: rzpOrder.id,
+        name: 'Your Store',
+        email,
+      });
+
       const order = await orderService.place({
         idempotencyKey: checkout.idempotencyKey,
         lines,
@@ -121,8 +215,10 @@ export default function CheckoutPage() {
         address,
         shippingMethodId: checkout.shippingMethod,
         paymentMethod: checkout.paymentMethod,
+        razorpayResult,
+        ...(walletPartialPaise > 0 ? { walletPartialPaise } : {}),
       });
-      // Only now — after the (simulated) server confirmed the order — is the cart cleared.
+
       setPlaced(true);
       invalidateQueries('catalog:');
       invalidateQueries('orders:');
@@ -136,9 +232,6 @@ export default function CheckoutPage() {
         return;
       }
       if (e instanceof ApiError) {
-        // The server's own message is already client-ready prose (e.g. "We do not ship to this
-        // destination yet.", "Some items in your cart no longer have enough stock."). A stock conflict
-        // means the catalogue itself has changed, so refresh it rather than guessing new quantities.
         if (e.code === 'conflict') {
           invalidateQueries('catalog:');
           cart.reload();
@@ -169,6 +262,9 @@ export default function CheckoutPage() {
     );
   }
 
+  // The displayed total uses the server quote when available; falls back to client estimate.
+  const displayTotal = serverTotals ? money.format(serverTotals.totals.total) : money.format(cart.totals.total);
+
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-5 sm:px-6 sm:py-8 lg:px-8 lg:py-12">
       <div className="flex items-end justify-between gap-4">
@@ -181,7 +277,7 @@ export default function CheckoutPage() {
 
       <div className="mt-6 grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-8">
         <div className="lg:order-last">
-          <OrderSummary details={cart} />
+          <OrderSummary details={cart} serverTotals={serverTotals} />
         </div>
 
         <div ref={contentRef} tabIndex={-1} className="card min-w-0 scroll-mt-32 p-4 focus:outline-none sm:p-6">
@@ -198,16 +294,22 @@ export default function CheckoutPage() {
                 </Notice>
               )}
               {step === 'details' && <DetailsStep onDone={() => goTo('shipping')} />}
-              {step === 'shipping' && <ShippingStep onBack={() => goTo('details')} onDone={() => goTo('payment')} />}
-              {step === 'payment' && <PaymentStep onBack={() => goTo('shipping')} onDone={() => goTo('review')} />}
+              {step === 'shipping' && <ShippingStep onBack={() => goTo('details')} onDone={() => goTo('review')} />}
               {step === 'review' && (
                 <ReviewStep
-                  total={money.format(cart.totals.total)}
+                  onEdit={goTo}
+                  onDone={() => goTo('payment')}
+                />
+              )}
+              {step === 'payment' && (
+                <PaymentStep
+                  onBack={() => goTo('review')}
+                  onPlace={placeOrder}
+                  walletInfo={serverTotals?.wallet ?? null}
+                  total={displayTotal}
                   submitting={submitting}
                   error={error}
                   blocked={cart.hasIssues || cart.isLoading || cart.totals.shipping === null}
-                  onEdit={goTo}
-                  onPlace={placeOrder}
                 />
               )}
             </>

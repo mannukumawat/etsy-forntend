@@ -5,7 +5,7 @@ import { apiClient } from "./client";
 // token. Auth endpoints pass `skipAuthHandler` so their own 401s never trigger the global
 // session-expiry handler (that would be a redirect loop on a plain wrong-password attempt).
 
-export function register(input: { name: string; email: string; password: string }): Promise<User> {
+export function register(input: { name: string; email?: string; phone?: string; password: string }): Promise<User> {
   return apiClient.post<{ customer: User }>("/api/customer/auth/register", input, { skipAuthHandler: true }).then((r) => r.customer);
 }
 

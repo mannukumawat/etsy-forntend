@@ -11,6 +11,8 @@ export interface CheckoutTotalsRequest {
   lines: CheckoutLineInput[];
   currency: CurrencyCode;
   country: string;
+  /** Shipping-address region/state for regional tax rule matching. */
+  region?: string;
   shippingMethodId: ShippingMethodId;
   couponCode?: string;
 }
@@ -24,12 +26,32 @@ export interface CheckoutTotalsResponse {
   couponError: string | null;
   stockIssues: Array<{ productId: string; variantId: string; requested: number; available: number }>;
   totals: { subtotal: number; discount: number; taxable: number; tax: number; shipping: number; total: number };
+  /** Wallet info for signed-in customers; null for guests or customers with no balance. */
+  wallet: { balancePaise: number; maxApplicablePaise: number } | null;
 }
 
 /** Server-calculated preview — never trusted for the actual charge, only for showing the customer an
  *  accurate number before they place the order. The order itself recomputes everything independently. */
 export function fetchCheckoutTotals(input: CheckoutTotalsRequest, signal?: AbortSignal): Promise<CheckoutTotalsResponse> {
   return apiClient.post<CheckoutTotalsResponse>("/api/checkout/totals", input, { signal });
+}
+
+export interface RazorpayOrderResponse {
+  id: string;
+  amount: number;
+  currency: string;
+}
+
+/** Create a Razorpay order whose amount is computed server-side from the checkout quote.
+ *  Pass the same params you send to /totals so the server can recompute authoritatively. */
+export interface CreateRazorpayOrderRequest extends CheckoutTotalsRequest {
+  receipt: string;
+  /** Paise to deduct from wallet; Razorpay will only charge the remainder. */
+  walletPartialPaise?: number;
+}
+
+export function createRazorpayOrder(input: CreateRazorpayOrderRequest): Promise<RazorpayOrderResponse> {
+  return apiClient.post<RazorpayOrderResponse>('/api/checkout/razorpay/create-order', input);
 }
 
 export interface PlaceOrderRequest {
@@ -39,8 +61,15 @@ export interface PlaceOrderRequest {
   email: string;
   address: Address;
   shippingMethodId: ShippingMethodId;
-  paymentMethod: "cod" | "card" | "upi" | "wallet";
+  paymentMethod: "card" | "upi" | "wallet";
   couponCode?: string;
+  razorpayOrderId?: string;
+  razorpayPaymentId?: string;
+  razorpaySignature?: string;
+  /** INR paise to debit from store wallet for a FULL wallet-only payment. */
+  walletAmountPaise?: number;
+  /** INR paise to debit from store wallet for a PARTIAL payment; Razorpay covers the remainder. */
+  walletPartialPaise?: number;
 }
 
 /** Guest orders only: a one-time access token, returned once here and never again — it's the guest's

@@ -4,14 +4,14 @@ import { Eye, EyeOff } from 'lucide-react';
 
 export function AuthShell({ title, subtitle, children, aside }: { title: string; subtitle?: string; children: ReactNode; aside?: ReactNode }) {
   return (
-    <div className="container-site py-8 lg:py-12">
-      <div className="mx-auto grid max-w-4xl items-start gap-8 md:grid-cols-[1fr_320px]">
-        <div className="card p-6">
+    <div className="min-h-[calc(100vh-4rem)] bg-sand-50 px-4 py-10 sm:px-6">
+      <div className="mx-auto w-full max-w-lg">
+        <div className="card p-6 sm:p-8">
           <h1 className="text-3xl">{title}</h1>
-          {subtitle && <p className="mt-2 text-ink-muted">{subtitle}</p>}
+          {subtitle && <p className="mt-1.5 text-sm text-ink-muted">{subtitle}</p>}
           <div className="mt-6">{children}</div>
         </div>
-        {aside && <aside className="space-y-4">{aside}</aside>}
+        {aside && <div className="mt-4 space-y-4">{aside}</div>}
       </div>
     </div>
   );

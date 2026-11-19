@@ -152,7 +152,7 @@ export function HeroSlider({ slides, autoplayMs = 5000, compact = false, overlay
                 />
                 <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/30 to-transparent md:bg-gradient-to-r md:from-black/60 md:via-black/30 md:to-transparent" aria-hidden />
                 {isActive && slide.title && (
-                  <div className="relative flex h-full flex-col justify-center px-5 py-8 sm:px-12 lg:px-20">
+                  <div className="relative flex h-full flex-col justify-center px-14 py-8 sm:px-14 lg:px-20">
                     <h2 className={cn('hero-text-in max-w-xl font-serif font-semibold leading-[1.1] text-white drop-shadow-sm line-clamp-3', compact ? 'text-3xl lg:text-4xl' : 'text-[30px] sm:text-4xl lg:text-6xl')}>{slide.title}</h2>
                     {slide.subtitle && (
                       <p className="hero-text-in-delay mt-4 max-w-md text-base text-white/85 line-clamp-2 lg:text-lg">{slide.subtitle}</p>

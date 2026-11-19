@@ -5,6 +5,7 @@ import { ChevronDown, Plus, ShoppingBag, Trash2 } from 'lucide-react';
 import { RATE_SNAPSHOT } from '@/data/currencies';
 import { useLocalized, useMoney } from '@/hooks/useLocale';
 import type { useCartDetails } from '@/hooks/useCartDetails';
+import type { CheckoutTotalsResponse } from '@/api/checkout';
 import { useCart } from '@/store/cart';
 import { useUi } from '@/store/ui';
 import { cn } from '@/utils/cn';
@@ -87,10 +88,13 @@ function SummaryBody({ details, showCoupon }: { details: CartDetails; showCoupon
 }
 
 /** Sticky sidebar on desktop; collapsible panel on mobile. */
-export function OrderSummary({ details, showCoupon = true }: { details: CartDetails; showCoupon?: boolean }) {
+export function OrderSummary({ details, serverTotals, showCoupon = true }: { details: CartDetails; serverTotals?: CheckoutTotalsResponse | null; showCoupon?: boolean }) {
   const { t } = useTranslation();
   const money = useMoney();
   const [open, setOpen] = useState(false);
+
+  // Server total is authoritative when available; fall back to client estimate.
+  const displayTotal = serverTotals ? serverTotals.totals.total : details.totals.total;
 
   return (
     <>
@@ -103,7 +107,7 @@ export function OrderSummary({ details, showCoupon = true }: { details: CartDeta
           </span>
           <span className="font-semibold">
             <span className="mr-1 text-xs font-medium text-ink-muted">{details.currency}</span>
-            {money.format(details.totals.total)}
+            {money.format(displayTotal)}
           </span>
         </button>
         <div id="mobile-summary" hidden={!open} className="border-t border-sand-200 p-4">

@@ -342,7 +342,7 @@ function ProductDetail({ product, onReviewsChanged }: { product: Product; onRevi
               </ul>
             ) : <div className="px-4"><ProductGridSkeleton count={2} /></div>}
           </section>
-          <div className="border-t-8 border-sand-100 bg-white px-4 py-6 md:border-t md:border-sand-200 md:pt-10 lg:border-t-0 lg:px-0 lg:pt-4">
+          <div className="border-t-8 border-sand-100 px-4 py-6 md:border-t md:border-sand-200 md:pt-10 lg:border-t-0 lg:px-0 lg:pt-4">
             <ProductReviews product={product} onChanged={onReviewsChanged} autoOpenForm={wantsReview} />
           </div>
           <div className="hidden md:block"><StoreReviews /></div>

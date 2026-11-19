@@ -6,7 +6,7 @@ export const authService = {
     return customerAuthApi.login(email, password);
   },
 
-  register(input: { name: string; email: string; password: string }): Promise<User> {
+  register(input: { name: string; email?: string; phone?: string; password: string }): Promise<User> {
     return customerAuthApi.register(input);
   },
 

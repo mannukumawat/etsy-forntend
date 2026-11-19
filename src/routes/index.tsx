@@ -31,6 +31,8 @@ const BankAccountsPage = lazy(() => import('@/pages/account/BankAccountsPage'));
 const ProfilePage = lazy(() => import('@/pages/account/ProfilePage'));
 const BankUpiPage = lazy(() => import('@/pages/account/BankUpiPage'));
 const MyPaymentsPage = lazy(() => import('@/pages/account/MyPaymentsPage'));
+const WalletPage = lazy(() => import('@/pages/account/WalletPage'));
+const NotificationsPage = lazy(() => import('@/pages/account/NotificationsPage'));
 const WishlistPage = lazy(() => import('@/pages/WishlistPage'));
 const TrackOrderPage = lazy(() => import('@/pages/TrackOrderPage'));
 const AboutPage = lazy(() => import('@/pages/info/AboutPage'));
@@ -79,6 +81,8 @@ export const router = createBrowserRouter([
           { path: 'addresses', element: <AddressesPage /> },
           { path: 'profile', element: <ProfilePage /> },
           { path: 'payments', element: <MyPaymentsPage /> },
+          { path: 'wallet', element: <WalletPage /> },
+          { path: 'notifications', element: <NotificationsPage /> },
         ],
       },
       { path: '/wishlist', element: <WishlistPage /> },

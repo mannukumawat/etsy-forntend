@@ -38,10 +38,19 @@ interface CheckoutState {
   paymentMethod: PaymentMethodPreview;
   /** One key per order attempt so double clicks can't create duplicate orders. */
   idempotencyKey: string;
+  /** Customer's wallet balance in paise; null = not fetched or not signed in. */
+  walletBalancePaise: number | null;
+  /** True when customer has selected to pay via wallet (full payment). */
+  useWallet: boolean;
+  /** Paise to deduct from wallet for partial payment; null = not using partial wallet. */
+  walletPartialPaise: number | null;
   setStep: (step: CheckoutStep) => void;
   setDetails: (details: CheckoutDetailsValues) => void;
   setShippingMethod: (m: ShippingMethodId) => void;
   setPaymentMethod: (m: PaymentMethodPreview) => void;
+  setWalletBalance: (paise: number | null) => void;
+  setUseWallet: (use: boolean) => void;
+  setWalletPartialPaise: (paise: number | null) => void;
   newAttempt: () => void;
   reset: () => void;
 }
@@ -50,8 +59,11 @@ const initialCheckout = () => ({
   step: 'details' as CheckoutStep,
   details: null,
   shippingMethod: 'standard' as ShippingMethodId,
-  paymentMethod: 'cod' as PaymentMethodPreview,
+  paymentMethod: 'card' as PaymentMethodPreview,
   idempotencyKey: newId('idem'),
+  walletBalancePaise: null as number | null,
+  useWallet: false,
+  walletPartialPaise: null as number | null,
 });
 
 export const useCheckout = create<CheckoutState>()((set) => ({
@@ -60,6 +72,9 @@ export const useCheckout = create<CheckoutState>()((set) => ({
   setDetails: (details) => set({ details }),
   setShippingMethod: (shippingMethod) => set({ shippingMethod }),
   setPaymentMethod: (paymentMethod) => set({ paymentMethod }),
+  setWalletBalance: (walletBalancePaise) => set({ walletBalancePaise }),
+  setUseWallet: (useWallet) => set({ useWallet }),
+  setWalletPartialPaise: (walletPartialPaise) => set({ walletPartialPaise }),
   newAttempt: () => set({ idempotencyKey: newId('idem') }),
   reset: () => set(initialCheckout()),
 }));

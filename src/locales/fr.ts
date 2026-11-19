@@ -447,7 +447,6 @@ const fr: TranslationSchema = {
     paymentDemoBanner: 'Paiement de dÃ©mo â€” aucune donnÃ©e de carte nâ€™est collectÃ©e et aucun montant ne sera dÃ©bitÃ©.',
     paymentMethod: 'Moyen de paiement (aperÃ§u)',
     paymentMethods: {
-      cod: 'Paiement Ã  la livraison',
       card: 'Carte',
       upi: 'UPI',
       wallet: 'Portefeuille numÃ©rique',
@@ -1009,3 +1008,4 @@ const fr: TranslationSchema = {
 };
 
 export default fr;
+

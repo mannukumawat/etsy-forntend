@@ -102,6 +102,6 @@ export interface PublicSettingsResponse {
     contact: { email: string; phone: string; address: string; hours: Localized };
     social: { instagram: string; pinterest: string; facebook: string; youtube: string };
   };
-  currencies: Array<{ code: CurrencyCode; name: string; rate: number; fractionDigits: number }>;
+  currencies: Array<{ code: CurrencyCode; name: string; rate: number; fractionDigits: number; roundingIncrement: number }>;
   shipping: { zones: PublicShippingZone[]; unsupportedMessage: Localized };
 }

@@ -54,9 +54,6 @@ export default function OrderDetailPage() {
   const isCancelled = order.status === 'cancelled';
   const deliveredEntry = order.timeline.find((e) => e.status === 'delivered');
   const showTracking = hasRealTracking(order.tracking);
-  const isCod = order.paymentMethod === 'cod';
-  const codCollected = (order as any).codCollectedAt != null;
-
   return (
     <div className="space-y-4 md:space-y-5">
       {/* Back link */}
@@ -169,16 +166,6 @@ export default function OrderDetailPage() {
                 <p className="text-xs text-ink-muted">{t('order.paymentMethod', { defaultValue: 'Method' })}</p>
                 <p className="mt-0.5 text-ink">{t(`checkout.paymentMethods.${order.paymentMethod}`)}</p>
               </div>
-              {isCod && (
-                <div>
-                  <p className="text-xs text-ink-muted">{t('order.paymentStatus', { defaultValue: 'Payment status' })}</p>
-                  <p className={`mt-0.5 font-medium ${codCollected ? 'text-emerald-700' : 'text-amber-700'}`}>
-                    {codCollected
-                      ? t('order.codCollected', { defaultValue: 'Collected' })
-                      : t('order.codPending', { defaultValue: 'Due on delivery' })}
-                  </p>
-                </div>
-              )}
               <div>
                 <p className="text-xs text-ink-muted">{t('order.shippingMethod')}</p>
                 <p className="mt-0.5 text-ink">{t(`checkout.methods.${order.shippingMethod.id}`)}</p>

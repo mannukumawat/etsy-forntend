@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Navigate, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { CreditCard, IndianRupee, LogOut, MapPin, Package, RotateCcw, User } from 'lucide-react';
+import { Bell, CreditCard, IndianRupee, LogOut, MapPin, Package, RotateCcw, User, Wallet } from 'lucide-react';
 import { authService } from '@/services/authService';
 import { useAuth, useCheckout } from '@/store/session';
 import { useUi } from '@/store/ui';
@@ -47,6 +47,8 @@ export function AccountLayout() {
     { to: '/account/addresses', label: t('nav.addresses'), icon: MapPin, end: false },
     { to: '/account/bank-upi', label: 'Bank & UPI', icon: CreditCard, end: false },
     { to: '/account/payments', label: 'My Payments', icon: IndianRupee, end: false },
+    { to: '/account/wallet', label: t('nav.wallet', { defaultValue: 'Wallet' }), icon: Wallet, end: false },
+    { to: '/account/notifications', label: t('nav.notifications', { defaultValue: 'Notifications' }), icon: Bell, end: false },
   ];
 
   return (

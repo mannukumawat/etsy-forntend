@@ -250,7 +250,7 @@ export interface CartTotals {
 // ---------- Orders ----------
 
 export type OrderStatus = 'placed' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
-export type PaymentMethodPreview = 'cod' | 'card' | 'upi' | 'wallet';
+export type PaymentMethodPreview = 'card' | 'upi' | 'wallet';
 
 export interface OrderLine {
   id: string;

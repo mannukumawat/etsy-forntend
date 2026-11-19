@@ -5,6 +5,7 @@ import { Notice } from '@/components/ui/Feedback';
 import { useCountries } from '@/hooks/useCountries';
 import { useLanguage, useMoney } from '@/hooks/useLocale';
 import { useCheckout } from '@/store/session';
+import { useSiteSettings } from '@/store/siteSettings';
 import { cn } from '@/utils/cn';
 import { deliveryWindow, formatShortDate } from '@/utils/dates';
 import { getShippingQuotes } from '@/utils/shipping';
@@ -17,14 +18,18 @@ export function ShippingStep({ onBack, onDone }: { onBack: () => void; onDone: (
   const details = useCheckout((s) => s.details);
   const method = useCheckout((s) => s.shippingMethod);
   const setMethod = useCheckout((s) => s.setShippingMethod);
+  const unsupportedMessage = useSiteSettings((s) => s.shipping?.unsupportedMessage);
 
   const quotes = details ? getShippingQuotes(details.country, money.currency, money.snapshot) : null;
 
   if (!details || !quotes) {
+    // Use admin-configured message when available; fall back to translation key.
+    const msgText = unsupportedMessage ? (unsupportedMessage[lang as keyof typeof unsupportedMessage] ?? unsupportedMessage['en'] ?? '') : '';
+    const body = msgText || t('checkout.unsupportedBody');
     return (
       <div className="space-y-6">
         <Notice tone="warning" role="alert" title={t('checkout.unsupportedTitle', { country: details ? nameOf(details.country) : '' })}>
-          {t('checkout.unsupportedBody')}
+          {body}
         </Notice>
         <Button variant="outline" onClick={onBack} icon={<ArrowLeft className="h-4 w-4" aria-hidden />}>
           {t('common.back')}

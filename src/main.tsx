@@ -21,8 +21,15 @@ const render = () =>
     <StrictMode>{API_MODE ? <RouterProvider router={router} future={{ v7_startTransition: true }} /> : <ConfigurationRequired />}</StrictMode>,
   );
 
+// Never hold the first paint behind an API request. Static category metadata renders immediately;
+// live data replaces it in the background when available.
+render();
+
 if (API_MODE) {
-  void Promise.race([syncCategoriesFromApi(() => fetchCategories()), new Promise((r) => setTimeout(r, 1500))]).finally(render);
-} else {
-  render();
+  void syncCategoriesFromApi(() => fetchCategories());
+  // Warm the shared catalogue after the critical homepage requests have started. Shop, category,
+  // search and navigation pages can then reuse it without another visible wait.
+  window.setTimeout(() => {
+    void import('./services/productService').then(({ productService }) => productService.preloadCatalog());
+  }, 1200);
 }

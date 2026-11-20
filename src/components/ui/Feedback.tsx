@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AlertTriangle, CheckCircle2, Info, RefreshCw, XCircle } from 'lucide-react';
 import { cn } from '@/utils/cn';
+import logoMark from '@/assets/logo-mark.png';
 import { Button } from './Button';
 
 export function Skeleton({ className }: { className?: string }) {
@@ -14,6 +15,24 @@ export function Spinner({ label, className }: { label?: string; className?: stri
     <div role="status" className={cn('flex items-center justify-center gap-3 py-10 text-ink-muted', className)}>
       <span className="h-5 w-5 animate-spin rounded-full border-2 border-sand-300 border-t-brand-600 motion-reduce:animate-none" aria-hidden />
       <span className="text-sm">{label ?? t('common.loading')}</span>
+    </div>
+  );
+}
+
+export function BrandedLoader({ label = 'Bringing handcrafted pieces to you…', className }: { label?: string; className?: string }) {
+  return (
+    <div role="status" aria-live="polite" className={cn('flex min-h-[240px] flex-col items-center justify-center py-12 text-center', className)}>
+      <div className="relative flex h-24 w-24 items-center justify-center">
+        <span className="absolute inset-0 animate-spin rounded-full border-2 border-transparent border-r-brand-600 border-t-brand-600 motion-reduce:animate-none" aria-hidden />
+        <span className="absolute inset-2 animate-[spin_1.8s_linear_infinite_reverse] rounded-full border border-sand-300 border-b-brand-400 motion-reduce:animate-none" aria-hidden />
+        <span className="absolute inset-4 rounded-full bg-white shadow-card" aria-hidden />
+        <img src={logoMark} alt="" className="relative h-11 w-11 animate-pulse object-contain motion-reduce:animate-none" />
+      </div>
+      <p className="mt-5 font-serif text-xl font-semibold text-ink">Dignity Art Edge</p>
+      <p className="mt-1 text-sm text-ink-muted">{label}</p>
+      <span className="mt-4 h-1 w-28 overflow-hidden rounded-full bg-sand-200" aria-hidden>
+        <span className="block h-full w-1/2 animate-[pulse_1s_ease-in-out_infinite] rounded-full bg-brand-600" />
+      </span>
     </div>
   );
 }

@@ -13,6 +13,7 @@ import { contentService } from './contentService';
 
 // --- Catalogue cache -----------------------------------------------------------------------------
 let catalogCache: { at: number; products: Promise<Product[]> } | null = null;
+const productDetailCache = new Map<string, Promise<Product>>();
 const CATALOG_TTL = 15_000;
 
 function fetchCatalog(): Promise<Product[]> {
@@ -122,6 +123,21 @@ export function queryProducts(query: ProductQuery, source: Product[]): ProductLi
 }
 
 export const productService = {
+  preloadCatalog(): Promise<Product[]> {
+    return fetchCatalog();
+  },
+
+  preloadProduct(slug: string): Promise<Product> {
+    const existing = productDetailCache.get(slug);
+    if (existing) return existing;
+    const request = fetchProductBySlug(slug).catch((error) => {
+      productDetailCache.delete(slug);
+      throw error;
+    });
+    productDetailCache.set(slug, request);
+    return request;
+  },
+
   async list(query: ProductQuery): Promise<ProductListResult> {
     let items = await apiProducts();
     if (query.itemGroupSlug) {
@@ -135,7 +151,7 @@ export const productService = {
   },
 
   getBySlug(slug: string): Promise<Product> {
-    return fetchProductBySlug(slug);
+    return this.preloadProduct(slug);
   },
 
   getByIds(ids: string[]): Promise<Product[]> {

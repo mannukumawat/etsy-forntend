@@ -5,6 +5,7 @@ import { CATEGORY_BY_SLUG } from '@/data/categories';
 import { useLocalized } from '@/hooks/useLocale';
 import { useAddToCart } from '@/hooks/useAddToCart';
 import type { Product } from '@/types';
+import { productService } from '@/services/productService';
 import { stockStatus, totalStock } from '@/utils/variants';
 import { Badge, Skeleton } from '../ui/Feedback';
 import { VariantPrice } from '../ui/Price';
@@ -25,7 +26,12 @@ export function ProductCard({ product, eager = false }: { product: Product; eage
   const canQuickAdd = quickVariant && status !== 'out_of_stock';
 
   return (
-    <article className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-sand-200 bg-white transition-all duration-300 hover:-translate-y-0.5 hover:border-sand-300 hover:shadow-lift motion-reduce:transition-none motion-reduce:hover:translate-y-0">
+    <article
+      className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-sand-200 bg-white transition-all duration-300 hover:-translate-y-0.5 hover:border-sand-300 hover:shadow-lift motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+      onPointerEnter={() => void productService.preloadProduct(product.slug)}
+      onFocus={() => void productService.preloadProduct(product.slug)}
+      onTouchStart={() => void productService.preloadProduct(product.slug)}
+    >
       <Link to={href} tabIndex={-1} aria-hidden className="block">
         <div className="relative aspect-square overflow-hidden bg-sand-100">
           {first?.src && (

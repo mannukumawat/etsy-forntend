@@ -48,7 +48,8 @@ export function missingOptions(product: Product, selection: Selection) {
 
 /** Images update as soon as a colour is picked, even before the selection is complete. */
 export function imagesForSelection(product: Product, selection: Selection): ProductImage[] {
-  return matchingVariants(product, selection)[0]?.images ?? product.images;
+  const variantImages = matchingVariants(product, selection)[0]?.images;
+  return variantImages?.length ? variantImages : product.images;
 }
 
 /** Whether choosing `valueId` for `optionId` (with the rest of the selection) leads to any in-stock variant. */

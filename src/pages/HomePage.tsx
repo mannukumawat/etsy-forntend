@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { ProductGrid } from '@/components/product/ProductCard';
 import { HeroSlider, type HeroSlide } from '@/components/layout/HeroSlider';
+import { BrandedLoader } from '@/components/ui/Feedback';
 import { useAsync } from '@/hooks/useAsync';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useLocalized } from '@/hooks/useLocale';
@@ -37,14 +38,11 @@ function ItemGroupSection({ group }: { group: PublicItemGroup & { products: Prod
 }
 
 function ItemGroupSections() {
-  const { data: groups, isLoading } = useAsync('catalog:item-groups:v2', () => productService.getItemGroupsWithProducts(10));
+  const { data: groups, isLoading } = useAsync('catalog:item-groups:v3', () => productService.getItemGroupsWithProducts(5));
   if (isLoading) {
     return (
-      <section className="container-site mt-10" aria-label="Loading products" aria-busy="true">
-        <div className="h-8 w-48 animate-pulse rounded bg-sand-200" />
-        <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-5">
-          {Array.from({ length: 5 }, (_, index) => <div key={index} className="aspect-[3/4] animate-pulse rounded-xl bg-sand-100" />)}
-        </div>
+      <section className="container-site mt-6" aria-label="Loading products" aria-busy="true">
+        <BrandedLoader />
       </section>
     );
   }

@@ -35,7 +35,11 @@ function SummaryBody({ details, showCoupon }: { details: CartDetails; showCoupon
           ) : (
             <li key={item.line.variantId} className="flex items-start gap-3 py-3 first:pt-0">
               <div className="relative shrink-0">
-                <img src={(item.variant ?? item.product).images[0].src} alt="" width={56} height={56} loading="lazy" decoding="async" className="h-14 w-14 rounded-lg border border-sand-200 object-cover" />
+                {(item.variant?.images[0] ?? item.product.images[0]) ? (
+                  <img src={(item.variant?.images[0] ?? item.product.images[0])!.src} alt="" width={56} height={56} loading="lazy" decoding="async" className="h-14 w-14 rounded-lg border border-sand-200 object-cover" />
+                ) : (
+                  <div className="h-14 w-14 rounded-lg border border-sand-200 bg-sand-100" aria-hidden />
+                )}
                 <span className="absolute -right-1.5 -top-1.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-ink px-1 text-[10px] font-semibold text-white" aria-hidden>
                   {item.line.quantity}
                 </span>

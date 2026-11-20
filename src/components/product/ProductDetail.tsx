@@ -1,0 +1,330 @@
+import { useEffect, useState } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { CheckCircle2, Gem, Globe2, Hand, Leaf, PackageX, Share2, ShoppingBag, Zap } from 'lucide-react';
+import { DeliveryEstimate } from '@/components/product/DeliveryEstimate';
+import { ProductGallery } from '@/components/product/ProductGallery';
+import { ProductReviews } from '@/components/product/ProductReviews';
+import { StoreReviews } from '@/components/product/StoreReviews';
+import { ProductCard, ProductGrid, ProductGridSkeleton } from '@/components/product/ProductCard';
+import { VariantSelector } from '@/components/product/VariantSelector';
+import { WishlistButton } from '@/components/product/WishlistButton';
+import { Button } from '@/components/ui/Button';
+import { ErrorState } from '@/components/ui/Feedback';
+import { Breadcrumbs } from '@/components/ui/Navigation';
+import { VariantPrice } from '@/components/ui/Price';
+import { QuantityInput } from '@/components/ui/QuantityInput';
+import { Rating } from '@/components/ui/Rating';
+import { CATEGORY_BY_SLUG } from '@/data/categories';
+import { useAddToCart } from '@/hooks/useAddToCart';
+import { useAsync } from '@/hooks/useAsync';
+import { useLocalized } from '@/hooks/useLocale';
+import { productService } from '@/services/productService';
+import { useCart } from '@/store/cart';
+import { usePreferences } from '@/store/preferences';
+import type { Product } from '@/types';
+import {
+  findVariant,
+  findVariantById,
+  imagesForSelection,
+  matchingVariants,
+  maxAddable,
+  missingOptions,
+  stockStatus,
+  totalStock,
+  type Selection,
+} from '@/utils/variants';
+import { ProductDetailAccordion } from './ProductDetailAccordion';
+
+export function ProductDetail({ product, onReviewsChanged }: { product: Product; onReviewsChanged: () => void }) {
+  const { t } = useTranslation();
+  const loc = useLocalized();
+  const navigate = useNavigate();
+  const [params, setParams] = useSearchParams();
+  const addToCart = useAddToCart();
+  const lines = useCart((s) => s.lines);
+  const currency = usePreferences((s) => s.currency);
+
+  const initialSelection = (): Selection => {
+    const v = findVariantById(product, params.get('variant') ?? undefined);
+    if (v) return { ...v.options };
+    return {};
+  };
+  const [selection, setSelection] = useState<Selection>(initialSelection);
+  const [missing, setMissing] = useState<string[]>([]);
+  const [quantity, setQuantity] = useState(1);
+  const wantsReview = params.get('review') === '1';
+
+  const variant = findVariant(product, selection);
+  const images = imagesForSelection(product, selection);
+  const candidates = variant ? [variant] : matchingVariants(product, selection);
+  const inCart = variant ? (lines.find((l) => l.variantId === variant.id)?.quantity ?? 0) : 0;
+  const addable = maxAddable(variant, inCart);
+  const allSoldOut = totalStock(product) === 0;
+  const variantStatus = variant ? stockStatus(variant.stock) : null;
+  const category = CATEGORY_BY_SLUG[product.categoryId];
+
+  // Keep the URL in sync with a fully selected variant so links are shareable.
+  useEffect(() => {
+    if (!product.options.length) return;
+    const current = params.get('variant');
+    if (variant && current !== variant.id) {
+      setParams({ variant: variant.id }, { replace: true, preventScrollReset: true });
+    }
+  }, [variant, product.options.length, params, setParams]);
+
+  useEffect(() => {
+    setQuantity((q) => Math.max(1, Math.min(q, Math.max(addable, 1))));
+  }, [addable]);
+
+  const choose = (optionId: string, valueId: string) => {
+    setSelection((s) => ({ ...s, [optionId]: valueId }));
+    setMissing((m) => m.filter((id) => id !== optionId));
+  };
+
+  const validate = () => {
+    const miss = missingOptions(product, selection).map((o) => o.id);
+    if (miss.length) {
+      setMissing(miss);
+      document.getElementById(`pdp-${miss[0]}`)?.focus();
+      return null;
+    }
+    return variant ?? null;
+  };
+
+  const onAdd = () => {
+    const v = validate();
+    if (!v || v.stock <= 0) return;
+    addToCart(product, v, quantity);
+  };
+
+  const onBuyNow = () => {
+    const v = validate();
+    if (!v || v.stock <= 0) return;
+    const added = addable > 0 ? addToCart(product, v, quantity, { openDrawer: false, silent: true }) : 0;
+    if (added > 0 || inCart > 0) navigate('/checkout');
+  };
+
+  const perks = [
+    { icon: Hand, label: t('product.perks.handmade') },
+    { icon: Globe2, label: t('product.perks.worldwide') },
+    { icon: Leaf, label: t('product.perks.packaging') },
+  ];
+
+  const related = useAsync(`catalog:related:${product.id}`, () => productService.getRelated(product));
+  const shareProduct = async () => {
+    const url = window.location.href;
+    const title = loc(product.name);
+    if (navigator.share) await navigator.share({ title, url }).catch(() => {});
+    else await navigator.clipboard.writeText(url).catch(() => {});
+  };
+  const productName = loc(product.name);
+  const breadcrumbName = productName.length > 64 ? `${productName.slice(0, 61).trim()}…` : productName;
+
+  return (
+    <div className="container-site py-0 md:py-5 lg:py-6 xl:max-w-[1320px]">
+      <div className="hidden md:block">
+        <Breadcrumbs items={[
+          { label: t('common.home'), to: '/' },
+          { label: loc(category.name), to: `/category/${category.slug}` },
+          { label: breadcrumbName },
+        ]} />
+      </div>
+
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-0 md:mt-4 md:gap-7 lg:grid-cols-[minmax(0,1.04fr)_minmax(380px,.96fr)] lg:gap-x-8 xl:gap-x-10">
+        <div className="-mx-4 min-w-0 md:mx-0 lg:col-start-1 lg:row-start-1">
+          <ProductGallery images={images} />
+        </div>
+
+        <div className="-mx-4 mt-3 min-w-0 border-t-8 border-sand-100 bg-white px-4 pt-4 md:mx-0 md:mt-0 md:border-0 md:bg-transparent md:p-0 lg:col-start-2 lg:row-span-2 lg:row-start-1">
+          <Link to={`/category/${category.slug}`} className="eyebrow hover:underline">
+            {loc(category.name)}
+          </Link>
+          <div className="mt-2 flex items-start justify-between gap-3">
+            <h1 className="text-[22px] font-semibold leading-[1.32] tracking-[-0.01em] text-ink sm:text-[24px] lg:text-[25px]">{productName}</h1>
+            <div className="flex shrink-0 items-center gap-1">
+              <WishlistButton product={product} variantId={variant?.id} className="mt-1 shrink-0 border border-sand-200" />
+              <button type="button" onClick={shareProduct} aria-label={t('common.share', { defaultValue: 'Share' })} className="mt-1 flex h-10 w-10 items-center justify-center rounded-full border border-sand-200 bg-white text-ink"><Share2 className="h-5 w-5" aria-hidden /></button>
+            </div>
+          </div>
+          {product.reviewCount > 0 && (
+            <button type="button" onClick={() => document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' })} className="mt-2 block rounded">
+              <Rating value={product.rating} count={product.reviewCount} />
+            </button>
+          )}
+          <div className="mt-4 border-y border-sand-200 py-3.5">
+            <VariantPrice variants={candidates} size="lg" />
+            {currency !== 'USD' && <p className="mt-1 text-xs text-ink-muted">{t('product.priceNote', { currency })}</p>}
+          </div>
+          <p className="mt-3.5 text-[15px] leading-relaxed text-ink-soft">{loc(product.shortDescription)}</p>
+
+          <div className="mt-5 space-y-5">
+            {product.options.length > 0 && <VariantSelector product={product} selection={selection} onChange={choose} missing={missing} idPrefix="pdp" />}
+
+            <div aria-live="polite" className="text-sm">
+              {allSoldOut ? (
+                <p className="flex items-center gap-2 font-medium text-ink-muted">
+                  <PackageX className="h-4 w-4" aria-hidden /> {t('product.allSoldOut')}
+                </p>
+              ) : variantStatus === 'out_of_stock' ? (
+                <p className="font-medium text-red-700">{t('product.variantSoldOut')}</p>
+              ) : variantStatus === 'low_stock' ? (
+                <p className="font-medium text-amber-800">{t('product.onlyLeft', { count: variant!.stock })}</p>
+              ) : variantStatus === 'in_stock' ? (
+                <p className="flex items-center gap-1.5 font-medium text-emerald-800">
+                  <CheckCircle2 className="h-4 w-4" aria-hidden /> {t('product.inStock')}
+                </p>
+              ) : null}
+              {inCart > 0 && <p className="mt-1 text-ink-muted">{t('product.inCart', { count: inCart })}</p>}
+            </div>
+
+            {!allSoldOut && (
+              <div className="flex flex-wrap items-end gap-3">
+                <QuantityInput value={quantity} onChange={setQuantity} max={Math.max(1, addable)} disabled={!variant || variant.stock <= 0 || addable === 0} />
+                {variant && addable === 0 && variant.stock > 0 && <p className="pb-3 text-sm text-ink-muted">{t('product.maxInCart', { count: inCart })}</p>}
+              </div>
+            )}
+
+            <div className="mobile-action-bar fixed inset-x-0 bottom-0 z-50 grid grid-cols-2 gap-2 border-t border-sand-200 bg-white/95 px-3 py-3 shadow-[0_-8px_24px_rgba(45,37,29,0.08)] backdrop-blur sm:static sm:mx-0 sm:gap-3 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
+              <Button size="lg" onClick={onAdd} disabled={allSoldOut || variant?.stock === 0} fullWidth icon={<ShoppingBag className="h-5 w-5" aria-hidden />}>
+                {allSoldOut || variant?.stock === 0 ? t('product.soldOut') : t('product.addToCart')}
+              </Button>
+              <Button size="lg" variant="outline" onClick={onBuyNow} disabled={allSoldOut || variant?.stock === 0} fullWidth icon={<Zap className="h-5 w-5" aria-hidden />}>
+                {t('product.buyNow')}
+              </Button>
+            </div>
+
+            {/* Return / exchange policy badges */}
+            <div className="flex flex-wrap gap-2 text-sm">
+              {product.returnsAllowed ? (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 font-medium text-emerald-800">
+                  <svg className="h-3.5 w-3.5 shrink-0" viewBox="0 0 16 16" fill="none" aria-hidden>
+                    <path d="M3 8.5 6 11.5 13 4.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  {t('product.returnsAllowedShort', { days: product.returnDays })}
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-red-200 bg-red-50 px-3 py-1 font-medium text-red-700">
+                  <svg className="h-3.5 w-3.5 shrink-0" viewBox="0 0 16 16" fill="none" aria-hidden>
+                    <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+                  </svg>
+                  {t('product.noReturns')}
+                </span>
+              )}
+              {product.exchangeAllowed ? (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 font-medium text-emerald-800">
+                  <svg className="h-3.5 w-3.5 shrink-0" viewBox="0 0 16 16" fill="none" aria-hidden>
+                    <path d="M3 8.5 6 11.5 13 4.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  {t('product.exchangeAllowedShort', { days: product.returnDays })}
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-red-200 bg-red-50 px-3 py-1 font-medium text-red-700">
+                  <svg className="h-3.5 w-3.5 shrink-0" viewBox="0 0 16 16" fill="none" aria-hidden>
+                    <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+                  </svg>
+                  {t('product.noExchange')}
+                </span>
+              )}
+            </div>
+
+            <ul className="grid gap-2 text-sm text-ink-soft sm:grid-cols-3">
+              {perks.map(({ icon: Icon, label }) => (
+                <li key={label} className="flex items-center gap-2">
+                  <Icon className="h-4 w-4 shrink-0 text-brand-700" aria-hidden />
+                  {label}
+                </li>
+              ))}
+            </ul>
+
+          </div>
+
+          <div className="mt-8 divide-y divide-sand-200 border-y border-sand-200">
+            <ProductDetailAccordion title={t('product.itemDetails')} defaultOpen>
+              {loc(product.materials) && (
+                <>
+                  <p className="font-semibold text-ink">{t('product.highlights')}</p>
+                  <p className="mt-2 flex items-start gap-2">
+                    <Gem className="mt-0.5 h-4 w-4 shrink-0 text-ink" aria-hidden />
+                    <span>
+                      {t('product.materialsLabel')}: {loc(product.materials)}
+                    </span>
+                  </p>
+                </>
+              )}
+              <p className="mt-4 whitespace-pre-line">{loc(product.description)}</p>
+              {(product.dimensions.length > 0 || variant) && (
+                <dl className="mt-4 divide-y divide-sand-200 text-sm">
+                  {product.dimensions.map((d) => (
+                    <div key={d.key + d.value} className="flex justify-between gap-4 py-2">
+                      <dt className="text-ink-muted">{t(`product.dims.${d.key}`)}</dt>
+                      <dd className="text-right text-ink">{d.value}</dd>
+                    </div>
+                  ))}
+                  {variant && (
+                    <div className="flex justify-between gap-4 py-2">
+                      <dt className="text-ink-muted">{t('product.sku')}</dt>
+                      <dd className="text-right font-mono text-xs text-ink">{variant.sku}</dd>
+                    </div>
+                  )}
+                </dl>
+              )}
+              <p className="mt-4 text-sm text-ink-muted">{t('product.handmadeNote')}</p>
+            </ProductDetailAccordion>
+            {loc(product.care) && (
+              <ProductDetailAccordion title={t('product.careTitle')}>
+                <p>{loc(product.care)}</p>
+              </ProductDetailAccordion>
+            )}
+            <ProductDetailAccordion title={t('product.deliveryReturns')} defaultOpen>
+              <DeliveryEstimate />
+              <p className="mt-4">{t('product.shippingInfo')}</p>
+              <div className="mt-3 space-y-1 text-sm">
+                {product.returnsAllowed ? (
+                  <p className="text-emerald-700">✓ {t('product.returnsAllowedText', { days: product.returnDays })}</p>
+                ) : (
+                  <p className="text-red-700">✗ {t('product.noReturns')}</p>
+                )}
+                {product.exchangeAllowed ? (
+                  <p className="text-emerald-700">✓ {t('product.exchangeAllowedText', { days: product.returnDays })}</p>
+                ) : (
+                  <p className="text-red-700">✗ {t('product.noExchange')}</p>
+                )}
+              </div>
+              <p className="mt-3 flex gap-4 text-sm">
+                <Link to="/shipping" className="link">
+                  {t('product.readShipping')}
+                </Link>
+                <Link to="/returns" className="link">
+                  {t('product.readReturns')}
+                </Link>
+              </p>
+            </ProductDetailAccordion>
+          </div>
+        </div>
+
+        <div className="-mx-4 min-w-0 space-y-0 lg:col-start-1 lg:row-start-2 lg:mx-0 lg:space-y-12">
+          <section aria-labelledby="mobile-related-title" className="border-t-8 border-sand-100 bg-white py-5 md:hidden">
+            <h2 id="mobile-related-title" className="mb-3 px-4 font-sans text-xl font-semibold text-ink">{t('product.relatedTitle')}</h2>
+            {related.data ? (
+              <ul className="scrollbar-none flex snap-x gap-3 overflow-x-auto px-4 pb-1">
+                {related.data.map((item) => <li key={item.id} className="w-[44vw] max-w-48 shrink-0 snap-start"><ProductCard product={item} /></li>)}
+              </ul>
+            ) : <div className="px-4"><ProductGridSkeleton count={2} /></div>}
+          </section>
+          <div className="border-t-8 border-sand-100 px-4 py-6 md:border-t md:border-sand-200 md:pt-10 lg:border-t-0 lg:px-0 lg:pt-4">
+            <ProductReviews product={product} onChanged={onReviewsChanged} autoOpenForm={wantsReview} />
+          </div>
+          <div className="hidden md:block"><StoreReviews /></div>
+        </div>
+      </div>
+
+      <section aria-labelledby="related-title" className="mt-16 hidden md:block">
+        <h2 id="related-title" className="mb-6 text-3xl">
+          {t('product.relatedTitle')}
+        </h2>
+        {related.isError ? <ErrorState onRetry={related.reload} /> : related.data ? <ProductGrid products={related.data} /> : <ProductGridSkeleton count={4} />}
+      </section>
+    </div>
+  );
+}

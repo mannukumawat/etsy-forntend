@@ -136,7 +136,7 @@ export function SearchBar({ autoFocus, onNavigate, className }: { autoFocus?: bo
             onClick={() => go(`/product/${p.slug}`)}
             className={cn('flex cursor-pointer items-center gap-3 px-3 py-2', active === i ? 'bg-sand-100' : 'hover:bg-ivory-200')}
           >
-            <img src={p.images[0].src} alt="" width={40} height={40} loading="lazy" decoding="async" className="h-10 w-10 rounded-md object-cover" />
+            {p.images[0] ? <img src={p.images[0].src} alt="" width={40} height={40} loading="lazy" decoding="async" className="h-10 w-10 rounded-md object-cover" /> : <span className="h-10 w-10 rounded-md bg-sand-100" aria-hidden />}
             <span className="flex-1 truncate text-sm text-ink">{loc(p.name)}</span>
             <span className="text-sm text-ink-muted">{money.formatBase(Math.min(...p.variants.map(effectivePrice)))}</span>
           </li>

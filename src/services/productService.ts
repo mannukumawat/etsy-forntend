@@ -4,7 +4,7 @@ import { RATE_SNAPSHOT } from '@/data/currencies';
 import type { AvailabilityFilter, Category, CategorySlug, Product, ProductListResult, ProductQuery } from '@/types';
 import { convertFromBase } from '@/utils/money';
 import { effectivePrice, totalStock } from '@/utils/variants';
-import { fetchCategories, fetchItemGroups, fetchProductBySlug, fetchProducts, fetchProductsByIds } from '@/api';
+import { fetchCategories, fetchItemGroups, fetchItemGroupsWithProducts, fetchProductBySlug, fetchProducts, fetchProductsByIds } from '@/api';
 import type { PublicItemGroup } from '@/api/itemGroups';
 import { contentService } from './contentService';
 
@@ -213,11 +213,7 @@ export const productService = {
 
   /** Active item groups with their products (from product.itemGroupId). */
   async getItemGroupsWithProducts(limit = 8): Promise<Array<PublicItemGroup & { products: Product[] }>> {
-    const [groups, all] = await Promise.all([fetchItemGroups(), apiProducts()]);
-    return groups
-      .filter((g) => g.isActive)
-      .map((g) => ({ ...g, products: all.filter((p) => p.itemGroupId === g.id).slice(0, limit) }))
-      .filter((g) => g.products.length > 0);
+    return fetchItemGroupsWithProducts(limit);
   },
 
   /** First product photo per category slug, for categories that have no cover image of their own. */

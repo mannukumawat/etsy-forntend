@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback, type ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { ButtonLink } from '@/components/ui/Button';
 import { cn } from '@/utils/cn';
@@ -17,11 +18,13 @@ interface HeroSliderProps {
   slides: HeroSlide[];
   autoplayMs?: number;
   compact?: boolean;
+  /** Makes the banner itself the CTA and hides the rendered CTA buttons. */
+  linkWholeSlide?: boolean;
   /** Fixed content shown above every slide (e.g. page title). */
   overlay?: ReactNode;
 }
 
-export function HeroSlider({ slides, autoplayMs = 5000, compact = false, overlay }: HeroSliderProps) {
+export function HeroSlider({ slides, autoplayMs = 5000, compact = false, linkWholeSlide = false, overlay }: HeroSliderProps) {
   const [current, setCurrent] = useState(0);
   if (current >= slides.length && slides.length > 0) setCurrent(0);
   const [prev3d, setPrev3d] = useState<number | null>(null);
@@ -142,6 +145,23 @@ export function HeroSlider({ slides, autoplayMs = 5000, compact = false, overlay
                   isExiting && dir === 'prev' ? 'z-0  slide-exit-prev'  : '',
                 )}
               >
+                {linkWholeSlide && slide.ctaHref && (
+                  slide.ctaHref.startsWith('/') ? (
+                    <Link
+                      to={slide.ctaHref}
+                      aria-label={slide.title ? `View ${slide.title}` : 'View featured product'}
+                      className="absolute inset-0 z-[5] rounded-2xl focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white"
+                    />
+                  ) : (
+                    <a
+                      href={slide.ctaHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={slide.title ? `View ${slide.title}` : 'View featured product'}
+                      className="absolute inset-0 z-[5] rounded-2xl focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white"
+                    />
+                  )
+                )}
                 <img
                   src={slide.image}
                   alt=""
@@ -157,7 +177,7 @@ export function HeroSlider({ slides, autoplayMs = 5000, compact = false, overlay
                     {slide.subtitle && (
                       <p className="hero-text-in-delay mt-4 max-w-md text-base text-white/85 line-clamp-2 lg:text-lg">{slide.subtitle}</p>
                     )}
-                    <div className="hero-text-in-btn mt-5 flex flex-wrap gap-3 sm:mt-7">
+                    {!linkWholeSlide && <div className="hero-text-in-btn mt-5 flex flex-wrap gap-3 sm:mt-7">
                       {slide.ctaHref && slide.ctaLabel && (
                         <ButtonLink to={slide.ctaHref} size="lg" className="!bg-white !text-gray-900 hover:!bg-sand-100 shadow-md font-semibold">
                           {slide.ctaLabel} <ArrowRight className="h-4 w-4" aria-hidden />
@@ -168,7 +188,7 @@ export function HeroSlider({ slides, autoplayMs = 5000, compact = false, overlay
                           {slide.secondaryLabel}
                         </ButtonLink>
                       )}
-                    </div>
+                    </div>}
                   </div>
                 )}
               </div>

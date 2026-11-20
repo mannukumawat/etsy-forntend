@@ -161,26 +161,6 @@ export default function CheckoutPage() {
       }
       setServerTotals(freshTotals);
 
-      if (checkout.paymentMethod === 'cod') {
-        const order = await orderService.place({
-          idempotencyKey: checkout.idempotencyKey,
-          lines,
-          couponCode: couponCode ?? undefined,
-          currency: money.currency,
-          email,
-          address,
-          shippingMethodId: checkout.shippingMethod,
-          paymentMethod: 'cod',
-        });
-        setPlaced(true);
-        invalidateQueries('catalog:');
-        invalidateQueries('orders:');
-        navigate(`/order/success/${order.id}`, { replace: true });
-        clearCart();
-        checkout.reset();
-        return;
-      }
-
       if (checkout.useWallet) {
         // Full wallet payment — skip Razorpay entirely.
         const order = await orderService.place({

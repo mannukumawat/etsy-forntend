@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Lock, CreditCard, Smartphone, Wallet, Plus, Banknote } from 'lucide-react';
+import { ArrowLeft, Lock, CreditCard, Smartphone, Wallet, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Notice } from '@/components/ui/Feedback';
 import { WalletTopupModal } from '@/components/checkout/WalletTopupModal';
@@ -28,7 +28,6 @@ interface PaymentStepProps {
 type WalletMode = 'full' | 'partial' | null;
 
 const NON_WALLET_METHODS: { id: PaymentMethodPreview; icon: typeof CreditCard; descKey: string }[] = [
-  { id: 'cod', icon: Banknote, descKey: 'checkout.paymentMethods.cod' },
   { id: 'card', icon: CreditCard, descKey: 'checkout.paymentMethods.card' },
   { id: 'upi', icon: Smartphone, descKey: 'checkout.paymentMethods.upi' },
 ];
@@ -90,7 +89,7 @@ export function PaymentStep({ onBack, onPlace, walletInfo, total, submitting, er
   const placeDisabled = blocked || (
     method === 'wallet'
       ? (!useWallet && !walletPartialPaise)
-      : method === 'cod' ? false : !RAZORPAY_CONFIGURED
+      : !RAZORPAY_CONFIGURED
   );
 
   return (
@@ -232,14 +231,14 @@ export function PaymentStep({ onBack, onPlace, walletInfo, total, submitting, er
                 name="payment-method"
                 className="sr-only"
                 checked={method === id}
-                disabled={id !== 'cod' && !RAZORPAY_CONFIGURED}
+                disabled={!RAZORPAY_CONFIGURED}
                 onChange={() => { setMethod(id); setUseWallet(false); setWalletPartialPaise(null); }}
               />
               <Icon className="h-5 w-5 shrink-0 text-ink-soft" aria-hidden />
               <div className="flex-1">
-                <p className={cn('text-sm font-medium', id !== 'cod' && !RAZORPAY_CONFIGURED ? 'text-ink-muted' : 'text-ink')}>{t(descKey)}</p>
+                <p className={cn('text-sm font-medium', !RAZORPAY_CONFIGURED ? 'text-ink-muted' : 'text-ink')}>{t(descKey)}</p>
                 <p className="text-xs text-ink-muted">
-                  {id === 'cod' ? t('checkout.codNote') : !RAZORPAY_CONFIGURED ? t('checkout.gatewayNotConfigured') : total}
+                  {!RAZORPAY_CONFIGURED ? t('checkout.gatewayNotConfigured') : total}
                 </p>
               </div>
               <span className={cn(
@@ -252,7 +251,7 @@ export function PaymentStep({ onBack, onPlace, walletInfo, total, submitting, er
           ))}
         </div>
 
-        {RAZORPAY_CONFIGURED && method !== 'wallet' && method !== 'cod' && (
+        {RAZORPAY_CONFIGURED && method !== 'wallet' && (
           <p className="mt-2 text-xs text-ink-muted">
             {t('checkout.razorpayNote', { defaultValue: 'You will be redirected to Razorpay to complete payment securely.' })}
           </p>

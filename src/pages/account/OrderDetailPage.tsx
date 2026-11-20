@@ -14,6 +14,7 @@ import { orderService } from '@/services/orderService';
 import { productService } from '@/services/productService';
 import { useAuth } from '@/store/session';
 import { formatDate } from '@/utils/dates';
+import { paymentMethodLabelKey } from '@/utils/paymentMethod';
 
 /** True only when the carrier and tracking number look like real data, not a placeholder. */
 function hasRealTracking(tracking: { carrier: string; number: string } | undefined): tracking is { carrier: string; number: string } {
@@ -164,7 +165,7 @@ export default function OrderDetailPage() {
             <div className="space-y-3 text-sm">
               <div>
                 <p className="text-xs text-ink-muted">{t('order.paymentMethod', { defaultValue: 'Method' })}</p>
-                <p className="mt-0.5 text-ink">{t(`checkout.paymentMethods.${order.paymentMethod}`)}</p>
+                <p className="mt-0.5 text-ink">{t(paymentMethodLabelKey(order.paymentMethod))}</p>
               </div>
               <div>
                 <p className="text-xs text-ink-muted">{t('order.shippingMethod')}</p>

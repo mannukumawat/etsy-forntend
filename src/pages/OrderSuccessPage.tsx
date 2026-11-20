@@ -13,6 +13,7 @@ import { orderService } from '@/services/orderService';
 import { useAuth } from '@/store/session';
 import { deliveryWindow, formatDate, formatShortDate } from '@/utils/dates';
 import { formatMoney } from '@/utils/money';
+import { paymentMethodLabelKey } from '@/utils/paymentMethod';
 
 export default function OrderSuccessPage() {
   const { t } = useTranslation();
@@ -103,7 +104,7 @@ export default function OrderSuccessPage() {
               {t(`checkout.methods.${order.shippingMethod.id}`)} · {t('checkout.businessDays', { min: order.shippingMethod.minDays, max: order.shippingMethod.maxDays })}
             </p>
             <h2 className="mt-4 font-sans text-sm font-semibold">{t('order.payment')}</h2>
-            <p className="mt-2 text-ink-soft">{t(`checkout.paymentMethods.${order.paymentMethod}`)}</p>
+            <p className="mt-2 text-ink-soft">{t(paymentMethodLabelKey(order.paymentMethod))}</p>
           </section>
         </div>
       </div>

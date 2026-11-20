@@ -258,7 +258,7 @@ export default function BankUpiPage() {
       <Section
         icon={<CreditCard className="h-5 w-5 text-ink-muted" />}
         title="Bank Accounts"
-        subtitle="For COD refunds and payouts. Account numbers stored encrypted."
+        subtitle="For refunds of prepaid orders and payouts. Account numbers stored encrypted."
       >
         {bankLoading ? <Spinner /> : bankErr ? <ErrorState onRetry={bankReload} /> : (
           <>

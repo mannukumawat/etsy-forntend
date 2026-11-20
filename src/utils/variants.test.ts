@@ -1,5 +1,19 @@
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
+import { syncCategoriesFromApi } from '@/data/categories';
+import type { Category } from '@/types';
 import { parseShopState, shopUrl } from './shopParams';
+
+beforeAll(async () => {
+  const categories = ['ceramics', 'bags', 'jewellery'].map((slug) => ({
+    id: slug,
+    slug,
+    name: { en: slug },
+    description: { en: '' },
+    image: { src: '', alt: { en: '' } },
+    banner: '',
+  })) satisfies Category[];
+  await syncCategoriesFromApi(async () => categories);
+});
 
 describe('shop URL state', () => {
   it('round-trips filters through the URL', () => {

@@ -1,7 +1,9 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { ShoppingBag } from 'lucide-react';
 import { CATEGORY_BY_SLUG } from '@/data/categories';
 import { useLocalized } from '@/hooks/useLocale';
+import { useAddToCart } from '@/hooks/useAddToCart';
 import type { Product } from '@/types';
 import { stockStatus, totalStock } from '@/utils/variants';
 import { Badge, Skeleton } from '../ui/Feedback';
@@ -18,6 +20,9 @@ export function ProductCard({ product, eager = false }: { product: Product; eage
   const category = CATEGORY_BY_SLUG[product.categoryId];
   const href = `/product/${product.slug}`;
   const [first, second] = product.images;
+  const addToCart = useAddToCart();
+  const quickVariant = product.variants.length === 1 ? product.variants[0] : undefined;
+  const canQuickAdd = quickVariant && status !== 'out_of_stock';
 
   return (
     <article className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-sand-200 bg-white transition-all duration-300 hover:-translate-y-0.5 hover:border-sand-300 hover:shadow-lift motion-reduce:transition-none motion-reduce:hover:translate-y-0">
@@ -53,7 +58,7 @@ export function ProductCard({ product, eager = false }: { product: Product; eage
         </div>
       </Link>
 
-      <div className="flex flex-1 flex-col px-3.5 pb-3.5 pt-3">
+      <div className={`flex flex-1 flex-col px-3 pt-3 min-[390px]:px-3.5 md:pb-3.5 ${canQuickAdd ? 'pb-14' : 'pb-3.5'}`}>
         {category && <p className="truncate text-[11px] font-semibold uppercase tracking-[0.1em] text-ink-muted">{loc(category.name)}</p>}
         <Link to={href} className="mt-1 rounded">
           <h3 className="line-clamp-2 font-sans text-[14px] font-medium leading-snug text-ink transition-colors group-hover:text-brand-700">{loc(product.name)}</h3>
@@ -74,6 +79,17 @@ export function ProductCard({ product, eager = false }: { product: Product; eage
       </div>
 
       <WishlistButton product={product} className="absolute right-3 top-3" />
+      {canQuickAdd ? (
+        <button
+          type="button"
+          onClick={() => addToCart(product, quickVariant, 1, { openDrawer: false })}
+          aria-label={t('product.addToCart')}
+          title={t('product.addToCart')}
+          className="absolute bottom-3 right-3 flex h-10 w-10 items-center justify-center rounded-full bg-brand-600 text-white shadow-lift transition active:scale-95 md:opacity-0 md:group-hover:opacity-100"
+        >
+          <ShoppingBag className="h-[18px] w-[18px]" aria-hidden />
+        </button>
+      ) : null}
     </article>
   );
 }

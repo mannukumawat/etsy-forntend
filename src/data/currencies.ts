@@ -7,14 +7,18 @@ export interface CurrencyConfig {
   roundingIncrement: number;
 }
 
-// Populated from /api/settings at startup. Minimal USD-only default prevents crashes before the
-// settings response arrives; the real values replace these as soon as initSiteSettings() resolves.
+// Safe metadata for every currency accepted by the public TypeScript API. Live rates and admin
+// settings replace these values at startup, but formatting must also work during the initial render,
+// tests, a slow settings request, or a temporary settings outage.
 
 export let CURRENCIES: Record<CurrencyCode, CurrencyConfig> = {
   USD: { code: 'USD', name: { en: 'US dollar' }, fractionDigits: 2, roundingIncrement: 1 },
-} as Record<CurrencyCode, CurrencyConfig>;
+  EUR: { code: 'EUR', name: { en: 'Euro' }, fractionDigits: 2, roundingIncrement: 1 },
+  GBP: { code: 'GBP', name: { en: 'British pound' }, fractionDigits: 2, roundingIncrement: 1 },
+  INR: { code: 'INR', name: { en: 'Indian rupee' }, fractionDigits: 0, roundingIncrement: 100 },
+};
 
-export let CURRENCY_CODES: CurrencyCode[] = ['USD'];
+export let CURRENCY_CODES: CurrencyCode[] = ['USD', 'EUR', 'GBP', 'INR'];
 
 export let RATE_SNAPSHOT: RateSnapshot = {
   base: 'USD',

@@ -61,7 +61,7 @@ export interface PlaceOrderRequest {
   email: string;
   address: Address;
   shippingMethodId: ShippingMethodId;
-  paymentMethod: "card" | "upi" | "wallet";
+  paymentMethod: "cod" | "card" | "upi" | "wallet";
   couponCode?: string;
   razorpayOrderId?: string;
   razorpayPaymentId?: string;

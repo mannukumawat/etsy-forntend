@@ -95,19 +95,12 @@ export type LoginValues = z.infer<typeof loginSchema>;
 export const registerSchema = z
   .object({
     name: z.string().trim().min(2, 'validation.name').max(80, 'validation.tooLong'),
-    /** Single field: accepts email (contains @) or mobile number (digits). */
-    emailOrPhone: z.string().trim().min(1, 'validation.emailOrPhone'),
+    email: emailField,
+    phone: z.string().trim().refine((v) => v === '' || /^\+?\d{6,15}$/.test(phoneDigits(v)), 'validation.phone'),
     password: passwordField,
     confirmPassword: z.string().min(1, 'validation.required'),
     acceptTerms: z.boolean().refine((v) => v, 'validation.acceptTerms'),
   })
-  .refine((d) => {
-    const v = d.emailOrPhone;
-    if (!v) return true;
-    if (v.includes('@')) return z.string().email().safeParse(v).success;
-    const digits = v.replace(/[\s\-().+]/g, '');
-    return /^\d{6,15}$/.test(digits);
-  }, { path: ['emailOrPhone'], message: 'validation.emailOrPhoneInvalid' })
   .refine((d) => d.password === d.confirmPassword, { path: ['confirmPassword'], message: 'validation.passwordMatch' });
 export type RegisterValues = z.infer<typeof registerSchema>;
 

@@ -769,6 +769,10 @@ const es: TranslationSchema = {
     returns: {
       title: 'Devoluciones y cambios',
       intro: 'PolÃ­tica de devoluciones provisional para la tienda de demo.',
+      window: 'Plazo de devoluciÃ³n de 30 dÃ­as',
+      windowBody: 'Los artÃ­culos sin usar y en su estado original se pueden devolver en los 30 dÃ­as siguientes a la entrega.',
+      viewOrders: 'Ver pedidos',
+      questions: 'Â¿Tienes preguntas?',
       sections: [
         { heading: 'Plazo de devoluciÃ³n', body: 'Los artÃ­culos sin usar y en su estado original se pueden devolver en los 30 dÃ­as siguientes a la entrega.' },
         { heading: 'ArtÃ­culos que no se pueden devolver', body: 'Por motivos de higiene, los pendientes solo se pueden devolver si no se han usado y estÃ¡n precintados. Las piezas personalizadas no admiten devoluciÃ³n.' },

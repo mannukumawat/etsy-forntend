@@ -66,7 +66,7 @@ export function MainLayout() {
         <AnnouncementBar />
         <Header />
       </div>
-      <main id="main" tabIndex={-1} className={isFeedbackRoute ? 'h-[calc(100dvh-4rem)] min-h-0 flex-none overflow-hidden pb-0 focus:outline-none' : isProductRoute || isCartRoute ? 'flex-1 pb-24 focus:outline-none md:pb-0' : 'flex-1 pb-20 focus:outline-none md:pb-0'}>
+      <main id="main" tabIndex={-1} className={isFeedbackRoute ? 'h-[calc(100dvh-4rem)] min-h-0 flex-none overflow-hidden pb-0 focus:outline-none' : isProductRoute || isCartRoute ? 'flex-1 pb-[calc(6rem+env(safe-area-inset-bottom))] focus:outline-none md:pb-0' : 'flex-1 pb-[calc(5rem+env(safe-area-inset-bottom))] focus:outline-none md:pb-0'}>
         <Suspense fallback={<Spinner className="py-32" />}>
           <Outlet />
         </Suspense>

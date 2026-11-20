@@ -769,6 +769,10 @@ const de: TranslationSchema = {
     returns: {
       title: 'RÃ¼ckgabe & Umtausch',
       intro: 'Entwurf einer RÃ¼ckgaberichtlinie fÃ¼r den Demo-Shop.',
+      window: '30 Tage RÃ¼ckgaberecht',
+      windowBody: 'Unbenutzte Artikel im Originalzustand kÃ¶nnen innerhalb von 30 Tagen nach Lieferung zurÃ¼ckgegeben werden.',
+      viewOrders: 'Bestellungen anzeigen',
+      questions: 'Noch Fragen?',
       sections: [
         { heading: 'RÃ¼ckgabefrist', body: 'Unbenutzte Artikel im Originalzustand kÃ¶nnen innerhalb von 30 Tagen nach Lieferung zurÃ¼ckgegeben werden.' },
         { heading: 'Von der RÃ¼ckgabe ausgeschlossene Artikel', body: 'Aus hygienischen GrÃ¼nden kÃ¶nnen Ohrringe nur ungetragen und versiegelt zurÃ¼ckgegeben werden. Sonderanfertigungen sind vom Umtausch ausgeschlossen.' },

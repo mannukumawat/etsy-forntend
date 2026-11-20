@@ -29,6 +29,20 @@
     -webkit-tap-highlight-color: transparent;
   }
 
+  @media (max-width: 767px) {
+    body {
+      background: #FAF7F2;
+    }
+
+    button,
+    a,
+    input,
+    select,
+    textarea {
+      touch-action: manipulation;
+    }
+  }
+
   h1,
   h2,
   h3,
@@ -99,6 +113,10 @@
     @apply rounded-xl border border-sand-200 bg-white shadow-card;
   }
 
+  .mobile-app-screen {
+    @apply mx-auto w-full max-w-[480px] bg-ivory-50;
+  }
+
   .link {
     @apply font-medium text-brand-700 underline decoration-brand-300 underline-offset-[3px] transition-colors hover:text-brand-800 hover:decoration-brand-700;
   }
@@ -115,6 +133,14 @@
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
   .mobile-bottom-nav {
     padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .mobile-action-bar {
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
+
+  .mobile-dialog-footer {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
   }
 }
 

@@ -157,7 +157,7 @@ export default function ProfilePage() {
   const [tab, setTab] = useState<Tab>('primary');
   const avatarRef = useRef<HTMLInputElement>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | undefined>(user.avatarUrl);
-  const [avatarData, setAvatarData] = useState<string | undefined>();
+  const [avatarData, setAvatarData] = useState<{ fileName: string; mimeType: 'image/jpeg' | 'image/png' | 'image/webp'; base64: string; width: number | null; height: number | null }>();
 
   // Extended fields (Primary tab extras)
   const [gender, setGender] = useState(user.gender ?? '');
@@ -183,11 +183,21 @@ export default function ProfilePage() {
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      toast('Choose a JPEG, PNG or WebP image.', 'error');
+      e.target.value = '';
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast('Profile photos must be 5 MB or smaller.', 'error');
+      e.target.value = '';
+      return;
+    }
     const reader = new FileReader();
     reader.onload = () => {
       const url = reader.result as string;
       setAvatarPreview(url);
-      setAvatarData(url);
+      setAvatarData({ fileName: file.name, mimeType: file.type as 'image/jpeg' | 'image/png' | 'image/webp', base64: url.split(',')[1] ?? '', width: null, height: null });
     };
     reader.readAsDataURL(file);
     e.target.value = '';
@@ -195,9 +205,10 @@ export default function ProfilePage() {
 
   const onSubmitPrimary = async (values: ProfileValues) => {
     try {
+      const avatarUser = avatarData ? await authService.uploadAvatar(avatarData) : user;
       const updated = await authService.updateProfile({
         ...values,
-        avatarUrl: avatarData ?? user.avatarUrl,
+        avatarUrl: avatarUser.avatarUrl,
         gender: gender || undefined,
         languages: languages || undefined,
         occupation: occupation || undefined,

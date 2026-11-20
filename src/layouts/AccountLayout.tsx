@@ -53,7 +53,7 @@ export function AccountLayout() {
 
   return (
     <RequireAuth>
-      <div className={cn('mx-auto w-full lg:px-8 lg:py-10', isFeedbackRoute ? 'h-full max-w-3xl overflow-hidden px-0 py-0 sm:px-6 sm:py-8' : 'max-w-6xl px-4 py-5 sm:px-6 sm:py-8')}>
+      <div className={cn('mx-auto w-full lg:px-8 lg:py-10', isFeedbackRoute ? 'h-full max-w-3xl overflow-hidden px-0 py-0 sm:px-6 sm:py-8' : 'max-w-[480px] px-4 py-5 sm:px-6 sm:py-8 md:max-w-6xl')}>
         <div className={cn('mt-0 grid', isFeedbackRoute ? 'h-full gap-0' : 'gap-6 lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-10')}>
           {/* Sidebar / mobile top nav */}
           <nav aria-label={t('account.title')} className={cn('lg:self-start lg:sticky lg:top-8', isFeedbackRoute ? 'hidden' : 'hidden lg:block')}>

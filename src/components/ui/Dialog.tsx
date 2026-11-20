@@ -36,7 +36,7 @@ export function Drawer({ open, onClose, title, children, footer, side = 'right',
         aria-labelledby={titleId}
         tabIndex={-1}
         className={cn(
-          'absolute inset-y-0 flex w-full max-w-md flex-col bg-ivory-50 shadow-drawer outline-none',
+          'absolute inset-y-0 flex w-full max-w-md flex-col bg-ivory-50 pb-[env(safe-area-inset-bottom)] shadow-drawer outline-none',
           side === 'right' ? 'right-0 animate-slide-in-right' : 'left-0 animate-slide-in-left',
           className,
         )}
@@ -50,7 +50,7 @@ export function Drawer({ open, onClose, title, children, footer, side = 'right',
           </IconButton>
         </div>
         <div className="flex-1 overflow-y-auto px-5 py-4">{children}</div>
-        {footer && <div className="border-t border-sand-200 bg-white px-5 py-4">{footer}</div>}
+        {footer && <div className="mobile-dialog-footer border-t border-sand-200 bg-white px-5 py-4">{footer}</div>}
       </div>
     </div>,
     document.body,
@@ -74,7 +74,7 @@ export function Modal({ open, onClose, title, children, footer, className }: Bas
         aria-labelledby={titleId}
         tabIndex={-1}
         className={cn(
-          'relative flex max-h-[92vh] w-full max-w-lg animate-toast-in flex-col rounded-t-2xl bg-ivory-50 shadow-drawer outline-none sm:rounded-2xl',
+          'relative flex max-h-[calc(100dvh-env(safe-area-inset-top))] w-full max-w-lg animate-toast-in flex-col rounded-t-2xl bg-ivory-50 shadow-drawer outline-none sm:max-h-[92vh] sm:rounded-2xl',
           className,
         )}
       >
@@ -87,7 +87,7 @@ export function Modal({ open, onClose, title, children, footer, className }: Bas
           </IconButton>
         </div>
         <div className="overflow-y-auto px-5 py-4">{children}</div>
-        {footer && <div className="border-t border-sand-200 px-5 py-4">{footer}</div>}
+        {footer && <div className="mobile-dialog-footer border-t border-sand-200 px-5 py-4">{footer}</div>}
       </div>
     </div>,
     document.body,

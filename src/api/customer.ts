@@ -9,6 +9,10 @@ export function updateProfile(input: { name: string; email: string; phone?: stri
   return apiClient.put<{ customer: User }>("/api/customer/profile", { ...input, phone: input.phone ?? "" }).then((r) => r.customer);
 }
 
+export function uploadAvatar(input: { fileName: string; mimeType: 'image/jpeg' | 'image/png' | 'image/webp'; base64: string; width: number | null; height: number | null }): Promise<User> {
+  return apiClient.post<{ customer: User }>("/api/customer/profile/avatar", { ...input, alt: { en: 'Customer profile photo' } }).then((r) => r.customer);
+}
+
 export async function deleteAccount(): Promise<void> {
   await apiClient.delete('/api/customer/account');
 }

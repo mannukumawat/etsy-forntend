@@ -769,6 +769,10 @@ const it: TranslationSchema = {
     returns: {
       title: 'Resi e cambi',
       intro: 'Una bozza di politica di reso per il negozio demo.',
+      window: 'Periodo di reso di 30 giorni',
+      windowBody: 'Gli articoli non usati e nelle condizioni originali possono essere resi entro 30 giorni dalla consegna.',
+      viewOrders: 'Vedi ordini',
+      questions: 'Hai domande?',
       sections: [
         { heading: 'Termine per il reso', body: 'Gli articoli non usati e nelle condizioni originali possono essere resi entro 30 giorni dalla consegna.' },
         { heading: 'Articoli non restituibili', body: 'Per motivi igienici, gli orecchini possono essere resi solo se non indossati e sigillati. I pezzi personalizzati non sono rimborsabili.' },

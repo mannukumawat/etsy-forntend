@@ -60,7 +60,7 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
             <li key={c.slug}>
               <Link to={`/category/${c.slug}`} className={item} onClick={onClose}>
                 <span className="flex items-center gap-3">
-                  <img src={c.image.src} alt="" className="h-9 w-9 rounded-full object-cover" />
+                  <img src={c.image.src} alt="" width={36} height={36} loading="lazy" decoding="async" className="h-9 w-9 rounded-full object-cover" />
                   {loc(c.name)}
                 </span>
                 <ChevronRight className="h-4 w-4 text-ink-muted" aria-hidden />

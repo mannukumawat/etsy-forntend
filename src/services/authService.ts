@@ -6,7 +6,7 @@ export const authService = {
     return customerAuthApi.login(email, password);
   },
 
-  register(input: { name: string; email?: string; phone?: string; password: string }): Promise<User> {
+  register(input: { name: string; email: string; phone?: string; password: string }): Promise<User> {
     return customerAuthApi.register(input);
   },
 
@@ -33,6 +33,10 @@ export const authService = {
     maritalStatus?: string; numberOfKids?: string; education?: string; monthlyIncome?: string;
   }): Promise<User> {
     return customerApi.updateProfile(patch);
+  },
+
+  uploadAvatar(input: { fileName: string; mimeType: 'image/jpeg' | 'image/png' | 'image/webp'; base64: string; width: number | null; height: number | null }): Promise<User> {
+    return customerApi.uploadAvatar(input);
   },
 
   deleteAccount(): Promise<void> {

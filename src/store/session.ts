@@ -59,7 +59,7 @@ const initialCheckout = () => ({
   step: 'details' as CheckoutStep,
   details: null,
   shippingMethod: 'standard' as ShippingMethodId,
-  paymentMethod: 'card' as PaymentMethodPreview,
+  paymentMethod: 'cod' as PaymentMethodPreview,
   idempotencyKey: newId('idem'),
   walletBalancePaise: null as number | null,
   useWallet: false,

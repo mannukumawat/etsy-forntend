@@ -191,12 +191,12 @@ export default function ShopPage() {
 
       <div className="container-site mt-8">
         <section aria-labelledby="results-heading" className="min-w-0">
-          <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="sticky top-[112px] z-30 -mx-4 flex flex-wrap items-center justify-between gap-3 border-y border-sand-200 bg-ivory-50/95 px-4 py-2.5 backdrop-blur md:static md:mx-0 md:border-0 md:bg-transparent md:p-0">
             <h2 id="results-heading" className="font-sans text-sm font-medium text-ink-soft" aria-live="polite">
               {data ? t('shop.results', { count: total }) : t('common.loading')}
             </h2>
             <div className="flex flex-wrap items-center gap-2">
-              <Button variant="outline" size="sm" className="lg:hidden" onClick={() => setFiltersOpen(true)} icon={<SlidersHorizontal className="h-4 w-4" aria-hidden />} aria-haspopup="dialog">
+              <Button variant="outline" size="sm" className="min-w-10 px-2.5 lg:hidden" onClick={() => setFiltersOpen(true)} icon={<SlidersHorizontal className="h-4 w-4" aria-hidden />} aria-label={filterCount ? t('shop.filtersCount', { count: filterCount }) : t('shop.filters')} aria-haspopup="dialog">
                 {filterCount ? t('shop.filtersCount', { count: filterCount }) : t('shop.filters')}
               </Button>
               <div className="hidden items-center gap-2 lg:flex">
@@ -219,8 +219,8 @@ export default function ShopPage() {
                 label={t('shop.sortBy')}
                 value={state.sort}
                 onChange={(e) => update({ sort: e.target.value as SortOption })}
-                containerClassName="flex items-center gap-2 [&_.label]:mb-0 [&_.label]:whitespace-nowrap [&_.label_span]:hidden"
-                className="h-9 w-44 py-1.5 text-sm"
+                containerClassName="flex items-center gap-2 [&_.label]:sr-only [&_.label_span]:hidden"
+                className="h-10 w-36 py-1.5 text-sm sm:w-44"
               >
                 {(['featured', 'price_asc', 'price_desc', 'newest'] as const).map((s) => (
                   <option key={s} value={s}>

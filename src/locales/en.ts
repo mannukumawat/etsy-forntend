@@ -450,7 +450,7 @@ const en = {
       wallet: 'Digital wallet',
     },
     paymentMethodNote: 'In the live store, payment would be handled securely by a payment provider. Here, these options are visual only.',
-    codNote: '',
+    codNote: 'Pay in cash when your order is delivered.',
     gatewayNotConfigured: 'Not available yet — no payment gateway is configured.',
     scenarioTitle: 'Choose a simulated outcome',
     scenarios: {

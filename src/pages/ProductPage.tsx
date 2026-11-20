@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { CheckCircle2, ChevronDown, Gem, Globe2, Hand, Leaf, PackageX, Share2 } from 'lucide-react';
+import { CheckCircle2, ChevronDown, Gem, Globe2, Hand, Leaf, PackageX, Share2, ShoppingBag, Zap } from 'lucide-react';
 import { DeliveryEstimate } from '@/components/product/DeliveryEstimate';
 import { ProductGallery } from '@/components/product/ProductGallery';
 import { ProductReviews } from '@/components/product/ProductReviews';
@@ -215,11 +215,11 @@ function ProductDetail({ product, onReviewsChanged }: { product: Product; onRevi
               </div>
             )}
 
-            <div className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-2 gap-2 border-t border-sand-200 bg-white/95 px-3 py-3 shadow-[0_-8px_24px_rgba(45,37,29,0.08)] backdrop-blur sm:static sm:mx-0 sm:gap-3 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
-              <Button size="lg" onClick={onAdd} disabled={allSoldOut || variant?.stock === 0} fullWidth>
+            <div className="mobile-action-bar fixed inset-x-0 bottom-0 z-50 grid grid-cols-2 gap-2 border-t border-sand-200 bg-white/95 px-3 py-3 shadow-[0_-8px_24px_rgba(45,37,29,0.08)] backdrop-blur sm:static sm:mx-0 sm:gap-3 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
+              <Button size="lg" onClick={onAdd} disabled={allSoldOut || variant?.stock === 0} fullWidth icon={<ShoppingBag className="h-5 w-5" aria-hidden />}>
                 {allSoldOut || variant?.stock === 0 ? t('product.soldOut') : t('product.addToCart')}
               </Button>
-              <Button size="lg" variant="outline" onClick={onBuyNow} disabled={allSoldOut || variant?.stock === 0} fullWidth>
+              <Button size="lg" variant="outline" onClick={onBuyNow} disabled={allSoldOut || variant?.stock === 0} fullWidth icon={<Zap className="h-5 w-5" aria-hidden />}>
                 {t('product.buyNow')}
               </Button>
             </div>

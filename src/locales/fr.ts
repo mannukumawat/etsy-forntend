@@ -769,6 +769,10 @@ const fr: TranslationSchema = {
     returns: {
       title: 'Retours et Ã©changes',
       intro: 'Une politique de retour provisoire pour la boutique de dÃ©mo.',
+      window: 'DÃ©lai de retour de 30 jours',
+      windowBody: 'Les articles non utilisÃ©s et dans leur Ã©tat dâ€™origine peuvent Ãªtre retournÃ©s sous 30 jours aprÃ¨s la livraison.',
+      viewOrders: 'Voir les commandes',
+      questions: 'Des questions ?',
       sections: [
         { heading: 'DÃ©lai de retour', body: 'Les articles non utilisÃ©s et dans leur Ã©tat dâ€™origine peuvent Ãªtre retournÃ©s sous 30 jours aprÃ¨s la livraison.' },
         { heading: 'Articles non retournables', body: 'Pour des raisons dâ€™hygiÃ¨ne, les boucles dâ€™oreilles ne peuvent Ãªtre retournÃ©es que si elles nâ€™ont pas Ã©tÃ© portÃ©es et sont sous scellÃ©. Les piÃ¨ces sur mesure ne sont ni reprises ni Ã©changÃ©es.' },

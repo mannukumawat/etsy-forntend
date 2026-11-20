@@ -31,11 +31,12 @@ export function MobileBottomNav() {
 
   return (
     <nav aria-label={t('a11y.primaryNav')} className="mobile-bottom-nav fixed inset-x-0 bottom-0 z-50 border-t border-sand-200 bg-white/95 shadow-[0_-8px_24px_rgba(45,37,29,0.08)] backdrop-blur md:hidden">
-      <div className="grid h-16 grid-cols-4 items-stretch">
+      <div className="grid h-[58px] grid-cols-4 items-stretch">
         {items.map(({ to, label, icon: Icon, active, badge }) => (
-          <Link key={to} to={to} aria-current={active ? 'page' : undefined} className={cn('flex min-w-0 flex-col items-center justify-center gap-1 text-[10px] font-medium', active ? 'text-brand-700' : 'text-ink-muted')}>
-            <span className="relative"><Icon className="h-5 w-5" strokeWidth={active ? 2.4 : 1.8} aria-hidden /><Badge count={badge ?? 0} /></span>
-            <span className="max-w-full truncate px-1">{label}</span>
+          <Link key={to} to={to} aria-label={label} title={label} aria-current={active ? 'page' : undefined} className={cn('relative flex min-w-0 items-center justify-center', active ? 'text-brand-700' : 'text-ink-muted')}>
+            {active && <span className="absolute top-0 h-0.5 w-9 rounded-b-full bg-brand-600" aria-hidden />}
+            <span className={cn('relative flex h-10 w-12 items-center justify-center rounded-2xl transition-colors', active && 'bg-brand-50')}><Icon className="h-[22px] w-[22px]" strokeWidth={active ? 2.4 : 1.8} aria-hidden /><Badge count={badge ?? 0} /></span>
+            <span className="sr-only">{label}</span>
           </Link>
         ))}
       </div>

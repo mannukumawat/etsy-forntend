@@ -1,6 +1,6 @@
 import type { BankAccount } from '@/types';
+import { API_BASE_URL } from './config';
 
-const BASE = import.meta.env.VITE_API_BASE_URL ?? '';
 const csrf = () => document.cookie.match(/ys_csrf=([^;]+)/)?.[1] ?? '';
 const headers = () => ({ 'content-type': 'application/json', 'x-csrf-token': csrf() });
 
@@ -12,7 +12,7 @@ async function handle<T>(r: Response): Promise<T> {
 
 export const bankAccountsApi = {
   list: (): Promise<{ items: BankAccount[] }> =>
-    fetch(`${BASE}/api/customer/bank-accounts`, { credentials: 'include' }).then(r => handle(r)),
+    fetch(`${API_BASE_URL}/api/customer/bank-accounts`, { credentials: 'include' }).then(r => handle(r)),
 
   add: (data: {
     accountHolderName: string;
@@ -20,12 +20,12 @@ export const bankAccountsApi = {
     accountNumberConfirm: string;
     ifscCode: string;
   }) =>
-    fetch(`${BASE}/api/customer/bank-accounts`, {
+    fetch(`${API_BASE_URL}/api/customer/bank-accounts`, {
       method: 'POST', headers: headers(), credentials: 'include', body: JSON.stringify(data),
     }).then(r => handle<BankAccount>(r)),
 
   remove: (id: string) =>
-    fetch(`${BASE}/api/customer/bank-accounts/${encodeURIComponent(id)}`, {
+    fetch(`${API_BASE_URL}/api/customer/bank-accounts/${encodeURIComponent(id)}`, {
       method: 'DELETE', headers: headers(), credentials: 'include',
     }).then(r => handle<{ ok: true }>(r)),
 };

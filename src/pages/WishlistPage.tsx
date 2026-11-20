@@ -124,11 +124,11 @@ export default function WishlistPage() {
       <p className="mt-1 hidden text-sm text-ink-muted md:block">{t('wishlist.localNote')}</p>
 
       <div className="-mx-4 grid grid-cols-3 border-b border-sand-200 bg-white md:hidden">
-        <button type="button" className="relative min-h-12 text-sm font-semibold text-brand-700 after:absolute after:inset-x-4 after:bottom-0 after:h-0.5 after:bg-brand-600">
+        <button type="button" className="relative min-h-12 px-1 text-xs font-semibold text-brand-700 after:absolute after:inset-x-4 after:bottom-0 after:h-0.5 after:bg-brand-600 min-[390px]:text-sm">
           {t('wishlist.title')}
         </button>
-        <span className="flex min-h-12 items-center justify-center text-sm text-ink-muted">{t('wishlist.shared', { defaultValue: 'Shared' })}</span>
-        <span className="flex min-h-12 items-center justify-center text-sm text-ink-muted">{t('wishlist.viewed', { defaultValue: 'Viewed' })}</span>
+        <span className="flex min-h-12 items-center justify-center px-1 text-xs text-ink-muted min-[390px]:text-sm">{t('wishlist.shared', { defaultValue: 'Shared' })}</span>
+        <span className="flex min-h-12 items-center justify-center px-1 text-xs text-ink-muted min-[390px]:text-sm">{t('wishlist.viewed', { defaultValue: 'Viewed' })}</span>
       </div>
 
       <div className="mt-0 md:mt-8">

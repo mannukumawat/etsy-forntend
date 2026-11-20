@@ -122,7 +122,7 @@ export function HeroSlider({ slides, autoplayMs = 5000, compact = false, overlay
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
       >
-        <div className={compact ? 'relative min-h-[300px] sm:min-h-[320px] lg:min-h-[400px]' : 'relative min-h-[360px] sm:min-h-[430px] lg:min-h-[540px]'}>
+        <div className={compact ? 'relative min-h-[280px] min-[390px]:min-h-[300px] sm:min-h-[320px] lg:min-h-[400px]' : 'relative min-h-[320px] min-[390px]:min-h-[360px] sm:min-h-[430px] lg:min-h-[540px]'}>
           {slides.map((slide, i) => {
             const isActive = i === current;
             const isExiting = i === prev3d;
@@ -152,8 +152,8 @@ export function HeroSlider({ slides, autoplayMs = 5000, compact = false, overlay
                 />
                 <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/30 to-transparent md:bg-gradient-to-r md:from-black/60 md:via-black/30 md:to-transparent" aria-hidden />
                 {isActive && slide.title && (
-                  <div className="relative flex h-full flex-col justify-center px-14 py-8 sm:px-14 lg:px-20">
-                    <h2 className={cn('hero-text-in max-w-xl font-serif font-semibold leading-[1.1] text-white drop-shadow-sm line-clamp-3', compact ? 'text-3xl lg:text-4xl' : 'text-[30px] sm:text-4xl lg:text-6xl')}>{slide.title}</h2>
+                  <div className="relative flex h-full flex-col justify-center px-7 py-8 min-[390px]:px-9 sm:px-14 lg:px-20">
+                    <h2 className={cn('hero-text-in max-w-xl font-serif font-semibold leading-[1.1] text-white drop-shadow-sm line-clamp-3', compact ? 'text-[26px] min-[390px]:text-3xl lg:text-4xl' : 'text-[26px] min-[390px]:text-[30px] sm:text-4xl lg:text-6xl')}>{slide.title}</h2>
                     {slide.subtitle && (
                       <p className="hero-text-in-delay mt-4 max-w-md text-base text-white/85 line-clamp-2 lg:text-lg">{slide.subtitle}</p>
                     )}
@@ -177,17 +177,17 @@ export function HeroSlider({ slides, autoplayMs = 5000, compact = false, overlay
         </div>
 
         {overlay && (
-          <div className="pointer-events-none absolute inset-y-0 left-0 z-20 flex max-w-2xl flex-col justify-center pl-16 pr-6 lg:pl-20 [&_a]:pointer-events-auto">
+          <div className="pointer-events-none absolute inset-y-0 left-0 z-20 flex max-w-2xl flex-col justify-center px-7 min-[390px]:pl-9 min-[390px]:pr-6 sm:pl-16 lg:pl-20 [&_a]:pointer-events-auto">
             <div className="hero-text-in">{overlay}</div>
           </div>
         )}
 
         {slides.length > 1 && (
           <>
-            <button onClick={goPrev} aria-label="Previous slide" className="absolute left-3 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/20 p-2 text-white backdrop-blur transition hover:bg-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:left-4 sm:p-2.5">
+            <button onClick={goPrev} aria-label="Previous slide" className="absolute left-1.5 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/20 p-1.5 text-white backdrop-blur transition hover:bg-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:left-4 sm:p-2.5">
               <ChevronLeft className="h-5 w-5" />
             </button>
-            <button onClick={goNext} aria-label="Next slide" className="absolute right-3 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/20 p-2 text-white backdrop-blur transition hover:bg-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:right-4 sm:p-2.5">
+            <button onClick={goNext} aria-label="Next slide" className="absolute right-1.5 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/20 p-1.5 text-white backdrop-blur transition hover:bg-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:right-4 sm:p-2.5">
               <ChevronRight className="h-5 w-5" />
             </button>
           </>

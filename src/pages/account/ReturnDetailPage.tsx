@@ -11,6 +11,7 @@ import { useLanguage } from '@/hooks/useLocale';
 import { formatDate } from '@/utils/dates';
 import type { ReturnRequest } from '@/types';
 import { cn } from '@/utils/cn';
+import { mediaUrl } from '@/api/config';
 
 const STATUS_STYLES: Record<string, string> = {
   requested: 'bg-sky-50 text-sky-900 border-sky-200',
@@ -130,7 +131,7 @@ export default function ReturnDetailPage() {
                 {ret.photos.map((id) => (
                   <img
                     key={id}
-                    src={`${import.meta.env.VITE_API_BASE_URL ?? ''}/media/${id}`}
+                    src={mediaUrl(id)}
                     alt=""
                     className="h-16 w-16 rounded-lg object-cover border border-sand-200"
                   />

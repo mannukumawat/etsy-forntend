@@ -1,10 +1,6 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import de from '@/locales/de';
 import en from '@/locales/en';
-import es from '@/locales/es';
-import fr from '@/locales/fr';
-import it from '@/locales/it';
 import type { LanguageCode } from '@/types';
 import { toLanguageCode } from '@/utils/money';
 import { API_BASE_URL } from '@/api/config';
@@ -47,7 +43,7 @@ async function applyAdminOverrides(lng: string): Promise<void> {
 
 void i18n.use(initReactI18next).init({
   // The three English variants all resolve to the `en` strings; they only change date/number formats.
-  resources: { en: { translation: en }, de: { translation: de }, fr: { translation: fr }, it: { translation: it }, es: { translation: es } },
+  resources: { en: { translation: en } },
   lng: storedLanguage(),
   fallbackLng: 'en',
   supportedLngs: ['en', 'en-US', 'en-GB', 'en-IN', 'de', 'fr', 'it', 'es'],
@@ -68,6 +64,7 @@ syncDocument(i18n.language);
 
 i18n.on('languageChanged', (lng) => {
   syncDocument(lng);
+  void applyAdminOverrides(lng);
   try {
     localStorage.setItem(LANGUAGE_STORAGE_KEY, lng);
   } catch {

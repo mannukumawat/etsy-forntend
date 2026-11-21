@@ -278,7 +278,6 @@ export function ProductDetail({ product, onReviewsChanged }: { product: Product;
             )}
             <ProductDetailAccordion title={t('product.deliveryReturns')} defaultOpen>
               <DeliveryEstimate />
-              <p className="mt-4">{t('product.shippingInfo')}</p>
               <div className="mt-3 space-y-1 text-sm">
                 {product.returnsAllowed ? (
                   <p className="text-emerald-700">✓ {t('product.returnsAllowedText', { days: product.returnDays })}</p>

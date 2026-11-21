@@ -6,12 +6,12 @@ import { Breadcrumbs } from '@/components/ui/Navigation';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 
 const NAV_ITEMS = [
-  { to: '/help', label: 'Help Center', icon: BookOpen },
-  { to: '/track-order', label: 'Track Order', icon: Package },
-  { to: '/shipping', label: 'Shipping', icon: Truck },
-  { to: '/returns', label: 'Returns', icon: RefreshCw },
-  { to: '/faq', label: 'FAQs', icon: HelpCircle },
-  { to: '/contact', label: 'Contact', icon: Mail },
+  { to: '/help', labelKey: 'help.helpCenter', icon: BookOpen },
+  { to: '/track-order', labelKey: 'nav.trackOrder', icon: Package },
+  { to: '/shipping', labelKey: 'nav.shipping', icon: Truck },
+  { to: '/returns', labelKey: 'nav.returns', icon: RefreshCw },
+  { to: '/faq', labelKey: 'nav.faq', icon: HelpCircle },
+  { to: '/contact', labelKey: 'nav.contact', icon: Mail },
 ] as const;
 
 interface CustomerCareShellProps {
@@ -47,13 +47,13 @@ export function CustomerCareShell({ title, intro, children, isRoot }: CustomerCa
         >
           <span className="flex items-center gap-2">
             {currentItem && <currentItem.icon className="h-4 w-4 text-brand-600" aria-hidden />}
-            {currentItem?.label ?? t('help.helpTopics')}
+            {currentItem ? t(currentItem.labelKey) : t('help.helpTopics')}
           </span>
           {mobileOpen ? <X className="h-4 w-4 text-ink-muted" aria-hidden /> : <ChevronDown className="h-4 w-4 text-ink-muted" aria-hidden />}
         </button>
         {mobileOpen && (
-          <nav aria-label="Customer care navigation" className="mt-2 overflow-hidden rounded-xl border border-sand-200 bg-white shadow-sm">
-            {NAV_ITEMS.map(({ to, label, icon: Icon }) => {
+          <nav aria-label={t('help.customerCare')} className="mt-2 overflow-hidden rounded-xl border border-sand-200 bg-white shadow-sm">
+            {NAV_ITEMS.map(({ to, labelKey, icon: Icon }) => {
               const active = pathname === to;
               return (
                 <Link
@@ -66,7 +66,7 @@ export function CustomerCareShell({ title, intro, children, isRoot }: CustomerCa
                   aria-current={active ? 'page' : undefined}
                 >
                   <Icon className={`h-4 w-4 shrink-0 ${active ? 'text-brand-600' : 'text-ink-muted'}`} aria-hidden />
-                  {label}
+                  {t(labelKey)}
                 </Link>
               );
             })}
@@ -79,8 +79,8 @@ export function CustomerCareShell({ title, intro, children, isRoot }: CustomerCa
         <aside className="hidden lg:block">
           <div className="sticky top-6">
             <p className="mb-3 px-3 text-xs font-semibold uppercase tracking-widest text-ink-muted">{t('help.customerCare')}</p>
-            <nav aria-label="Customer care navigation">
-              {NAV_ITEMS.map(({ to, label, icon: Icon }) => {
+            <nav aria-label={t('help.customerCare')}>
+              {NAV_ITEMS.map(({ to, labelKey, icon: Icon }) => {
                 const active = pathname === to;
                 return (
                   <Link
@@ -94,7 +94,7 @@ export function CustomerCareShell({ title, intro, children, isRoot }: CustomerCa
                     aria-current={active ? 'page' : undefined}
                   >
                     <Icon className={`h-4 w-4 shrink-0 ${active ? 'text-brand-600' : 'text-ink-muted'}`} aria-hidden />
-                    {label}
+                    {t(labelKey)}
                   </Link>
                 );
               })}

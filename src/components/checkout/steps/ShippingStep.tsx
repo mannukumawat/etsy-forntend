@@ -67,7 +67,6 @@ export function ShippingStep({ onBack, onDone }: { onBack: () => void; onDone: (
             );
           })}
         </div>
-        <p className="mt-3 text-xs text-ink-muted">{t('checkout.estimateNote')}</p>
       </fieldset>
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
         <Button variant="ghost" onClick={onBack} icon={<ArrowLeft className="h-4 w-4" aria-hidden />}>

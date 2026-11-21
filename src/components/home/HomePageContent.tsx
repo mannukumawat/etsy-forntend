@@ -51,47 +51,10 @@ function ItemGroupSections() {
   if (!groups?.length) return null;
   return (
     <>
-      {groups.map((g) => (
-        <ItemGroupSection key={g.id} group={g} />
-      ))}
+      {groups.map((group) => <ItemGroupSection key={group.id} group={group} />)}
     </>
   );
 }
-
-const FEATURED_PRODUCT_PATHS = [
-  '/product/natural-wool-jute-kilim-rug-handwoven-charcoal-geometric-area-rug-reversible-bla',
-  '/product/handwoven-wool-jute-kilim-rug-runner-boho-area-rug-hallway-runner-living-room-ru',
-  '/product/handwoven-wool-jute-kilim-runner-rug-boho-hallway-stair-runner-entryway-rug-cust',
-] as const;
-
-const productPathOr = (href: string | undefined, fallback: string) =>
-  href?.startsWith('/product/') ? href : fallback;
-
-const FALLBACK_SLIDES: HeroSlide[] = [
-  {
-    image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=1600&q=80',
-    title: 'Handcrafted Rugs & Home Decor',
-    subtitle: 'Kilim rugs, jute runners, benches and cushion covers — handwoven by skilled artisans.',
-    ctaLabel: 'Shop All Products',
-    ctaHref: FEATURED_PRODUCT_PATHS[0],
-    secondaryLabel: 'New Arrivals',
-    secondaryHref: '/shop?sort=newest',
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=1600&q=80',
-    title: 'Natural Fibres, Timeless Style',
-    subtitle: 'Each piece is made using traditional techniques passed down through generations.',
-    ctaLabel: 'Explore Collections',
-    ctaHref: FEATURED_PRODUCT_PATHS[1],
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1540518614846-7eded433c457?w=1600&q=80',
-    title: 'Made in Jaipur with Love',
-    subtitle: 'Direct from artisan workshops to your home — no middlemen, fair prices.',
-    ctaLabel: 'Shop Rugs',
-    ctaHref: FEATURED_PRODUCT_PATHS[2],
-  },
-];
 
 export default function HomePage() {
   const loc = useLocalized();
@@ -99,33 +62,34 @@ export default function HomePage() {
   const { data: homepage } = useAsync('content:homepage', () => contentService.getHomepage());
   const live = homepage?.content;
 
-  const cmsSlides: HeroSlide[] = [];
-  if (live?.hero) {
-    cmsSlides.push({
-      image: live.hero.image ?? FALLBACK_SLIDES[0].image,
-      title: loc(live.hero.title) || FALLBACK_SLIDES[0].title,
+  const slides: HeroSlide[] = [];
+  if (live?.hero?.image) {
+    slides.push({
+      image: live.hero.image,
+      title: loc(live.hero.title) || undefined,
       subtitle: loc(live.hero.subtitle) || undefined,
-      ctaLabel: loc(live.hero.ctaLabel) || 'Shop All Products',
-      ctaHref: productPathOr(live.hero.ctaHref, FEATURED_PRODUCT_PATHS[0]),
+      ctaLabel: loc(live.hero.ctaLabel) || undefined,
+      ctaHref: live.hero.ctaHref || undefined,
     });
   }
-  for (const [index, s] of (live?.slides ?? []).entries()) {
-    if (!s.image) continue;
-    cmsSlides.push({
-      image: s.image,
-      title: loc(s.title) || undefined,
-      subtitle: loc(s.subtitle) || undefined,
-      ctaLabel: loc(s.ctaLabel) || undefined,
-      ctaHref: productPathOr(s.ctaHref, FEATURED_PRODUCT_PATHS[(index + 1) % FEATURED_PRODUCT_PATHS.length]),
+  for (const slide of live?.slides ?? []) {
+    if (!slide.image) continue;
+    slides.push({
+      image: slide.image,
+      title: loc(slide.title) || undefined,
+      subtitle: loc(slide.subtitle) || undefined,
+      ctaLabel: loc(slide.ctaLabel) || undefined,
+      ctaHref: slide.ctaHref || undefined,
     });
   }
-  const slides = cmsSlides.length > 0 ? cmsSlides : FALLBACK_SLIDES;
 
   return (
     <>
-      <div className="container-site py-3">
-        <HeroSlider slides={slides} autoplayMs={5000} linkWholeSlide />
-      </div>
+      {slides.length > 0 && (
+        <div className="container-site py-3">
+          <HeroSlider slides={slides} autoplayMs={5000} linkWholeSlide />
+        </div>
+      )}
       <ItemGroupSections />
     </>
   );

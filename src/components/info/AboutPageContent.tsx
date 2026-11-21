@@ -104,12 +104,12 @@ export default function AboutPage() {
   const { data: live } = useAsync('content:page:about', () => contentService.getPage('about'));
   const content = live?.content;
 
-  const title = content ? loc(content.title) : t('pages.about.title');
-  const intro = content ? loc(content.intro) : t('pages.about.intro');
+  const title = content ? loc(content.title) : '';
+  const intro = content ? loc(content.intro) : '';
   const heroImage = content?.heroImage ?? null;
   const sections: AboutSection[] = content
     ? content.sections.map((s) => ({ heading: loc(s.heading), body: loc(s.body), image: s.image ?? null }))
-    : (t('pages.about.sections', { returnObjects: true }) as AboutSection[]);
+    : [];
 
   useDocumentTitle(title);
 

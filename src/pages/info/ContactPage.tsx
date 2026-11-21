@@ -21,8 +21,8 @@ export default function ContactPage() {
   const toast = useUi((s) => s.toast);
   const storeContact = useSiteSettings((s) => s.store.contact);
   const { data: live } = useAsync('content:page:contact', () => contentService.getPage('contact'));
-  const pageTitle = live?.content ? loc(live.content.title) : t('pages.contact.title');
-  const pageIntro = live?.content ? loc(live.content.intro) : t('pages.contact.intro');
+  const pageTitle = live?.content ? loc(live.content.title) : '';
+  const pageIntro = live?.content ? loc(live.content.intro) : '';
   const [sent, setSent] = useState<{ name: string; ref: string } | null>(null);
 
   const {
@@ -83,8 +83,7 @@ export default function ContactPage() {
                   <TextField id="ct-order" label={t('pages.contact.orderNumber')} placeholder={t('track.orderPlaceholder')} error={errors.orderNumber?.message} {...register('orderNumber')} />
                 )}
                 <TextareaField id="ct-message" label={t('pages.contact.message')} required rows={7} error={errors.message?.message} {...register('message')} />
-                <div className="flex items-center justify-between gap-4 border-t border-sand-100 pt-5">
-                  <p className="text-xs text-ink-muted">{t('pages.contact.responseNote')}</p>
+                <div className="flex items-center justify-end gap-4 border-t border-sand-100 pt-5">
                   <Button type="submit" size="lg" loading={isSubmitting} icon={<Send className="h-4 w-4" />}>
                     {isSubmitting ? t('pages.contact.sending') : t('pages.contact.send')}
                   </Button>
@@ -127,7 +126,6 @@ export default function ContactPage() {
             </div>
             <div className="px-5 py-4 text-sm">
               <p className="font-medium text-ink">{loc(storeContact.hours)}</p>
-              <p className="mt-2 text-xs text-ink-muted">{t('pages.contact.responseNote')}</p>
             </div>
           </div>
         </aside>

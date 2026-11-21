@@ -16,11 +16,11 @@ export default function ShippingPage() {
   const { data: live } = useAsync('content:page:shipping', () => contentService.getPage('shipping'));
   const content = live?.content;
 
-  const title = content ? loc(content.title) : t('pages.shipping.title');
-  const intro = content ? loc(content.intro) : t('pages.shipping.intro');
+  const title = content ? loc(content.title) : '';
+  const intro = content ? loc(content.intro) : '';
   const sections: InfoSection[] = content
     ? content.sections.map((s) => ({ heading: loc(s.heading), body: loc(s.body) }))
-    : (t('pages.shipping.sections', { returnObjects: true }) as InfoSection[]);
+    : [];
   // Flag admin-written page content that has no translation yet for the shopper's language.
   const contentLang = contentLanguage(lang);
   const showUntranslated = !!contentLang && !!content && !content.intro[contentLang];
@@ -38,7 +38,6 @@ export default function ShippingPage() {
         <h2 id="rates-title" className="text-2xl">
           {t('pages.shipping.ratesTitle')}
         </h2>
-        <p className="mt-1 text-sm text-ink-muted">{t('pages.shipping.ratesNote', { currency: money.currency })}</p>
         <div className="mt-4 overflow-x-auto rounded-xl border border-sand-200 bg-white">
           <table className="w-full min-w-[480px] text-left text-sm">
             <thead className="bg-ivory-200/70 text-ink">

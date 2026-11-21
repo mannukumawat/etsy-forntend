@@ -4,6 +4,8 @@ import { Facebook, Instagram, Mail, MapPin, Phone, Sparkles, Youtube } from 'luc
 import { CATEGORIES } from '@/data/categories';
 import { RATE_SNAPSHOT } from '@/data/currencies';
 import { useLanguage, useLocalized } from '@/hooks/useLocale';
+import { useAsync } from '@/hooks/useAsync';
+import { contentService } from '@/services/contentService';
 import { formatDate } from '@/utils/dates';
 import { useSiteSettings } from '@/store/siteSettings';
 import { NewsletterForm } from './NewsletterForm';
@@ -28,6 +30,9 @@ export function Footer() {
   const loc = useLocalized();
   const lang = useLanguage();
   const STORE = useSiteSettings((s) => s.store);
+  const { data: homepage } = useAsync('content:homepage', () => contentService.getHomepage());
+  const newsletterTitle = homepage?.content ? loc(homepage.content.newsletter.title) : '';
+  const newsletterBody = homepage?.content ? loc(homepage.content.newsletter.body) : '';
   const year = new Date().getFullYear();
   const heading = 'font-sans text-sm font-semibold text-ink';
   const link = 'text-sm text-ink-muted transition-colors hover:text-ink hover:underline';
@@ -81,9 +86,9 @@ export function Footer() {
             </ul>
           </div>
           <div>
-            <h2 className={heading}>Customer Care</h2>
+            <h2 className={heading}>{t('help.customerCare')}</h2>
             <ul className="mt-3 space-y-2">
-              <li><Link to="/help" className={link}>Help Center</Link></li>
+              <li><Link to="/help" className={link}>{t('help.helpCenter')}</Link></li>
               <li><Link to="/track-order" className={link}>{t('nav.trackOrder')}</Link></li>
               <li><Link to="/shipping" className={link}>{t('nav.shipping')}</Link></li>
               <li><Link to="/returns" className={link}>{t('nav.returns')}</Link></li>
@@ -103,8 +108,8 @@ export function Footer() {
         </nav>
 
         <div className="md:col-span-2 lg:col-span-4">
-          <h2 className={heading}>{t('footer.newsletterHeading')}</h2>
-          <p className="mt-1 text-sm text-ink-muted">{t('footer.newsletterBody')}</p>
+          {newsletterTitle && <h2 className={heading}>{newsletterTitle}</h2>}
+          {newsletterBody && <p className="mt-1 text-sm text-ink-muted">{newsletterBody}</p>}
           <div className="mt-4">
             <NewsletterForm id="footer-newsletter" />
           </div>

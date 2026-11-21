@@ -181,7 +181,7 @@ export default function ShopPage() {
     ...(category || contextName ? [{ label: t('nav.shop'), to: '/shop' }] : []),
     { label: category ? loc(category.name) : (contextName ?? t('nav.shop')) },
   ];
-  const description = category ? loc(category.description) : contextName ? '' : t('shop.subtitle');
+  const description = category ? loc(category.description) : '';
 
   return (
     <div>

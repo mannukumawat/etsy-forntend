@@ -14,11 +14,11 @@ export default function PolicyPage({ page }: { page: 'returns' | 'privacy' | 'te
   const { data: live } = useAsync(`content:page:${page}`, () => contentService.getPage(page));
   const content = live?.content;
 
-  const title = content ? loc(content.title) : t(`pages.${page}.title`);
-  const intro = content ? loc(content.intro) : t(`pages.${page}.intro`);
+  const title = content ? loc(content.title) : '';
+  const intro = content ? loc(content.intro) : '';
   const sections: InfoSection[] = content
     ? content.sections.map((s) => ({ heading: loc(s.heading), body: loc(s.body) }))
-    : (t(`pages.${page}.sections`, { returnObjects: true }) as InfoSection[]);
+    : [];
   const contentLang = contentLanguage(lang);
   const showUntranslated = !!contentLang && !!content && !content.intro[contentLang];
 
@@ -28,7 +28,7 @@ export default function PolicyPage({ page }: { page: 'returns' | 'privacy' | 'te
         <Sections sections={sections} />
         <div className="mt-8">
           <Link to="/account/orders" className="btn btn-outline">
-            View my orders
+            {t('pages.returns.viewOrders')}
           </Link>
         </div>
       </CustomerCareShell>

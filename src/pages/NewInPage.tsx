@@ -21,7 +21,6 @@ export default function NewInPage() {
     <div className="pb-16">
       <HubHero
         title={t('hub.newInTitle')}
-        subtitle={t('hub.newInSubtitle')}
         color={HUB_COLOR}
         circles={CATEGORIES.slice(0, 12).map((c) => ({ label: loc(c.name), href: `/category/${c.slug}`, image: c.image.src }))}
       />

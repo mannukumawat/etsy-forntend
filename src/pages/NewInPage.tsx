@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { HUB_COLOR, HubHero, HubSection } from '@/components/hub/Hub';
+import { HubHero, HubSection } from '@/components/hub/Hub';
 import { ProductGridSkeleton } from '@/components/product/ProductCard';
 import { ErrorState } from '@/components/ui/Feedback';
 import { CATEGORIES } from '@/data/categories';
@@ -21,7 +21,6 @@ export default function NewInPage() {
     <div className="pb-16">
       <HubHero
         title={t('hub.newInTitle')}
-        color={HUB_COLOR}
         circles={CATEGORIES.slice(0, 12).map((c) => ({ label: loc(c.name), href: `/category/${c.slug}`, image: c.image.src }))}
       />
       {list.isError ? (

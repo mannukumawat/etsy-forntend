@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { HUB_COLOR, HubHero, HubSection } from '@/components/hub/Hub';
+import { HubHero, HubSection } from '@/components/hub/Hub';
 import { ProductGridSkeleton } from '@/components/product/ProductCard';
 import { EmptyState, ErrorState } from '@/components/ui/Feedback';
 import { CATEGORIES, CATEGORY_BY_SLUG } from '@/data/categories';
@@ -39,7 +39,6 @@ export default function CategoryHubPage() {
       <HubHero
         title={loc(category.name)}
         subtitle={loc(category.description)}
-        color={HUB_COLOR}
         circles={CATEGORIES.filter((c) => c.slug !== slug).slice(0, 12).map((c) => ({ label: loc(c.name), href: `/category/${c.slug}`, image: c.image.src }))}
       />
       {list.isError ? (

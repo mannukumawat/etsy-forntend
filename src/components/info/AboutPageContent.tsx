@@ -127,7 +127,7 @@ export default function AboutPage() {
 
       <section className="mt-8 bg-ink text-white lg:mt-12">
         <div className="container-site flex flex-col items-center gap-6 py-14 text-center lg:py-20">
-          <h2 className="max-w-2xl text-3xl !text-white lg:text-4xl">{t('pages.about.ctaHeading', { defaultValue: 'Bring a piece of the craft home' })}</h2>
+          <h2 className="max-w-2xl text-3xl !text-white lg:text-4xl">{title}</h2>
           <div className="flex flex-wrap items-center justify-center gap-3">
             <ButtonLink to="/shop" size="lg" icon={<ArrowRight className="order-last h-4 w-4" aria-hidden />}>
               {t('pages.about.cta')}

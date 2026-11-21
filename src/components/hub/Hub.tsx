@@ -8,7 +8,7 @@ import { CATEGORY_BY_SLUG } from '@/data/categories';
 import { useAsync } from '@/hooks/useAsync';
 import { useLocalized, useMoney } from '@/hooks/useLocale';
 import { productService } from '@/services/productService';
-import type { CurrencyCode, Product } from '@/types';
+import type { Product } from '@/types';
 import { cn } from '@/utils/cn';
 import { priceRange, stockStatus, totalStock } from '@/utils/variants';
 
@@ -30,9 +30,6 @@ export function isDark(hex: string) {
   const [r, g, b] = [(n >> 16) & 255, (n >> 8) & 255, n & 255];
   return 0.2126 * r + 0.7152 * g + 0.0722 * b < 140;
 }
-
-/** Price-band edges in whole units of the shopper's currency (like Etsy's "Under US$ 25"). */
-const BANDS: Record<CurrencyCode, [number, number, number]> = { USD: [25, 50, 100], EUR: [25, 50, 100], GBP: [20, 40, 80], INR: [2000, 4000, 8000] };
 
 type PriceFilter = { kind: 'any' } | { kind: 'band'; min: number | null; max: number | null } | { kind: 'custom'; min: number | null; max: number | null };
 interface Filters {
@@ -102,17 +99,25 @@ function FilterDrawer({
   filters,
   setFilters,
   resultCount,
+  products,
 }: {
   open: boolean;
   onClose: () => void;
   filters: Filters;
   setFilters: (f: Filters) => void;
   resultCount: number;
+  products: Product[];
 }) {
   const { t } = useTranslation();
   const money = useMoney();
-  const [a, b, c] = BANDS[money.currency];
   const unit = (n: number) => money.format(n * 10 ** (money.currency === 'INR' ? 0 : 2)).replace(/[.,]00$/, '');
+  // Bands follow the live Admin-managed catalogue instead of fixed currency-specific values.
+  const [a, b, c] = useMemo(() => {
+    const factor = money.currency === 'INR' ? 1 : 100;
+    const prices = products.map((product) => money.convert(priceRange(product.variants).min) / factor).sort((x, y) => x - y);
+    const at = (ratio: number) => Math.max(1, Math.round(prices[Math.min(prices.length - 1, Math.floor(prices.length * ratio))] ?? 1));
+    return [at(0.25), at(0.5), at(0.75)] as const;
+  }, [money, products]);
   const [low, setLow] = useState(filters.price.kind === 'custom' && filters.price.min !== null ? String(filters.price.min) : '');
   const [high, setHigh] = useState(filters.price.kind === 'custom' && filters.price.max !== null ? String(filters.price.max) : '');
 
@@ -275,7 +280,7 @@ export function HubSection({ title, products }: { title: string; products: Produ
           </button>
         </div>
       )}
-      {open && <FilterDrawer open onClose={() => setOpen(false)} filters={filters} setFilters={setFilters} resultCount={filtered.length} />}
+      {open && <FilterDrawer open onClose={() => setOpen(false)} filters={filters} setFilters={setFilters} resultCount={filtered.length} products={products} />}
     </section>
   );
 }
@@ -289,13 +294,13 @@ export interface HubCircle {
 }
 
 /** Etsy-style hub header: coloured band with a big serif title, and photo circles overlapping it. */
-export function HubHero({ title, subtitle, color, image, circles = [] }: { title: string; subtitle?: string; color: string; image?: string | null; circles?: HubCircle[] }) {
-  const dark = isDark(color);
+export function HubHero({ title, subtitle, color, image, circles = [] }: { title: string; subtitle?: string; color?: string; image?: string | null; circles?: HubCircle[] }) {
+  const dark = color ? isDark(color) : false;
   const hasCircles = circles.length > 0;
   const { data: covers } = useAsync(hasCircles ? 'catalog:category-covers' : null, () => productService.getCategoryCovers());
   return (
     <>
-      <section className={cn('relative overflow-hidden text-center', hasCircles ? 'pb-36 pt-12 sm:pb-40' : 'py-16')} style={{ backgroundColor: color }}>
+      <section className={cn('relative overflow-hidden bg-brand-100 text-center', hasCircles ? 'pb-36 pt-12 sm:pb-40' : 'py-16')} style={color ? { backgroundColor: color } : undefined}>
         {image && <img src={image} alt="" className="absolute inset-0 h-full w-full object-cover opacity-25" />}
         <div className="container-site relative">
           <h1 className={cn('font-serif text-4xl leading-tight lg:text-6xl', dark ? 'text-white' : 'text-ink')}>{title}</h1>
@@ -328,5 +333,3 @@ export function HubHero({ title, subtitle, color, image, circles = [] }: { title
   );
 }
 
-/** Same hero colour as the Wedding Guide, used for pages that aren't admin-designed collections. */
-export const HUB_COLOR = '#F3E6DC';

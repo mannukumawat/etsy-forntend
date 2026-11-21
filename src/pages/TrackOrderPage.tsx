@@ -121,7 +121,7 @@ export default function TrackOrderPage() {
         {!result && !notFound && !failed && !isSubmitting && (
           <div className="flex flex-col items-center py-12 text-center text-ink-muted">
             <PackageSearch className="h-10 w-10" aria-hidden />
-            <p className="mt-3 text-sm">{t('track.orderPlaceholder') ? 'Enter your order number above to get started.' : ''}</p>
+            <p className="mt-3 text-sm">{t('track.startPrompt')}</p>
           </div>
         )}
       </div>

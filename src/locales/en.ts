@@ -71,7 +71,7 @@ const en = {
     "stepCurrent": "current step"
   },
   "header": {
-    "searchPlaceholder": "Search rugs, runners, cushions and more",
+    "searchPlaceholder": "Search products",
     "searchLabel": "Search products",
     "searchSubmit": "Search",
     "suggestions": "Suggestions",
@@ -373,6 +373,8 @@ const en = {
       "prepaid": "Prepaid"
     },
     "gatewayNotConfigured": "Not available yet — no payment gateway is configured.",
+    "walletPartialNote": "The remaining amount will be charged by the payment provider.",
+    "walletAddShortfall": "Add {{amount}} to wallet",
     "reviewTitle": "Review your order",
     "contact": "Contact",
     "shipTo": "Ship to",
@@ -650,7 +652,7 @@ const en = {
     "name": "Full name",
     "confirmPassword": "Confirm password",
     "passwordHint": "At least 8 characters, including a letter and a number.",
-    "acceptTerms": "I agree to the <terms>terms</terms> and <privacy>privacy policy</privacy> (draft documents).",
+    "acceptTerms": "I agree to the <terms>terms</terms> and <privacy>privacy policy</privacy>.",
     "submitRegister": "Create account",
     "creating": "Creating account…",
     "haveAccount": "Already have an account?",
@@ -693,7 +695,8 @@ const en = {
     "title": "Track your order",
     "subtitle": "Enter your order number and the email used at checkout.",
     "orderNumber": "Order number",
-    "orderPlaceholder": "e.g. YS-240342",
+    "orderPlaceholder": "Enter your order number",
+    "startPrompt": "Enter your order number above to get started.",
     "email": "Email",
     "submit": "Track order",
     "searching": "Looking up order…",
@@ -767,7 +770,7 @@ const en = {
     "message": "Please write at least 10 characters.",
     "subject": "Choose a topic.",
     "tooLong": "This is too long.",
-    "orderNumber": "Order numbers look like YS-240342."
+    "orderNumber": "Enter a valid order number."
   },
   "toast": {
     "error": "Something went wrong. Please try again.",

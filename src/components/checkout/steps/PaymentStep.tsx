@@ -224,7 +224,7 @@ export function PaymentStep({ onBack, onPlace, walletInfo, total, submitting, er
                           <p className="text-sm font-medium text-ink">
                             {t('checkout.walletPartialUse', { wallet: formatPaise(balance, 0), rest: formatPaise(orderTotalPaise - balance, 0), defaultValue: `Use ${formatPaise(balance, 0)} from wallet + pay ${formatPaise(orderTotalPaise - balance, 0)} via card/UPI` })}
                           </p>
-                          <p className="text-xs text-ink-muted">{t('checkout.walletPartialNote', { defaultValue: 'Remaining will be charged via Razorpay.' })}</p>
+                          <p className="text-xs text-ink-muted">{t('checkout.walletPartialNote')}</p>
                         </div>
                       </label>
 
@@ -234,7 +234,7 @@ export function PaymentStep({ onBack, onPlace, walletInfo, total, submitting, er
                       )}>
                         <div>
                           <p className="text-sm font-medium text-ink">
-                            {t('checkout.walletAddShortfall', { amount: `₹${shortfallRupees}`, defaultValue: `Add ₹${shortfallRupees} to wallet` })}
+                            {t('checkout.walletAddShortfall', { amount: formatPaise(shortfallRupees * 100, 0) })}
                           </p>
                           <p className="text-xs text-ink-muted">{t('checkout.walletThenFullPay', { defaultValue: 'Then pay full order from wallet.' })}</p>
                         </div>

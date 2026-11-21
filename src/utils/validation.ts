@@ -134,7 +134,7 @@ export const contactSchema = z.object({
   orderNumber: z
     .string()
     .trim()
-    .refine((v) => v === '' || /^YS-?\d{6}$/i.test(v), 'validation.orderNumber'),
+    .refine((v) => v === '' || /^[A-Za-z0-9][A-Za-z0-9-]{2,39}$/.test(v), 'validation.orderNumber'),
   message: z.string().trim().min(10, 'validation.message').max(1000, 'validation.tooLong'),
 });
 export type ContactValues = z.infer<typeof contactSchema>;
@@ -144,14 +144,13 @@ export const trackSchema = z.object({
     .string()
     .trim()
     .min(1, 'validation.required')
-    .refine((v) => /^YS-?\d{6}$/i.test(v), 'validation.orderNumber'),
+    .refine((v) => /^[A-Za-z0-9][A-Za-z0-9-]{2,39}$/.test(v), 'validation.orderNumber'),
   email: emailField,
 });
 export type TrackValues = z.infer<typeof trackSchema>;
 
 
-/** Normalise "ys240117" / "YS-240117" to the canonical form. */
+/** Preserve the server-issued number while making lookup case-insensitive. */
 export function normalizeOrderNumber(v: string): string {
-  const digits = v.replace(/\D/g, '');
-  return `YS-${digits}`;
+  return v.trim().toUpperCase();
 }

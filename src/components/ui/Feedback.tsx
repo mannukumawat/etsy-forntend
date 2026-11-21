@@ -1,8 +1,7 @@
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AlertTriangle, CheckCircle2, Info, RefreshCw, XCircle } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Info, RefreshCw, Sparkles, XCircle } from 'lucide-react';
 import { cn } from '@/utils/cn';
-import logoMark from '@/assets/logo-mark.webp';
 import { Button } from './Button';
 
 export function Skeleton({ className }: { className?: string }) {
@@ -26,7 +25,7 @@ export function BrandedLoader({ label = 'Bringing handcrafted pieces to you…',
         <span className="absolute inset-0 animate-spin rounded-full border-2 border-transparent border-r-brand-600 border-t-brand-600 motion-reduce:animate-none" aria-hidden />
         <span className="absolute inset-2 animate-[spin_1.8s_linear_infinite_reverse] rounded-full border border-sand-300 border-b-brand-400 motion-reduce:animate-none" aria-hidden />
         <span className="absolute inset-4 rounded-full bg-white shadow-card" aria-hidden />
-        <img src={logoMark} alt="" className="relative h-11 w-11 animate-pulse object-contain motion-reduce:animate-none" />
+        <Sparkles className="relative h-11 w-11 animate-pulse text-brand-600 motion-reduce:animate-none" aria-hidden />
       </div>
       <p className="mt-5 font-serif text-xl font-semibold text-ink">Dignity Art Edge</p>
       <p className="mt-1 text-sm text-ink-muted">{label}</p>

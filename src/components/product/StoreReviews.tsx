@@ -1,9 +1,8 @@
 import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ChevronLeft, ChevronRight, MessageCircle, Star } from 'lucide-react';
+import { ChevronLeft, ChevronRight, MessageCircle, Sparkles, Star } from 'lucide-react';
 import { reviewsApi } from '@/api';
-import logoMark from '@/assets/logo-mark.webp';
 import { Skeleton } from '@/components/ui/Feedback';
 import { Rating } from '@/components/ui/Rating';
 import { useAsync } from '@/hooks/useAsync';
@@ -31,7 +30,11 @@ export function StoreReviews() {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex items-center gap-4">
           <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl border border-sand-200 bg-ivory-50 p-1.5">
-            <img src={logoMark} alt="" className="h-full w-full object-contain" />
+            {store.logo?.url ? (
+              <img src={store.logo.url} alt="" className="h-full w-full object-contain" />
+            ) : (
+              <Sparkles className="h-10 w-10 text-brand-600" aria-hidden />
+            )}
           </span>
           <div>
             <p className="font-serif text-2xl font-semibold leading-tight">{store.name}</p>

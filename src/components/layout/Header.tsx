@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Check, ChevronRight, Heart, Lock, Menu, MapPin, Plus, Search, ShoppingBag, User, X } from 'lucide-react';
-import logoMark from '@/assets/logo-mark.webp';
+import { ArrowLeft, Check, ChevronRight, Heart, Lock, Menu, MapPin, Plus, Search, ShoppingBag, Sparkles, User, X } from 'lucide-react';
 import { fetchCollections, fetchNavLinks } from '@/api';
 import { useAsync } from '@/hooks/useAsync';
 import { useLocalized } from '@/hooks/useLocale';
@@ -33,13 +32,15 @@ function CountBadge({ count }: { count: number }) {
 }
 
 export function Logo({ className }: { className?: string }) {
-  // H1: the logo comes from the live store settings (GET /api/settings → store.logo.url,
-  // admin-uploaded and served via Cloudinary); the bundled mark is only the fallback
-  // while settings have not loaded or no logo is configured.
+  // The logo comes from live store settings; use a lightweight icon until it is available.
   const logoUrl = useSiteSettings((s) => s.store.logo?.url);
   return (
     <Link to="/" className={cn('flex shrink-0 items-center', className)}>
-      <img src={logoUrl ?? logoMark} alt="Home" className="h-9 w-9 object-contain sm:h-11 sm:w-11 lg:h-12 lg:w-12" />
+      {logoUrl ? (
+        <img src={logoUrl} alt="Home" className="h-9 w-9 object-contain sm:h-11 sm:w-11 lg:h-12 lg:w-12" />
+      ) : (
+        <Sparkles className="h-9 w-9 text-brand-600 sm:h-11 sm:w-11 lg:h-12 lg:w-12" aria-label="Home" />
+      )}
     </Link>
   );
 }

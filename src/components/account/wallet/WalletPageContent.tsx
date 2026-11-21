@@ -3,12 +3,13 @@ import { useTranslation } from 'react-i18next';
 import { Wallet, Plus, ArrowUpRight, ArrowDownLeft, RotateCcw } from 'lucide-react';
 import { walletApi } from '@/api/wallet';
 import type { WalletTransaction } from '@/api/wallet';
+import { usePreferences } from '@/store/preferences';
 import { EmptyState, ErrorState, Spinner } from '@/components/ui/Feedback';
 import { useAsync } from '@/hooks/useAsync';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useAuth } from '@/store/session';
 import { formatDate } from '@/utils/dates';
-import { formatPaise } from '@/utils/money';
+import { formatMoney } from '@/utils/money';
 import { useLanguage } from '@/hooks/useLocale';
 import { cn } from '@/utils/cn';
 import { Button } from '@/components/ui/Button';
@@ -34,17 +35,18 @@ interface TopupModalProps {
 
 function TopupModal({ onClose, onSuccess }: TopupModalProps) {
   const { t } = useTranslation();
-  const [amountRupees, setAmountRupees] = useState('');
+  const currency = usePreferences((s) => s.currency);
+  const [amountMajor, setAmountMajor] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function handleTopup() {
-    const amount = parseFloat(amountRupees);
+    const amount = parseFloat(amountMajor);
     if (!amount || amount <= 0) {
       setError(t('wallet.invalidAmount', { defaultValue: 'Enter a valid amount.' }));
       return;
     }
-    const amountPaise = Math.round(amount * 100);
+    const amountMinor = Math.round(amount * 100);
     setLoading(true);
     setError(null);
     try {
@@ -59,12 +61,12 @@ function TopupModal({ onClose, onSuccess }: TopupModalProps) {
         });
       }
 
-      const { topupId, razorpayOrderId, razorpayKeyId, amountPaise: actualPaise } = await walletApi.createTopup(amountPaise);
+      const { topupId, razorpayOrderId, razorpayKeyId, amountMinor: actualMinor, currency: actualCurrency } = await walletApi.createTopup(amountMinor, currency);
 
       const rzp = new window.Razorpay({
         key: razorpayKeyId,
-        amount: actualPaise,
-        currency: 'INR',
+        amount: actualMinor,
+        currency: actualCurrency,
         name: t('wallet.topupTitle', { defaultValue: 'Add Money to Wallet' }),
         description: t('wallet.topupDesc', { defaultValue: 'Wallet top-up' }),
         order_id: razorpayOrderId,
@@ -72,7 +74,7 @@ function TopupModal({ onClose, onSuccess }: TopupModalProps) {
           setLoading(true);
           try {
             const result = await walletApi.verifyTopup(topupId, response.razorpay_payment_id, response.razorpay_signature);
-            onSuccess(result.balancePaise);
+            onSuccess(result.balanceMinor);
           } catch (e) {
             setError(t('wallet.verifyFailed', { defaultValue: 'Payment verification failed. Please contact support.' }));
             setLoading(false);
@@ -98,16 +100,16 @@ function TopupModal({ onClose, onSuccess }: TopupModalProps) {
           {t('wallet.addMoney', { defaultValue: 'Add Money' })}
         </h2>
         <label className="block text-sm font-medium text-ink-soft mb-1">
-          {t('wallet.amountLabel', { defaultValue: 'Amount (₹)' })}
+          {t('wallet.amountLabel', { defaultValue: 'Amount', currency })}
         </label>
         <input
           type="number"
           min="1"
           step="1"
           className="input w-full mb-4"
-          placeholder="100"
-          value={amountRupees}
-          onChange={(e) => setAmountRupees(e.target.value)}
+          placeholder="10"
+          value={amountMajor}
+          onChange={(e) => setAmountMajor(e.target.value)}
           disabled={loading}
         />
         {error && <p className="mb-3 text-sm text-red-600">{error}</p>}
@@ -157,10 +159,10 @@ export default function WalletPage() {
   }, [txData, page]);
 
   const topupEnabled = balData?.topupEnabled ?? false;
-  const balancePaise = balanceOverride ?? balData?.balancePaise ?? 0;
+  const balanceMinor = balanceOverride ?? balData?.balanceMinor ?? 0;
 
-  function handleTopupSuccess(newBalance: number) {
-    setBalanceOverride(newBalance);
+  function handleTopupSuccess(newBalanceMinor: number) {
+    setBalanceOverride(newBalanceMinor);
     setShowTopup(false);
     setPage(1);
     reloadTx();
@@ -203,7 +205,7 @@ export default function WalletPage() {
         </div>
         <div>
           <p className="text-sm text-ink-soft">{t('wallet.availableBalance', { defaultValue: 'Available Balance' })}</p>
-          <p className="text-3xl font-bold text-ink">{formatPaise(balancePaise)}</p>
+          <p className="text-3xl font-bold text-ink">{formatMoney(balanceMinor, 'USD', lang)}</p>
         </div>
       </div>
 
@@ -242,10 +244,10 @@ export default function WalletPage() {
                     <p className="mt-0.5 text-xs text-ink-muted">{formatDate(tx.createdAt, lang)}</p>
                   </div>
                   <div className="text-right shrink-0">
-                    <p className={cn('font-semibold', tx.amountPaise >= 0 ? 'text-emerald-700' : 'text-red-600')}>
-                      {tx.amountPaise >= 0 ? '+' : ''}{formatPaise(tx.amountPaise)}
+                    <p className={cn('font-semibold', tx.amountMinor >= 0 ? 'text-emerald-700' : 'text-red-600')}>
+                      {tx.amountMinor >= 0 ? '+' : ''}{formatMoney(tx.amountMinor, 'USD', lang)}
                     </p>
-                    <p className="text-xs text-ink-muted">{t('wallet.balance', { defaultValue: 'Bal:' })} {formatPaise(tx.balanceAfter)}</p>
+                    <p className="text-xs text-ink-muted">{t('wallet.balance', { defaultValue: 'Bal:' })} {formatMoney(tx.balanceAfter, 'USD', lang)}</p>
                   </div>
                 </div>
               </li>

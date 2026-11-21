@@ -12,7 +12,16 @@ import type { CurrencyCode, LanguageCode } from '@/types';
 import { cn } from '@/utils/cn';
 
 const EURO_COUNTRIES = new Set(['DE', 'FR', 'IT', 'ES', 'NL', 'IE', 'PT', 'BE', 'AT', 'FI', 'GR']);
-const SYMBOL: Record<CurrencyCode, string> = { USD: '$', INR: '₹', EUR: '€', GBP: '£' };
+
+function getCurrencySymbol(code: string): string {
+  try {
+    return new Intl.NumberFormat('en', { style: 'currency', currency: code, currencyDisplay: 'narrowSymbol' })
+      .formatToParts(0)
+      .find((p) => p.type === 'currency')?.value ?? code;
+  } catch {
+    return code;
+  }
+}
 
 /** Currency a shopper from this region most likely wants (they can still change it). */
 export function currencyForRegion(code: string): CurrencyCode {
@@ -132,7 +141,7 @@ export function SettingsDialog({ open, onClose }: { open: boolean; onClose: () =
           >
             {CURRENCY_CODES.map((code) => (
               <option key={code} value={code}>
-                {SYMBOL[code]} {CURRENCIES[code].name.en} ({code})
+                {getCurrencySymbol(code)} {CURRENCIES[code]?.name.en ?? code} ({code})
               </option>
             ))}
           </SelectRow>
@@ -169,7 +178,7 @@ export function SettingsButton({ variant = 'compact', className }: { variant?: '
             <Globe className="h-4 w-4 text-ink-muted" aria-hidden />
             {variant === 'compact' ? deliveryCountry : regionName(deliveryCountry)}
             <span className="text-sand-300" aria-hidden>|</span>
-            {SYMBOL[currency]} {currency}
+            {getCurrencySymbol(currency)} {currency}
           </span>
         )}
         {variant === 'full' && <ChevronDown className="h-4 w-4 text-ink-muted" aria-hidden />}

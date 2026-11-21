@@ -57,25 +57,6 @@ export function toLanguageCode(value: string | undefined | null): LanguageCode {
 }
 
 const formatterCache = new Map<string, Intl.NumberFormat>();
-const paiseFormatterCache = new Map<number, Intl.NumberFormat>();
-
-/** Format an INR paise amount as ₹X (whole rupees) or ₹X.XX — the single
- *  paise formatter for the app (was duplicated in PaymentStep,
- *  RefundDestinationPicker and WalletPageContent). */
-export function formatPaise(paise: number, fractionDigits = 2): string {
-  let f = paiseFormatterCache.get(fractionDigits);
-  if (!f) {
-    f = new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      minimumFractionDigits: fractionDigits,
-      maximumFractionDigits: fractionDigits,
-    });
-    paiseFormatterCache.set(fractionDigits, f);
-  }
-  return f.format(paise / 100);
-}
-
 function getFormatter(currency: CurrencyCode, language: LanguageCode, display: 'symbol' | 'code'): Intl.NumberFormat {
   const key = `${currency}|${language}|${display}`;
   let f = formatterCache.get(key);

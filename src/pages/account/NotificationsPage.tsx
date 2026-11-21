@@ -67,7 +67,7 @@ export default function NotificationsPage() {
             disabled={markingAll}
             className="text-sm font-medium text-brand-600 hover:underline disabled:opacity-50"
           >
-            {markingAll ? 'Marking…' : `Mark all as read (${unreadCount})`}
+            {markingAll ? t('notifications.markingAll', { defaultValue: 'Marking…' }) : t('notifications.markAllRead', { count: unreadCount, defaultValue: 'Mark all as read ({{count}})' })}
           </button>
         )}
       </div>
@@ -101,7 +101,7 @@ export default function NotificationsPage() {
                     onClick={() => void handleMarkRead(item.id)}
                     className="shrink-0 text-xs font-medium text-brand-600 hover:underline"
                   >
-                    Mark read
+                    {t('notifications.markRead', { defaultValue: 'Mark read' })}
                   </button>
                 )}
               </div>

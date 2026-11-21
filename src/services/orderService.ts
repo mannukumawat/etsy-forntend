@@ -26,10 +26,10 @@ export interface PlaceOrderInput {
   shippingMethodId: ShippingMethodId;
   paymentMethod: PaymentMethodPreview;
   razorpayResult?: RazorpayPaymentResult;
-  /** INR paise to debit from store wallet for a full wallet-only payment. */
-  walletAmountPaise?: number;
-  /** INR paise to debit from wallet for a partial payment; Razorpay covers the rest. */
-  walletPartialPaise?: number;
+  /** Display-currency minor units to debit from store wallet for a full wallet-only payment. */
+  walletAmountMinor?: number;
+  /** Display-currency minor units to debit from wallet for a partial payment; Razorpay covers the rest. */
+  walletPartialMinor?: number;
 }
 
 /** Loads the Razorpay checkout script and resolves when ready. */
@@ -115,7 +115,7 @@ export function previewTotals(input: { lines: CartLine[]; currency: CurrencyCode
 
 export const orderService = {
   place(input: PlaceOrderInput): Promise<Order> {
-    const { email, address, shippingMethodId, paymentMethod, couponCode, idempotencyKey, lines, currency, razorpayResult, walletAmountPaise, walletPartialPaise } = input;
+    const { email, address, shippingMethodId, paymentMethod, couponCode, idempotencyKey, lines, currency, razorpayResult, walletAmountMinor, walletPartialMinor } = input;
     return placeOrder({
       idempotencyKey,
       lines: lines.map((l) => ({ productId: l.productId, variantId: l.variantId, quantity: l.quantity })),
@@ -126,8 +126,8 @@ export const orderService = {
       paymentMethod,
       couponCode,
       ...(razorpayResult ?? {}),
-      ...(walletAmountPaise ? { walletAmountPaise } : {}),
-      ...(walletPartialPaise ? { walletPartialPaise } : {}),
+      ...(walletAmountMinor ? { walletAmountMinor } : {}),
+      ...(walletPartialMinor ? { walletPartialMinor } : {}),
     }).then((order) => {
       if (order.accessToken) storeOrderToken(order.id, order.accessToken);
       return order;

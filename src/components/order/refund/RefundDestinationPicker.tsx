@@ -6,7 +6,8 @@ import { bankAccountsApi } from '@/api/bankAccounts';
 import { upiApi, type UpiId } from '@/api/upi';
 import { walletApi } from '@/api/wallet';
 import { cn } from '@/utils/cn';
-import { formatPaise } from '@/utils/money';
+import { formatMoney } from '@/utils/money';
+import { useLanguage } from '@/hooks/useLocale';
 
 type Option =
   | { id: 'wallet'; label: string; sub: string; icon: typeof Wallet }
@@ -21,6 +22,7 @@ export function RefundDestinationPicker({
   onSelect: (id: string | null) => void;
 }) {
   const { t } = useTranslation();
+  const lang = useLanguage();
   const [loading, setLoading] = useState(true);
   const [walletBalance, setWalletBalance] = useState<number | null>(null);
   const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
@@ -36,7 +38,7 @@ export function RefundDestinationPicker({
         upiApi.list(),
       ]);
       if (cancelled) return;
-      if (walletResult.status === 'fulfilled') setWalletBalance(walletResult.value.balancePaise);
+      if (walletResult.status === 'fulfilled') setWalletBalance(walletResult.value.balanceMinor);
       if (bankResult.status === 'fulfilled') setBankAccounts(bankResult.value.items);
       if (upiResult.status === 'fulfilled') setUpiIds(upiResult.value.items);
       setLoading(false);
@@ -50,7 +52,7 @@ export function RefundDestinationPicker({
       id: 'wallet',
       label: t('returns.refundToWallet', { defaultValue: 'Store Wallet' }),
       sub: walletBalance !== null
-        ? t('returns.walletCurrentBalance', { defaultValue: 'Current balance: {{balance}}', balance: formatPaise(walletBalance) })
+        ? t('returns.walletCurrentBalance', { defaultValue: 'Current balance: {{balance}}', balance: formatMoney(walletBalance, 'USD', lang) })
         : t('returns.walletBalance', { defaultValue: 'Instant credit to your wallet' }),
       icon: Wallet,
     },

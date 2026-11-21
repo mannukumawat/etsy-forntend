@@ -91,7 +91,7 @@ export default function CheckoutPage() {
    * Razorpay order) so a failed placeOrder after a successful payment cannot charge twice.
    * Cleared on success / reset; recreated only if the chargeable remainder changed.
    */
-  const rzpOrderRef = useRef<{ id: string; amount: number; currency: string; walletPartialPaise: number } | null>(null);
+  const rzpOrderRef = useRef<{ id: string; amount: number; currency: string; walletPartialMinor: number } | null>(null);
 
   const step: CheckoutStep = checkout.step !== 'details' && !checkout.details ? 'details' : checkout.step;
   const stepIndex = STEPS.indexOf(step);
@@ -182,7 +182,7 @@ export default function CheckoutPage() {
           address,
           shippingMethodId: checkout.shippingMethod,
           paymentMethod: 'wallet',
-          walletAmountPaise: freshTotals.totals.total,
+          walletAmountMinor: freshTotals.totals.total,
         });
         setPlaced(true);
         invalidateQueries('catalog:');
@@ -197,23 +197,22 @@ export default function CheckoutPage() {
       const keyId = (import.meta.env.VITE_RAZORPAY_KEY_ID as string | undefined)?.trim();
       if (!keyId) throw new Error('Razorpay not configured.');
 
-      const walletPartialPaise = checkout.walletPartialPaise ?? 0;
+      const walletPartialMinor = checkout.walletPartialMinor ?? 0;
       // For partial wallet, Razorpay only charges the shortfall.
-      // Pass walletPartialPaise in the create-order request so the server computes the reduced amount.
       // Reuse the Razorpay order created for this attempt when the chargeable remainder is
       // unchanged: a retry after a successful payment must not create a second Razorpay
       // order (and a second charge). A new order is created only if the remainder changed.
-      const remainderPaise = freshTotals.totals.total - walletPartialPaise;
+      const remainderMinor = freshTotals.totals.total - walletPartialMinor;
       let rzpOrder = rzpOrderRef.current;
-      if (!rzpOrder || rzpOrder.amount !== remainderPaise || rzpOrder.currency !== money.currency || rzpOrder.walletPartialPaise !== walletPartialPaise) {
+      if (!rzpOrder || rzpOrder.amount !== remainderMinor || rzpOrder.currency !== money.currency || rzpOrder.walletPartialMinor !== walletPartialMinor) {
         const created = await createRazorpayOrder({
           ...checkoutParams,
           lines: lines.map((l) => ({ productId: l.productId, variantId: l.variantId, quantity: l.quantity })),
           idempotencyKey: checkout.idempotencyKey,
           receipt: checkout.idempotencyKey.slice(0, 40),
-          ...(walletPartialPaise > 0 ? { walletPartialPaise } : {}),
+          ...(walletPartialMinor > 0 ? { walletPartialMinor } : {}),
         });
-        rzpOrder = { id: created.id, amount: created.amount, currency: created.currency, walletPartialPaise };
+        rzpOrder = { id: created.id, amount: created.amount, currency: created.currency, walletPartialMinor };
         rzpOrderRef.current = rzpOrder;
         checkout.markPaymentAttempted(created.id);
       }
@@ -237,7 +236,7 @@ export default function CheckoutPage() {
         shippingMethodId: checkout.shippingMethod,
         paymentMethod: checkout.paymentMethod,
         razorpayResult,
-        ...(walletPartialPaise > 0 ? { walletPartialPaise } : {}),
+        ...(walletPartialMinor > 0 ? { walletPartialMinor } : {}),
       });
 
       setPlaced(true);

@@ -8,7 +8,9 @@ import { useCheckout, useAuth } from '@/store/session';
 import { walletApi } from '@/api/wallet';
 import type { PaymentMethodPreview } from '@/types';
 import { cn } from '@/utils/cn';
-import { formatPaise } from '@/utils/money';
+import { formatMoney } from '@/utils/money';
+import { useLanguage } from '@/hooks/useLocale';
+import { usePreferences } from '@/store/preferences';
 import { useUi } from '@/store/ui';
 
 const RAZORPAY_CONFIGURED = Boolean((import.meta.env.VITE_RAZORPAY_KEY_ID as string | undefined)?.trim());
@@ -16,7 +18,7 @@ const RAZORPAY_CONFIGURED = Boolean((import.meta.env.VITE_RAZORPAY_KEY_ID as str
 interface PaymentStepProps {
   onBack: () => void;
   onPlace: () => void;
-  walletInfo?: { balancePaise: number; maxApplicablePaise: number } | null;
+  walletInfo?: { balanceMinor: number; maxApplicableMinor: number } | null;
   total: string;
   submitting: boolean;
   error: string | null;
@@ -32,15 +34,17 @@ const NON_WALLET_METHODS: { id: PaymentMethodPreview; icon: typeof CreditCard; d
 
 export function PaymentStep({ onBack, onPlace, walletInfo, total, submitting, error, blocked }: PaymentStepProps) {
   const { t } = useTranslation();
+  const lang = useLanguage();
+  const currency = usePreferences((s) => s.currency);
   const user = useAuth((s) => s.user);
   const method = useCheckout((s) => s.paymentMethod);
   const setMethod = useCheckout((s) => s.setPaymentMethod);
-  const walletBalancePaise = useCheckout((s) => s.walletBalancePaise);
+  const walletBalanceMinor = useCheckout((s) => s.walletBalanceMinor);
   const setWalletBalance = useCheckout((s) => s.setWalletBalance);
   const useWallet = useCheckout((s) => s.useWallet);
   const setUseWallet = useCheckout((s) => s.setUseWallet);
-  const walletPartialPaise = useCheckout((s) => s.walletPartialPaise);
-  const setWalletPartialPaise = useCheckout((s) => s.setWalletPartialPaise);
+  const walletPartialMinor = useCheckout((s) => s.walletPartialMinor);
+  const setWalletPartialMinor = useCheckout((s) => s.setWalletPartialMinor);
 
   const [showTopup, setShowTopup] = useState(false);
   const [walletMode, setWalletMode] = useState<WalletMode>(null);
@@ -63,7 +67,7 @@ export function PaymentStep({ onBack, onPlace, walletInfo, total, submitting, er
 
   useEffect(() => {
     if (!user) return;
-    walletApi.getBalance().then((b) => setWalletBalance(b.balancePaise)).catch(() => {
+    walletApi.getBalance().then((b) => setWalletBalance(b.balanceMinor)).catch(() => {
       // The balance is load-bearing here: without it the wallet rows show ₹0
       // and the customer cannot tell whether the wallet is empty or the
       // request failed. Say so instead of silently showing no balance.
@@ -82,18 +86,19 @@ export function PaymentStep({ onBack, onPlace, walletInfo, total, submitting, er
     }
   }, [user, method, walletDefaultApplied]);
 
-  const balance = walletInfo?.balancePaise ?? walletBalancePaise ?? 0;
-  const orderTotalPaise = walletInfo?.maxApplicablePaise ?? 0;
-  const canCoverFull = balance >= orderTotalPaise && orderTotalPaise > 0;
-  const hasPartialBalance = balance > 0 && balance < orderTotalPaise;
-  const shortfallRupees = orderTotalPaise > 0 ? Math.ceil((orderTotalPaise - balance) / 100) : 0;
+  // Wallet balance in display-currency minor units (server converts from USD cents)
+  const balance = walletInfo?.balanceMinor ?? walletBalanceMinor ?? 0;
+  const orderTotalMinor = walletInfo?.maxApplicableMinor ?? 0;
+  const canCoverFull = balance >= orderTotalMinor && orderTotalMinor > 0;
+  const hasPartialBalance = balance > 0 && balance < orderTotalMinor;
+  const shortfallMajor = orderTotalMinor > 0 ? Math.ceil((orderTotalMinor - balance) / 100) : 0;
 
   const walletSelected = method === 'wallet';
 
   function selectWallet() {
     setMethod('wallet');
     setUseWallet(false);
-    setWalletPartialPaise(null);
+    setWalletPartialMinor(null);
     setWalletMode(null);
   }
 
@@ -101,24 +106,24 @@ export function PaymentStep({ onBack, onPlace, walletInfo, total, submitting, er
     setWalletMode(mode);
     if (mode === 'full') {
       setUseWallet(true);
-      setWalletPartialPaise(null);
+      setWalletPartialMinor(null);
     } else if (mode === 'partial') {
       setUseWallet(false);
-      setWalletPartialPaise(balance);
+      setWalletPartialMinor(balance);
     } else {
       setUseWallet(false);
-      setWalletPartialPaise(null);
+      setWalletPartialMinor(null);
     }
   }
 
-  function onTopupSuccess(newBalance: number) {
-    setWalletBalance(newBalance);
+  function onTopupSuccess(newBalanceMinor: number) {
+    setWalletBalance(newBalanceMinor);
     setShowTopup(false);
   }
 
   const placeDisabled = blocked || (
     method === 'wallet'
-      ? (!useWallet && !walletPartialPaise)
+      ? (!useWallet && !walletPartialMinor)
       : !RAZORPAY_CONFIGURED
   );
 
@@ -151,7 +156,7 @@ export function PaymentStep({ onBack, onPlace, walletInfo, total, submitting, er
                   </p>
                   <p className="text-xs text-ink-muted">
                     {balance > 0
-                      ? t('checkout.walletBalance', { balance: formatPaise(balance, 0), defaultValue: `Balance: ${formatPaise(balance, 0)}` })
+                      ? t('checkout.walletBalance', { balance: formatMoney(balance, currency, lang), defaultValue: `Balance: ${formatMoney(balance, currency, lang)}` })
                       : t('checkout.walletEmpty', { defaultValue: 'No balance — tap to add money' })}
                   </p>
                 </div>
@@ -194,10 +199,10 @@ export function PaymentStep({ onBack, onPlace, walletInfo, total, submitting, er
                         </span>
                         <div className="flex-1">
                           <p className="text-sm font-medium text-ink">
-                            {t('checkout.walletFullPay', { amount: formatPaise(orderTotalPaise, 0), defaultValue: `Pay full ${formatPaise(orderTotalPaise, 0)} from wallet` })}
+                            {t('checkout.walletFullPay', { amount: formatMoney(orderTotalMinor, currency, lang), defaultValue: `Pay full ${formatMoney(orderTotalMinor, currency, lang)} from wallet` })}
                           </p>
                           <p className="text-xs text-emerald-700">
-                            {t('checkout.walletAfter', { after: formatPaise(balance - orderTotalPaise, 0), defaultValue: `Remaining balance: ${formatPaise(balance - orderTotalPaise, 0)}` })}
+                            {t('checkout.walletAfter', { after: formatMoney(balance - orderTotalMinor, currency, lang), defaultValue: `Remaining balance: ${formatMoney(balance - orderTotalMinor, currency, lang)}` })}
                           </p>
                         </div>
                       </label>
@@ -222,7 +227,7 @@ export function PaymentStep({ onBack, onPlace, walletInfo, total, submitting, er
                         </span>
                         <div className="flex-1">
                           <p className="text-sm font-medium text-ink">
-                            {t('checkout.walletPartialUse', { wallet: formatPaise(balance, 0), rest: formatPaise(orderTotalPaise - balance, 0), defaultValue: `Use ${formatPaise(balance, 0)} from wallet + pay ${formatPaise(orderTotalPaise - balance, 0)} via card/UPI` })}
+                            {t('checkout.walletPartialUse', { wallet: formatMoney(balance, currency, lang), rest: formatMoney(orderTotalMinor - balance, currency, lang), defaultValue: `Use ${formatMoney(balance, currency, lang)} from wallet + pay ${formatMoney(orderTotalMinor - balance, currency, lang)} via card/UPI` })}
                           </p>
                           <p className="text-xs text-ink-muted">{t('checkout.walletPartialNote')}</p>
                         </div>
@@ -234,7 +239,7 @@ export function PaymentStep({ onBack, onPlace, walletInfo, total, submitting, er
                       )}>
                         <div>
                           <p className="text-sm font-medium text-ink">
-                            {t('checkout.walletAddShortfall', { amount: formatPaise(shortfallRupees * 100, 0) })}
+                            {t('checkout.walletAddShortfall', { amount: formatMoney(shortfallMajor * 100, currency, lang) })}
                           </p>
                           <p className="text-xs text-ink-muted">{t('checkout.walletThenFullPay', { defaultValue: 'Then pay full order from wallet.' })}</p>
                         </div>
@@ -262,7 +267,7 @@ export function PaymentStep({ onBack, onPlace, walletInfo, total, submitting, er
                 className="sr-only"
                 checked={method === id}
                 disabled={!RAZORPAY_CONFIGURED}
-                onChange={() => { setMethod(id); setUseWallet(false); setWalletPartialPaise(null); }}
+                onChange={() => { setMethod(id); setUseWallet(false); setWalletPartialMinor(null); }}
               />
               <Icon className="h-5 w-5 shrink-0 text-ink-soft" aria-hidden />
               <div className="flex-1">
@@ -312,7 +317,7 @@ export function PaymentStep({ onBack, onPlace, walletInfo, total, submitting, er
 
       {showTopup && (
         <WalletTopupModal
-          suggestedRupees={shortfallRupees || undefined}
+          suggestedMajor={shortfallMajor || undefined}
           onClose={() => setShowTopup(false)}
           onSuccess={onTopupSuccess}
         />

@@ -47,19 +47,19 @@ interface CheckoutState {
    * order / second charge. The backend returns the original order for a replayed key.
    */
   paymentAttempted: boolean;
-  /** Customer's wallet balance in paise; null = not fetched or not signed in. */
-  walletBalancePaise: number | null;
+  /** Customer's wallet balance in USD cents; null = not fetched or not signed in. */
+  walletBalanceMinor: number | null;
   /** True when customer has selected to pay via wallet (full payment). */
   useWallet: boolean;
-  /** Paise to deduct from wallet for partial payment; null = not using partial wallet. */
-  walletPartialPaise: number | null;
+  /** Display-currency minor units to deduct from wallet for partial payment; null = not using partial wallet. */
+  walletPartialMinor: number | null;
   setStep: (step: CheckoutStep) => void;
   setDetails: (details: CheckoutDetailsValues) => void;
   setShippingMethod: (m: ShippingMethodId) => void;
   setPaymentMethod: (m: PaymentMethodPreview) => void;
-  setWalletBalance: (paise: number | null) => void;
+  setWalletBalance: (minor: number | null) => void;
   setUseWallet: (use: boolean) => void;
-  setWalletPartialPaise: (paise: number | null) => void;
+  setWalletPartialMinor: (minor: number | null) => void;
   /** Mark that a payment was initiated for this attempt (optionally with its Razorpay order id). */
   markPaymentAttempted: (razorpayOrderId?: string | null) => void;
   /**
@@ -80,9 +80,9 @@ const initialCheckout = () => ({
   idempotencyKey: newId('idem'),
   razorpayOrderId: null as string | null,
   paymentAttempted: false as boolean,
-  walletBalancePaise: null as number | null,
+  walletBalanceMinor: null as number | null,
   useWallet: false,
-  walletPartialPaise: null as number | null,
+  walletPartialMinor: null as number | null,
 });
 
 export const useCheckout = create<CheckoutState>()((set) => ({
@@ -91,9 +91,9 @@ export const useCheckout = create<CheckoutState>()((set) => ({
   setDetails: (details) => set({ details }),
   setShippingMethod: (shippingMethod) => set({ shippingMethod }),
   setPaymentMethod: (paymentMethod) => set({ paymentMethod }),
-  setWalletBalance: (walletBalancePaise) => set({ walletBalancePaise }),
+  setWalletBalance: (walletBalanceMinor) => set({ walletBalanceMinor }),
   setUseWallet: (useWallet) => set({ useWallet }),
-  setWalletPartialPaise: (walletPartialPaise) => set({ walletPartialPaise }),
+  setWalletPartialMinor: (walletPartialMinor) => set({ walletPartialMinor }),
   markPaymentAttempted: (razorpayOrderId) => set({ paymentAttempted: true, ...(razorpayOrderId ? { razorpayOrderId } : {}) }),
   newAttempt: () =>
     set((s) =>

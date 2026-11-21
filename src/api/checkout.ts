@@ -26,8 +26,8 @@ export interface CheckoutTotalsResponse {
   couponError: string | null;
   stockIssues: Array<{ productId: string; variantId: string; requested: number; available: number }>;
   totals: { subtotal: number; discount: number; taxable: number; tax: number; shipping: number; total: number };
-  /** Wallet info for signed-in customers; null for guests or customers with no balance. */
-  wallet: { balancePaise: number; maxApplicablePaise: number } | null;
+  /** Wallet info for signed-in customers; null for guests or customers with no balance. Amounts in display currency. */
+  wallet: { balanceMinor: number; maxApplicableMinor: number } | null;
 }
 
 /** Server-calculated preview — never trusted for the actual charge, only for showing the customer an
@@ -51,8 +51,8 @@ export interface CreateRazorpayOrderRequest extends CheckoutTotalsRequest {
   idempotencyKey: string;
   /** Optional echo of the receipt; must equal idempotencyKey.slice(0, 40) if sent. */
   receipt?: string;
-  /** Paise to deduct from wallet; Razorpay will only charge the remainder. */
-  walletPartialPaise?: number;
+  /** Display-currency minor units to deduct from wallet; Razorpay will only charge the remainder. */
+  walletPartialMinor?: number;
 }
 
 export function createRazorpayOrder(input: CreateRazorpayOrderRequest): Promise<RazorpayOrderResponse> {
@@ -71,10 +71,10 @@ export interface PlaceOrderRequest {
   razorpayOrderId?: string;
   razorpayPaymentId?: string;
   razorpaySignature?: string;
-  /** INR paise to debit from store wallet for a FULL wallet-only payment. */
-  walletAmountPaise?: number;
-  /** INR paise to debit from store wallet for a PARTIAL payment; Razorpay covers the remainder. */
-  walletPartialPaise?: number;
+  /** Display-currency minor units to debit from store wallet for a FULL wallet-only payment. */
+  walletAmountMinor?: number;
+  /** Display-currency minor units to debit from store wallet for a PARTIAL payment; Razorpay covers the remainder. */
+  walletPartialMinor?: number;
 }
 
 /** Guest orders only: a one-time access token, returned once here and never again — it's the guest's

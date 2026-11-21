@@ -38,7 +38,6 @@ export default function AccountPage() {
   );
   const activeRequests = [...activeReturns, ...activeExchanges];
   const referralMessage = t('account.referralMessage', {
-    defaultValue: `${user.name} invited you to explore handmade products on Etcy. Visit ${window.location.origin}`,
     name: user.name,
     url: window.location.origin,
   });
@@ -87,8 +86,8 @@ export default function AccountPage() {
         ]} />
 
         <AccountMenuSection title={t('account.payments', { defaultValue: 'Payments & refunds' })} items={[
-          { to: '/account/bank-upi', label: 'Bank & UPI Details', icon: CreditCard },
-          { to: '/account/payments', label: 'My Payments', icon: IndianRupee },
+          { to: '/account/bank-upi', label: t('account.bankUpiDetails', { defaultValue: 'Bank & UPI Details' }), icon: CreditCard },
+          { to: '/account/payments', label: t('account.myPayments', { defaultValue: 'My Payments' }), icon: IndianRupee },
         ]} />
 
         <section>

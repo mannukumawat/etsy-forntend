@@ -15,10 +15,10 @@ import { cn } from '@/utils/cn';
 
 type Tab = 'primary' | 'other' | 'settings';
 
-const TABS: { key: Tab; label: string }[] = [
-  { key: 'primary', label: 'Primary' },
-  { key: 'other', label: 'Other Info' },
-  { key: 'settings', label: 'Settings' },
+const TABS: { key: Tab; labelKey: string }[] = [
+  { key: 'primary', labelKey: 'account.tabPrimary' },
+  { key: 'other', labelKey: 'account.tabOtherInfo' },
+  { key: 'settings', labelKey: 'account.tabSettings' },
 ];
 
 // ---- Reusable select/input field ----
@@ -149,6 +149,29 @@ function DeleteAccountSection() {
 // ---- Main page ----
 export default function ProfilePage() {
   const { t } = useTranslation();
+  const MARITAL_OPTIONS = [
+    t('profile.marital.single', { defaultValue: 'Single' }),
+    t('profile.marital.married', { defaultValue: 'Married' }),
+    t('profile.marital.divorced', { defaultValue: 'Divorced' }),
+    t('profile.marital.widowed', { defaultValue: 'Widowed' }),
+    t('profile.marital.preferNot', { defaultValue: 'Prefer not to say' }),
+  ];
+  const EDUCATION_OPTIONS = [
+    t('profile.education.highSchool', { defaultValue: 'High School' }),
+    t('profile.education.diploma', { defaultValue: 'Diploma' }),
+    t('profile.education.bachelors', { defaultValue: "Bachelor's" }),
+    t('profile.education.masters', { defaultValue: "Master's" }),
+    t('profile.education.phd', { defaultValue: 'PhD' }),
+    t('profile.education.other', { defaultValue: 'Other' }),
+  ];
+  const INCOME_OPTIONS = [
+    t('profile.income.below25k', { defaultValue: 'Below ₹25k' }),
+    t('profile.income.25to50k', { defaultValue: '₹25k–50k' }),
+    t('profile.income.50kto1L', { defaultValue: '₹50k–1L' }),
+    t('profile.income.1Lto2L', { defaultValue: '₹1L–2L' }),
+    t('profile.income.above2L', { defaultValue: 'Above ₹2L' }),
+    t('profile.income.preferNot', { defaultValue: 'Prefer not to say' }),
+  ];
   const user = useAuth((s) => s.user)!;
   const setUser = useAuth((s) => s.setUser);
   const toast = useUi((s) => s.toast);
@@ -269,20 +292,20 @@ export default function ProfilePage() {
         <div>
           <p className="text-xl font-semibold text-ink">{user.name}</p>
           <p className="text-sm text-ink-muted">{user.email}</p>
-          {hasUnsavedAvatar && <p className="text-xs text-brand-700 mt-0.5">New photo — save to apply</p>}
+          {hasUnsavedAvatar && <p className="text-xs text-brand-700 mt-0.5">{t('account.newPhotoHint', { defaultValue: 'New photo — save to apply' })}</p>}
         </div>
       </div>
 
       {/* Tabs */}
       <div className="border-b border-sand-200">
         <nav className="flex gap-1" aria-label="Profile tabs">
-          {TABS.map(({ key, label }) => (
+          {TABS.map(({ key, labelKey }) => (
             <button key={key} type="button" onClick={() => setTab(key)}
               className={cn(
                 'px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px',
                 tab === key ? 'border-brand-600 text-brand-700' : 'border-transparent text-ink-muted hover:text-ink hover:border-sand-300',
               )}>
-              {label}
+              {t(labelKey)}
             </button>
           ))}
         </nav>
@@ -293,15 +316,20 @@ export default function ProfilePage() {
         <form onSubmit={handleSubmit(onSubmitPrimary)} noValidate className="space-y-6">
           <div className="rounded-xl border border-sand-200 bg-white p-5 sm:p-6">
             <div className="grid gap-4 sm:grid-cols-2">
-              <TextField id="pf-name" label="Full Name" autoComplete="name" required error={errors.name?.message} {...register('name')} />
-              <TextField id="pf-phone" type="tel" label="Phone Number" autoComplete="tel" error={errors.phone?.message} {...register('phone')} />
-              <TextField id="pf-email" type="email" label="Email ID" autoComplete="email" required error={errors.email?.message} {...register('email')} />
-              <ExtField label="Gender" value={gender} onChange={setGender} options={['Male', 'Female', 'Non-binary', 'Prefer not to say']} />
-              <ExtField label="Languages Spoken" value={languages} onChange={setLanguages} />
-              <ExtField label="Occupation" value={occupation} onChange={setOccupation} />
-              <ExtField label="Pincode" value={pincode} onChange={setPincode} />
-              <ExtField label="City" value={city} onChange={setCity} />
-              <ExtField label="State" value={state} onChange={setState} />
+              <TextField id="pf-name" label={t('profile.fullName', { defaultValue: 'Full Name' })} autoComplete="name" required error={errors.name?.message} {...register('name')} />
+              <TextField id="pf-phone" type="tel" label={t('profile.phone', { defaultValue: 'Phone Number' })} autoComplete="tel" error={errors.phone?.message} {...register('phone')} />
+              <TextField id="pf-email" type="email" label={t('profile.email', { defaultValue: 'Email ID' })} autoComplete="email" required error={errors.email?.message} {...register('email')} />
+              <ExtField label={t('profile.gender', { defaultValue: 'Gender' })} value={gender} onChange={setGender} options={[
+                t('profile.genderMale', { defaultValue: 'Male' }),
+                t('profile.genderFemale', { defaultValue: 'Female' }),
+                t('profile.genderNonBinary', { defaultValue: 'Non-binary' }),
+                t('profile.preferNot', { defaultValue: 'Prefer not to say' }),
+              ]} />
+              <ExtField label={t('profile.languages', { defaultValue: 'Languages Spoken' })} value={languages} onChange={setLanguages} />
+              <ExtField label={t('profile.occupation', { defaultValue: 'Occupation' })} value={occupation} onChange={setOccupation} />
+              <ExtField label={t('profile.pincode', { defaultValue: 'Pincode' })} value={pincode} onChange={setPincode} />
+              <ExtField label={t('profile.city', { defaultValue: 'City' })} value={city} onChange={setCity} />
+              <ExtField label={t('profile.state', { defaultValue: 'State' })} value={state} onChange={setState} />
             </div>
           </div>
           <Button type="submit" loading={isSubmitting} disabled={!isDirty && !hasUnsavedAvatar}>
@@ -315,19 +343,19 @@ export default function ProfilePage() {
         <form onSubmit={onSubmitOther} className="space-y-6">
           <div className="rounded-xl border border-sand-200 bg-white p-5 sm:p-6">
             <div className="grid gap-4 sm:grid-cols-2">
-              <ExtField label="Date of Birth" value={dateOfBirth} onChange={setDateOfBirth} type="date" />
-              <ExtField label="Marital Status" value={maritalStatus} onChange={setMaritalStatus}
-                options={['Single', 'Married', 'Divorced', 'Widowed', 'Prefer not to say']} />
-              <ExtField label="Number of Kids" value={numberOfKids} onChange={setNumberOfKids}
+              <ExtField label={t('profile.dateOfBirth', { defaultValue: 'Date of Birth' })} value={dateOfBirth} onChange={setDateOfBirth} type="date" />
+              <ExtField label={t('profile.maritalStatus', { defaultValue: 'Marital Status' })} value={maritalStatus} onChange={setMaritalStatus}
+                options={MARITAL_OPTIONS} />
+              <ExtField label={t('profile.numberOfKids', { defaultValue: 'Number of Kids' })} value={numberOfKids} onChange={setNumberOfKids}
                 options={['0', '1', '2', '3', '4', '5+']} />
-              <ExtField label="Education" value={education} onChange={setEducation}
-                options={['High School', 'Diploma', "Bachelor's", "Master's", 'PhD', 'Other']} />
-              <ExtField label="Monthly Income" value={monthlyIncome} onChange={setMonthlyIncome}
-                options={['Below ₹25k', '₹25k–50k', '₹50k–1L', '₹1L–2L', 'Above ₹2L', 'Prefer not to say']} />
+              <ExtField label={t('profile.education', { defaultValue: 'Education' })} value={education} onChange={setEducation}
+                options={EDUCATION_OPTIONS} />
+              <ExtField label={t('profile.monthlyIncome', { defaultValue: 'Monthly Income' })} value={monthlyIncome} onChange={setMonthlyIncome}
+                options={INCOME_OPTIONS} />
             </div>
           </div>
           <Button type="submit" loading={otherSaving}>
-            {otherSaving ? t('common.saving') : 'Save Changes'}
+            {otherSaving ? t('common.saving') : t('account.saveChanges', { defaultValue: 'Save Changes' })}
           </Button>
         </form>
       )}

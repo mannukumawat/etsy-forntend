@@ -2,7 +2,7 @@
 
 /** Storefront UI language. English variants share one translation and differ only in date/number format. */
 export type LanguageCode = 'en-US' | 'en-GB' | 'en-IN' | 'de' | 'fr' | 'it' | 'es';
-export type CurrencyCode = 'USD' | 'INR' | 'EUR' | 'GBP';
+export type CurrencyCode = string;
 
 /** Store content is authored in English; the API adds `de`/`fr`/`it`/`es` when a translation exists. */
 export type ContentLanguage = 'de' | 'fr' | 'it' | 'es';

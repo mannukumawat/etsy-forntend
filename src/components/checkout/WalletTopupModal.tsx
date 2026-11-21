@@ -3,28 +3,30 @@ import { useTranslation } from 'react-i18next';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { walletApi } from '@/api/wallet';
+import { usePreferences } from '@/store/preferences';
 
 interface WalletTopupModalProps {
-  /** Pre-fill the amount field with this value in rupees (e.g. the shortfall). */
-  suggestedRupees?: number;
+  /** Pre-fill the amount field with this value in display-currency major units (e.g. the shortfall). */
+  suggestedMajor?: number;
   onClose: () => void;
-  /** Called with the new balance after a successful topup. */
-  onSuccess: (newBalancePaise: number) => void;
+  /** Called with the new wallet balance (USD cents) after a successful topup. */
+  onSuccess: (newBalanceMinor: number) => void;
 }
 
-export function WalletTopupModal({ suggestedRupees, onClose, onSuccess }: WalletTopupModalProps) {
+export function WalletTopupModal({ suggestedMajor, onClose, onSuccess }: WalletTopupModalProps) {
   const { t } = useTranslation();
-  const [amountRupees, setAmountRupees] = useState(suggestedRupees ? String(Math.ceil(suggestedRupees)) : '');
+  const currency = usePreferences((s) => s.currency);
+  const [amountMajor, setAmountMajor] = useState(suggestedMajor ? String(Math.ceil(suggestedMajor)) : '');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function handleTopup() {
-    const amount = parseFloat(amountRupees);
+    const amount = parseFloat(amountMajor);
     if (!amount || amount <= 0) {
       setError(t('wallet.invalidAmount', { defaultValue: 'Enter a valid amount.' }));
       return;
     }
-    const amountPaise = Math.round(amount * 100);
+    const amountMinor = Math.round(amount * 100);
     setLoading(true);
     setError(null);
     try {
@@ -37,11 +39,11 @@ export function WalletTopupModal({ suggestedRupees, onClose, onSuccess }: Wallet
           document.head.appendChild(s);
         });
       }
-      const { topupId, razorpayOrderId, razorpayKeyId, amountPaise: actualPaise } = await walletApi.createTopup(amountPaise);
+      const { topupId, razorpayOrderId, razorpayKeyId, amountMinor: actualMinor, currency: actualCurrency } = await walletApi.createTopup(amountMinor, currency);
       const rzp = new window.Razorpay({
         key: razorpayKeyId,
-        amount: actualPaise,
-        currency: 'INR',
+        amount: actualMinor,
+        currency: actualCurrency,
         name: t('wallet.topupTitle', { defaultValue: 'Add Money to Wallet' }),
         description: t('wallet.topupDesc', { defaultValue: 'Wallet top-up' }),
         order_id: razorpayOrderId,
@@ -49,7 +51,7 @@ export function WalletTopupModal({ suggestedRupees, onClose, onSuccess }: Wallet
           setLoading(true);
           try {
             const result = await walletApi.verifyTopup(topupId, response.razorpay_payment_id, response.razorpay_signature);
-            onSuccess(result.balancePaise);
+            onSuccess(result.balanceMinor);
           } catch {
             setError(t('wallet.verifyFailed', { defaultValue: 'Verification failed. Contact support.' }));
             setLoading(false);
@@ -78,31 +80,31 @@ export function WalletTopupModal({ suggestedRupees, onClose, onSuccess }: Wallet
         </div>
 
         <label className="mb-1 block text-sm font-medium text-ink-soft">
-          {t('wallet.amountLabel', { defaultValue: 'Amount (₹)' })}
+          {t('wallet.amountLabel', { defaultValue: 'Amount', currency })}
         </label>
         <input
           type="number"
           min="1"
           step="1"
           className="input mb-4 w-full"
-          placeholder="100"
-          value={amountRupees}
-          onChange={(e) => setAmountRupees(e.target.value)}
+          placeholder="10"
+          value={amountMajor}
+          onChange={(e) => setAmountMajor(e.target.value)}
           disabled={loading}
           autoFocus
         />
 
-        {/* Quick amount buttons */}
+        {/* Quick amount buttons — currency-specific */}
         <div className="mb-4 flex flex-wrap gap-2">
-          {[100, 200, 500, 1000].map((v) => (
+          {({ USD: [5, 10, 25, 50], INR: [100, 200, 500, 1000], EUR: [5, 10, 25, 50], GBP: [5, 10, 20, 50] }[currency] ?? [5, 10, 25, 50]).map((v) => (
             <button
               key={v}
               type="button"
-              onClick={() => setAmountRupees(String(v))}
+              onClick={() => setAmountMajor(String(v))}
               className="rounded-full border border-sand-300 px-3 py-1 text-xs font-medium text-ink hover:border-brand-600 hover:text-brand-700"
               disabled={loading}
             >
-              ₹{v}
+              {new Intl.NumberFormat('en-US', { style: 'currency', currency, maximumFractionDigits: 0 }).format(v)}
             </button>
           ))}
         </div>

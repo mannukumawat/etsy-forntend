@@ -1,5 +1,5 @@
 import type { OwnReview, Review, ReviewInput, ReviewPage, ReviewSort } from '@/types';
-import { apiClient } from './client';
+import { apiClient, getCsrfToken } from './client';
 import { API_BASE_URL } from './config';
 
 // Public: published reviews only, no private customer fields.
@@ -32,7 +32,7 @@ export async function deleteReview(id: string): Promise<void> {
 export async function uploadReviewPhoto(file: File): Promise<{ id: string; url: string }> {
   const resp = await fetch(`${API_BASE_URL}/api/customer/reviews/upload-photo`, {
     method: 'POST',
-    headers: { 'content-type': file.type, 'x-csrf-token': document.cookie.match(/ys_csrf=([^;]+)/)?.[1] ?? '' },
+    headers: { 'content-type': file.type, 'x-csrf-token': getCsrfToken() ?? '' },
     credentials: 'include',
     body: file,
   });

@@ -1,8 +1,8 @@
 import type { BankAccount } from '@/types';
 import { API_BASE_URL } from './config';
+import { getCsrfToken } from './client';
 
-const csrf = () => document.cookie.match(/ys_csrf=([^;]+)/)?.[1] ?? '';
-const headers = () => ({ 'content-type': 'application/json', 'x-csrf-token': csrf() });
+const headers = () => ({ 'content-type': 'application/json', 'x-csrf-token': getCsrfToken() ?? '' });
 
 function errorMessage(j: unknown): string | undefined {
   if (typeof j !== 'object' || j === null) return undefined;

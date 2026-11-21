@@ -34,6 +34,15 @@ export interface RequestOptions {
 type UnauthorizedHandler = () => void;
 let onUnauthorized: UnauthorizedHandler | null = null;
 let handlingUnauthorized = false;
+let sessionCsrfToken: string | null = null;
+
+export function setCsrfToken(token: string | null) {
+  sessionCsrfToken = token;
+}
+
+export function getCsrfToken(): string | null {
+  return sessionCsrfToken;
+}
 
 export function setUnauthorizedHandler(handler: UnauthorizedHandler | null) {
   onUnauthorized = handler;
@@ -74,13 +83,7 @@ function toApiError(status: number, parsed: unknown): ApiError {
   return new ApiError(code, message, body?.issues ?? []);
 }
 
-const CSRF_COOKIE = 'ys_csrf';
 const MUTATING_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
-
-function readCookie(name: string): string | null {
-  const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
-  return match ? decodeURIComponent(match[1]) : null;
-}
 
 async function request<T>(method: string, path: string, options: RequestOptions = {}): Promise<T> {
   if (!API_MODE) throw new ApiError('network', 'API mode is off (VITE_API_BASE_URL is not set).');
@@ -93,7 +96,7 @@ async function request<T>(method: string, path: string, options: RequestOptions 
   const timer = timeoutMs > 0 ? setTimeout(() => controller.abort(), timeoutMs) : null;
   // The backend double-submits this cookie as a header on every mutating request from a signed-in
   // session (see backend/src/csrf.ts) — a no-op before any session cookie/csrf cookie exists yet.
-  const csrfToken = MUTATING_METHODS.has(method) ? readCookie(CSRF_COOKIE) : null;
+  const csrfToken = MUTATING_METHODS.has(method) ? sessionCsrfToken : null;
   const contentLang = method === 'GET' ? contentLanguage(toLanguageCode(i18n.language)) : null;
 
   let response: Response;

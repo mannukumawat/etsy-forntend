@@ -27,7 +27,6 @@ const AddressesPage = lazy(() => import('@/pages/account/AddressesPage'));
 const ReturnsPage = lazy(() => import('@/pages/account/ReturnsPage'));
 const ReturnDetailPage = lazy(() => import('@/pages/account/ReturnDetailPage'));
 const ExchangeDetailPage = lazy(() => import('@/pages/account/ExchangeDetailPage'));
-const BankAccountsPage = lazy(() => import('@/pages/account/BankAccountsPage'));
 const ProfilePage = lazy(() => import('@/pages/account/ProfilePage'));
 const BankUpiPage = lazy(() => import('@/pages/account/BankUpiPage'));
 const MyPaymentsPage = lazy(() => import('@/pages/account/MyPaymentsPage'));
@@ -76,7 +75,6 @@ export const router = createBrowserRouter([
           { path: 'returns', element: <ReturnsPage /> },
           { path: 'returns/:ref', element: <ReturnDetailPage /> },
           { path: 'exchanges/:ref', element: <ExchangeDetailPage /> },
-          { path: 'bank-accounts', element: <BankAccountsPage /> },
           { path: 'bank-upi', element: <BankUpiPage /> },
           { path: 'addresses', element: <AddressesPage /> },
           { path: 'profile', element: <ProfilePage /> },

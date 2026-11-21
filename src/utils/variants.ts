@@ -1,4 +1,4 @@
-import { LOW_STOCK_THRESHOLD, MAX_QTY_PER_LINE } from '@/config/store';
+import { LOW_STOCK_THRESHOLD, getMaxQtyPerLine } from '@/config/store';
 import type { Localized, Minor, Product, ProductImage, ProductVariant } from '@/types';
 
 export type Selection = Record<string, string>;
@@ -86,10 +86,10 @@ export function variantLabel(product: Product, variant: ProductVariant | undefin
 /** Maximum quantity a customer may add, given stock and what is already in the cart. */
 export function maxAddable(variant: ProductVariant | undefined, inCart: number): number {
   if (!variant) return 0;
-  return Math.max(0, Math.min(variant.stock, MAX_QTY_PER_LINE) - inCart);
+  return Math.max(0, Math.min(variant.stock, getMaxQtyPerLine()) - inCart);
 }
 
 export function maxLineQuantity(variant: ProductVariant | undefined): number {
   if (!variant) return 0;
-  return Math.min(variant.stock, MAX_QTY_PER_LINE);
+  return Math.min(variant.stock, getMaxQtyPerLine());
 }

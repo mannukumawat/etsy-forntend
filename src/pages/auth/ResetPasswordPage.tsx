@@ -9,7 +9,7 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { authService } from '@/services/authService';
 import { useUi } from '@/store/ui';
 import { resetPasswordSchema, type ResetPasswordValues } from '@/utils/validation';
-import { AuthShell, usePasswordToggle } from './AuthShell';
+import { AuthShell, usePasswordToggle } from '@/components/auth/AuthShell';
 
 /** Reached from the link sent by the "forgot password" flow (?token=...). New capability — the mock
  *  never modelled a confirm step since it had no real password storage to reset. */

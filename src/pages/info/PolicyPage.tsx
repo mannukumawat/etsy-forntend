@@ -5,7 +5,7 @@ import { useAsync } from '@/hooks/useAsync';
 import { useLanguage, useLocalized } from '@/hooks/useLocale';
 import { contentService } from '@/services/contentService';
 import { CustomerCareShell } from '@/components/layout/CustomerCareShell';
-import { InfoShell, Sections, type InfoSection } from './InfoShell';
+import { InfoShell, Sections, type InfoSection } from '@/components/info/InfoShell';
 
 export default function PolicyPage({ page }: { page: 'returns' | 'privacy' | 'terms' }) {
   const { t } = useTranslation();

@@ -1,7 +1,7 @@
 import { Fragment, useId, useRef, type KeyboardEvent, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { cn } from '@/utils/cn';
 
 export function Breadcrumbs({ items, tone = 'default' }: { items: Array<{ label: string; to?: string }>; tone?: 'default' | 'light' }) {
@@ -31,57 +31,6 @@ export function Breadcrumbs({ items, tone = 'default' }: { items: Array<{ label:
           </Fragment>
         ))}
       </ol>
-    </nav>
-  );
-}
-
-export function Pagination({ page, pageCount, hrefFor }: { page: number; pageCount: number; hrefFor: (page: number) => string }) {
-  const { t } = useTranslation();
-  if (pageCount <= 1) return null;
-  const pages = Array.from({ length: pageCount }, (_, i) => i + 1);
-  const cell = 'flex h-10 min-w-10 items-center justify-center rounded-lg px-3 text-sm font-medium transition-colors';
-  return (
-    <nav aria-label={t('a11y.pagination')} className="mt-10 flex justify-center">
-      <ul className="flex items-center gap-1.5">
-        <li>
-          {page > 1 ? (
-            <Link to={hrefFor(page - 1)} className={cn(cell, 'hover:bg-sand-100')} rel="prev">
-              <ChevronLeft className="h-4 w-4" aria-hidden />
-              <span className="sr-only sm:not-sr-only sm:ml-1">{t('common.previous')}</span>
-            </Link>
-          ) : (
-            <span className={cn(cell, 'cursor-not-allowed text-ink-faint')} aria-disabled="true">
-              <ChevronLeft className="h-4 w-4" aria-hidden />
-              <span className="sr-only sm:not-sr-only sm:ml-1">{t('common.previous')}</span>
-            </span>
-          )}
-        </li>
-        {pages.map((p) => (
-          <li key={p}>
-            <Link
-              to={hrefFor(p)}
-              aria-current={p === page ? 'page' : undefined}
-              aria-label={p === page ? t('a11y.currentPage', { page: p }) : t('a11y.goToPage', { page: p })}
-              className={cn(cell, p === page ? 'bg-ink text-white' : 'hover:bg-sand-100')}
-            >
-              {p}
-            </Link>
-          </li>
-        ))}
-        <li>
-          {page < pageCount ? (
-            <Link to={hrefFor(page + 1)} className={cn(cell, 'hover:bg-sand-100')} rel="next">
-              <span className="sr-only sm:not-sr-only sm:mr-1">{t('common.next')}</span>
-              <ChevronRight className="h-4 w-4" aria-hidden />
-            </Link>
-          ) : (
-            <span className={cn(cell, 'cursor-not-allowed text-ink-faint')} aria-disabled="true">
-              <span className="sr-only sm:not-sr-only sm:mr-1">{t('common.next')}</span>
-              <ChevronRight className="h-4 w-4" aria-hidden />
-            </span>
-          )}
-        </li>
-      </ul>
     </nav>
   );
 }

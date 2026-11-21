@@ -98,7 +98,7 @@ export default function OrdersPage() {
                   <div className="mt-3 flex items-center justify-between gap-3 border-t border-sand-200 pt-3">
                     <div>
                       <p className="text-xs text-ink-muted">{t('product.reviewThis')}</p>
-                      <div className="mt-1 flex gap-1">{[1, 2, 3, 4, 5].map((star) => <Link key={star} to={`/account/orders/${order.id}/review/${line.productId}?rating=${star}`} aria-label={`${star} stars`}><Star className="h-6 w-6 text-ink-muted" /></Link>)}</div>
+                      <div className="mt-1 flex gap-1">{[1, 2, 3, 4, 5].map((star) => <Link key={star} to={`/account/orders/${order.id}/review/${line.productId}?rating=${star}`} aria-label={t('a11y.stars', { count: star })}><Star className="h-6 w-6 text-ink-muted" /></Link>)}</div>
                     </div>
                     <Link to={`/account/orders/${order.id}/review/${line.productId}`} className="rounded-lg border border-ink px-3 py-2 text-xs font-semibold text-ink">
                       {t('product.writeTitle', { defaultValue: 'Write a review' })}

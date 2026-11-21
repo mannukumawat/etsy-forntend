@@ -38,6 +38,15 @@ interface CheckoutState {
   paymentMethod: PaymentMethodPreview;
   /** One key per order attempt so double clicks can't create duplicate orders. */
   idempotencyKey: string;
+  /** Razorpay order id created for this attempt, if any. Reused on retry (see below). */
+  razorpayOrderId: string | null;
+  /**
+   * True once a payment has been initiated for this attempt — a Razorpay order was created
+   * or a full-wallet place() call was started. While true, newAttempt() must NOT rotate the
+   * idempotency key: rotating after a successful charge would let a retry create a second
+   * order / second charge. The backend returns the original order for a replayed key.
+   */
+  paymentAttempted: boolean;
   /** Customer's wallet balance in paise; null = not fetched or not signed in. */
   walletBalancePaise: number | null;
   /** True when customer has selected to pay via wallet (full payment). */
@@ -51,6 +60,14 @@ interface CheckoutState {
   setWalletBalance: (paise: number | null) => void;
   setUseWallet: (use: boolean) => void;
   setWalletPartialPaise: (paise: number | null) => void;
+  /** Mark that a payment was initiated for this attempt (optionally with its Razorpay order id). */
+  markPaymentAttempted: (razorpayOrderId?: string | null) => void;
+  /**
+   * Start a fresh attempt. Rotates the idempotency key ONLY when no payment was initiated
+   * for the current attempt (e.g. a validation error before payment). Once a Razorpay order
+   * exists or a payment was attempted, the key (and the Razorpay order) must be reused on
+   * retry, so this becomes a no-op.
+   */
   newAttempt: () => void;
   reset: () => void;
 }
@@ -61,6 +78,8 @@ const initialCheckout = () => ({
   shippingMethod: 'standard' as ShippingMethodId,
   paymentMethod: 'card' as PaymentMethodPreview,
   idempotencyKey: newId('idem'),
+  razorpayOrderId: null as string | null,
+  paymentAttempted: false as boolean,
   walletBalancePaise: null as number | null,
   useWallet: false,
   walletPartialPaise: null as number | null,
@@ -75,6 +94,12 @@ export const useCheckout = create<CheckoutState>()((set) => ({
   setWalletBalance: (walletBalancePaise) => set({ walletBalancePaise }),
   setUseWallet: (useWallet) => set({ useWallet }),
   setWalletPartialPaise: (walletPartialPaise) => set({ walletPartialPaise }),
-  newAttempt: () => set({ idempotencyKey: newId('idem') }),
+  markPaymentAttempted: (razorpayOrderId) => set({ paymentAttempted: true, ...(razorpayOrderId ? { razorpayOrderId } : {}) }),
+  newAttempt: () =>
+    set((s) =>
+      // Payment already initiated: keep the key so a retry replays the same order instead
+      // of creating a second charge. Safe to rotate only before any payment was attempted.
+      s.paymentAttempted ? {} : { idempotencyKey: newId('idem') },
+    ),
   reset: () => set(initialCheckout()),
 }));

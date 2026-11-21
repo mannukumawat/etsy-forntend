@@ -6,6 +6,7 @@ import { HeroSlider, type HeroSlide } from '@/components/layout/HeroSlider';
 import { BrandedLoader } from '@/components/ui/Feedback';
 import { useAsync } from '@/hooks/useAsync';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+import { useTranslation } from 'react-i18next';
 import { useLocalized } from '@/hooks/useLocale';
 import { contentService } from '@/services/contentService';
 import { productService } from '@/services/productService';
@@ -30,8 +31,9 @@ function Section({ title, link, children }: { title: string; link?: { to: string
 }
 
 function ItemGroupSection({ group }: { group: PublicItemGroup & { products: Product[] } }) {
+  const { t } = useTranslation();
   return (
-    <Section title={group.nameEn} link={{ to: `/shop?group=${group.slug}`, label: 'View all' }}>
+    <Section title={group.nameEn} link={{ to: `/shop?group=${group.slug}`, label: t('home.viewAll') }}>
       <ProductGrid products={group.products} />
     </Section>
   );

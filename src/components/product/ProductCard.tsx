@@ -10,6 +10,7 @@ import { stockStatus, totalStock } from '@/utils/variants';
 import { Badge, Skeleton } from '../ui/Feedback';
 import { VariantPrice } from '../ui/Price';
 import { Rating } from '../ui/Rating';
+import { PRODUCT_CARD_SIZES, PRODUCT_CARD_WIDTHS, productImageSrcSet } from '@/utils/images';
 import { WishlistButton } from './WishlistButton';
 
 export function ProductCard({ product, eager = false }: { product: Product; eager?: boolean }) {
@@ -21,6 +22,8 @@ export function ProductCard({ product, eager = false }: { product: Product; eage
   const category = CATEGORY_BY_SLUG[product.categoryId];
   const href = `/product/${product.slug}`;
   const [first, second] = product.images;
+  const firstResponsive = first ? productImageSrcSet(first.src, PRODUCT_CARD_WIDTHS, PRODUCT_CARD_SIZES) : null;
+  const secondResponsive = second ? productImageSrcSet(second.src, PRODUCT_CARD_WIDTHS, PRODUCT_CARD_SIZES) : null;
   const addToCart = useAddToCart();
   const quickVariant = product.variants.length === 1 ? product.variants[0] : undefined;
   const canQuickAdd = quickVariant && status !== 'out_of_stock';
@@ -37,6 +40,8 @@ export function ProductCard({ product, eager = false }: { product: Product; eage
           {first?.src && (
             <img
               src={first.src}
+              srcSet={firstResponsive?.srcSet}
+              sizes={firstResponsive?.sizes}
               alt=""
               width={800}
               height={800}
@@ -48,6 +53,8 @@ export function ProductCard({ product, eager = false }: { product: Product; eage
           {second && (
             <img
               src={second.src}
+              srcSet={secondResponsive?.srcSet}
+              sizes={secondResponsive?.sizes}
               alt=""
               width={800}
               height={800}

@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ChevronDown, HelpCircle, Mail, Package, RefreshCw, Truck } from 'lucide-react';
 import { CustomerCareShell } from '@/components/layout/CustomerCareShell';
 
@@ -57,8 +58,9 @@ const FAQS = [
 ];
 
 export default function HelpCenterPage() {
+  const { t } = useTranslation();
   return (
-    <CustomerCareShell title="How can we help?" isRoot>
+    <CustomerCareShell title={t('help.helpTitle')} isRoot>
       {/* Quick action cards */}
       <div className="grid gap-3 sm:grid-cols-2">
         {QUICK_ACTIONS.map(({ to, icon: Icon, label, desc }) => (

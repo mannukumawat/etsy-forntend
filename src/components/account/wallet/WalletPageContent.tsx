@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useLayoutEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Wallet, Plus, ArrowUpRight, ArrowDownLeft, RotateCcw } from 'lucide-react';
 import { walletApi } from '@/api/wallet';
@@ -8,15 +8,10 @@ import { useAsync } from '@/hooks/useAsync';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useAuth } from '@/store/session';
 import { formatDate } from '@/utils/dates';
+import { formatPaise } from '@/utils/money';
 import { useLanguage } from '@/hooks/useLocale';
 import { cn } from '@/utils/cn';
 import { Button } from '@/components/ui/Button';
-
-/** Format INR paise as ₹X.XX */
-function formatPaise(paise: number): string {
-  const rupees = paise / 100;
-  return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2 }).format(rupees);
-}
 
 const TX_TYPE_STYLES: Record<string, string> = {
   topup: 'bg-emerald-50 text-emerald-800 border-emerald-200',
@@ -145,12 +140,29 @@ export default function WalletPage() {
   const { data: txData, error: txErr, isLoading: txLoading, reload: reloadTx } =
     useAsync(`wallet:tx:${user.id}:${page}`, () => walletApi.listTransactions(page));
 
+  // No numbered pagination: transactions accumulate page by page behind a
+  // "Show more" button, like the Shop's infinite scroll. The server still
+  // pages (page/pageSize); we just append each fetched page.
+  const [allTransactions, setAllTransactions] = useState<WalletTransaction[]>([]);
+  // Layout effect (not a plain effect) so the list is populated before paint:
+  // otherwise the "No transactions yet" empty state flashes for one frame on
+  // every page load.
+  useLayoutEffect(() => {
+    if (!txData) return;
+    setAllTransactions((prev) => {
+      if (page === 1) return txData.items;
+      const seen = new Set(prev.map((tx) => tx.id));
+      return [...prev, ...txData.items.filter((tx) => !seen.has(tx.id))];
+    });
+  }, [txData, page]);
+
   const topupEnabled = balData?.topupEnabled ?? false;
   const balancePaise = balanceOverride ?? balData?.balancePaise ?? 0;
 
   function handleTopupSuccess(newBalance: number) {
     setBalanceOverride(newBalance);
     setShowTopup(false);
+    setPage(1);
     reloadTx();
     reloadBal();
   }
@@ -158,7 +170,7 @@ export default function WalletPage() {
   if (balLoading) return <Spinner />;
   if (balErr) return <ErrorState onRetry={reloadBal} />;
 
-  const transactions = txData?.items ?? [];
+  const transactions = allTransactions;
 
   return (
     <div className="space-y-6">
@@ -241,16 +253,16 @@ export default function WalletPage() {
           </ul>
         )}
 
-        {/* Pagination */}
         {txData && txData.pageCount > 1 && (
-          <div className="mt-4 flex justify-center gap-2">
-            <Button variant="ghost" size="sm" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
-              {t('common.prev', { defaultValue: 'Previous' })}
-            </Button>
-            <span className="self-center text-sm text-ink-muted">{page} / {txData.pageCount}</span>
-            <Button variant="ghost" size="sm" disabled={page >= txData.pageCount} onClick={() => setPage((p) => p + 1)}>
-              {t('common.next', { defaultValue: 'Next' })}
-            </Button>
+          <div className="mt-4 flex flex-col items-center gap-2">
+            <p className="text-sm text-ink-muted">
+              {t('account.showingTransactions', { shown: transactions.length, total: txData.total })}
+            </p>
+            {page < txData.pageCount && (
+              <Button variant="outline" size="sm" disabled={txLoading} onClick={() => setPage((p) => p + 1)}>
+                {txLoading ? t('common.loading') : t('hub.showMore')}
+              </Button>
+            )}
           </div>
         )}
       </section>

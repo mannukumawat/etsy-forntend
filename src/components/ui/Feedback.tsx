@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AlertTriangle, CheckCircle2, Info, RefreshCw, XCircle } from 'lucide-react';
 import { cn } from '@/utils/cn';
-import logoMark from '@/assets/logo-mark.png';
+import logoMark from '@/assets/logo-mark.webp';
 import { Button } from './Button';
 
 export function Skeleton({ className }: { className?: string }) {

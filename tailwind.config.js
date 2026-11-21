@@ -55,9 +55,6 @@ export default {
         xl: '0.875rem',
         '2xl': '1.125rem',
       },
-      maxWidth: {
-        site: '85rem',
-      },
       keyframes: {
         'fade-in': { from: { opacity: '0' }, to: { opacity: '1' } },
         'slide-in-right': { from: { transform: 'translateX(100%)' }, to: { transform: 'translateX(0)' } },

@@ -20,7 +20,7 @@ function BankRow({ account, onRemove }: { account: BankAccount; onRemove: () => 
   const remove = async () => {
     setLoading(true); setErr(null);
     try { await bankAccountsApi.remove(account.id); onRemove(); }
-    catch (e: any) { setErr(e.message); setLoading(false); }
+    catch (e: unknown) { setErr(e instanceof Error ? e.message : t('toast.error')); setLoading(false); }
   };
 
   return (
@@ -34,7 +34,7 @@ function BankRow({ account, onRemove }: { account: BankAccount; onRemove: () => 
         {err && <p className="mt-0.5 text-xs text-red-700">{err}</p>}
       </div>
       {!confirm ? (
-        <button type="button" onClick={() => setConfirm(true)} className="text-ink-muted hover:text-red-600 transition-colors" aria-label="Remove">
+        <button type="button" onClick={() => setConfirm(true)} className="text-ink-muted hover:text-red-600 transition-colors" aria-label={t('common.remove')}>
           <Trash2 className="h-4 w-4" />
         </button>
       ) : (
@@ -61,7 +61,7 @@ function AddBankForm({ onAdded }: { onAdded: (a: BankAccount) => void }) {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (form.accountNumber !== form.accountNumberConfirm) { setErr('Account numbers do not match.'); return; }
+    if (form.accountNumber !== form.accountNumberConfirm) { setErr(t('returns.accountNumberMismatch')); return; }
     setLoading(true); setErr(null);
     try {
       const acct = await bankAccountsApi.add(form);
@@ -69,7 +69,7 @@ function AddBankForm({ onAdded }: { onAdded: (a: BankAccount) => void }) {
       onAdded(acct);
       setForm({ accountHolderName: '', accountNumber: '', accountNumberConfirm: '', ifscCode: '' });
       setOpen(false);
-    } catch (e: any) { setErr(e.message); }
+    } catch (e: unknown) { setErr(e instanceof Error ? e.message : t('toast.error')); }
     finally { setLoading(false); }
   };
 
@@ -77,21 +77,21 @@ function AddBankForm({ onAdded }: { onAdded: (a: BankAccount) => void }) {
     return (
       <button type="button" onClick={() => setOpen(true)}
         className="flex items-center gap-2 rounded-xl border border-dashed border-sand-300 w-full px-4 py-3 text-sm font-medium text-ink-muted hover:border-brand-400 hover:text-brand-700 transition-colors">
-        <CreditCard className="h-4 w-4" /> + Add bank account
+        <CreditCard className="h-4 w-4" /> {t('returns.addBankAccount')}
       </button>
     );
   }
 
   const FIELDS: { key: keyof typeof form; label: string }[] = [
-    { key: 'accountHolderName', label: 'Account holder name' },
-    { key: 'accountNumber', label: 'Account number' },
-    { key: 'accountNumberConfirm', label: 'Confirm account number' },
-    { key: 'ifscCode', label: 'IFSC code' },
+    { key: 'accountHolderName', label: t('returns.accountHolderName') },
+    { key: 'accountNumber', label: t('returns.accountNumber') },
+    { key: 'accountNumberConfirm', label: t('returns.confirmAccountNumber') },
+    { key: 'ifscCode', label: t('returns.ifscCode') },
   ];
 
   return (
     <form onSubmit={submit} className="rounded-xl border border-sand-200 bg-white p-4 space-y-3">
-      <p className="text-sm font-semibold text-ink">New bank account</p>
+      <p className="text-sm font-semibold text-ink">{t('returns.newBankAccount')}</p>
       {FIELDS.map(({ key, label }) => (
         <div key={key}>
           <label className="mb-1 block text-xs font-medium text-ink-muted">{label}</label>
@@ -105,7 +105,7 @@ function AddBankForm({ onAdded }: { onAdded: (a: BankAccount) => void }) {
       {err && <p className="text-xs text-red-700">{err}</p>}
       <div className="flex gap-2 pt-1">
         <button type="submit" disabled={loading} className="rounded-lg bg-ink px-4 py-2 text-sm font-semibold text-white hover:bg-ink/90 disabled:opacity-50">
-          {loading ? t('common.saving') : 'Save account'}
+          {loading ? t('common.saving') : t('returns.saveAccount')}
         </button>
         <button type="button" onClick={() => setOpen(false)} className="rounded-lg border border-sand-300 px-4 py-2 text-sm font-semibold text-ink hover:bg-sand-100">
           {t('common.cancel')}
@@ -125,7 +125,7 @@ function UpiRow({ item, onRemove }: { item: UpiId; onRemove: () => void }) {
   const remove = async () => {
     setLoading(true); setErr(null);
     try { await upiApi.remove(item.id); onRemove(); }
-    catch (e: any) { setErr(e.message); setLoading(false); }
+    catch (e: unknown) { setErr(e instanceof Error ? e.message : t('toast.error')); setLoading(false); }
   };
 
   return (
@@ -139,7 +139,7 @@ function UpiRow({ item, onRemove }: { item: UpiId; onRemove: () => void }) {
         {err && <p className="mt-0.5 text-xs text-red-700">{err}</p>}
       </div>
       {!confirm ? (
-        <button type="button" onClick={() => setConfirm(true)} className="text-ink-muted hover:text-red-600 transition-colors" aria-label="Remove">
+        <button type="button" onClick={() => setConfirm(true)} className="text-ink-muted hover:text-red-600 transition-colors" aria-label={t('common.remove')}>
           <Trash2 className="h-4 w-4" />
         </button>
       ) : (
@@ -174,7 +174,7 @@ function AddUpiForm({ onAdded }: { onAdded: (u: UpiId) => void }) {
       onAdded(item);
       setUpiId(''); setHolderName('');
       setOpen(false);
-    } catch (e: any) { setErr(e.message); }
+    } catch (e: unknown) { setErr(e instanceof Error ? e.message : t('toast.error')); }
     finally { setLoading(false); }
   };
 
@@ -182,28 +182,28 @@ function AddUpiForm({ onAdded }: { onAdded: (u: UpiId) => void }) {
     return (
       <button type="button" onClick={() => setOpen(true)}
         className="flex items-center gap-2 rounded-xl border border-dashed border-sand-300 w-full px-4 py-3 text-sm font-medium text-ink-muted hover:border-brand-400 hover:text-brand-700 transition-colors">
-        <Smartphone className="h-4 w-4" /> + Add UPI ID
+        <Smartphone className="h-4 w-4" /> {t('account.addUpiId')}
       </button>
     );
   }
 
   return (
     <form onSubmit={submit} className="rounded-xl border border-sand-200 bg-white p-4 space-y-3">
-      <p className="text-sm font-semibold text-ink">New UPI ID</p>
+      <p className="text-sm font-semibold text-ink">{t('account.newUpiId')}</p>
       <div>
-        <label className="mb-1 block text-xs font-medium text-ink-muted">UPI ID</label>
+        <label className="mb-1 block text-xs font-medium text-ink-muted">{t('account.upiIdLabel')}</label>
         <input value={upiId} onChange={(e) => setUpiId(e.target.value)} placeholder="yourname@bank"
           className="w-full rounded-lg border border-sand-300 px-3 py-2 text-sm font-mono focus:border-brand-500 focus:outline-none" />
       </div>
       <div>
-        <label className="mb-1 block text-xs font-medium text-ink-muted">Account holder name</label>
-        <input value={holderName} onChange={(e) => setHolderName(e.target.value)} placeholder="Full name"
+        <label className="mb-1 block text-xs font-medium text-ink-muted">{t('returns.accountHolderName')}</label>
+        <input value={holderName} onChange={(e) => setHolderName(e.target.value)} placeholder={t('account.fullNamePlaceholder')}
           className="w-full rounded-lg border border-sand-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none" />
       </div>
       {err && <p className="text-xs text-red-700">{err}</p>}
       <div className="flex gap-2 pt-1">
         <button type="submit" disabled={loading} className="rounded-lg bg-ink px-4 py-2 text-sm font-semibold text-white hover:bg-ink/90 disabled:opacity-50">
-          {loading ? t('common.saving') : 'Save UPI ID'}
+          {loading ? t('common.saving') : t('account.saveUpiId')}
         </button>
         <button type="button" onClick={() => setOpen(false)} className="rounded-lg border border-sand-300 px-4 py-2 text-sm font-semibold text-ink hover:bg-sand-100">
           {t('common.cancel')}
@@ -233,6 +233,7 @@ function Section({ icon, title, subtitle, children }: { icon: React.ReactNode; t
 
 // ---- Page ----
 export default function BankUpiPage() {
+  const { t } = useTranslation();
   useDocumentTitle('Bank & UPI Details');
   const user = useAuth((s) => s.user)!;
 
@@ -257,13 +258,13 @@ export default function BankUpiPage() {
       {/* Bank accounts */}
       <Section
         icon={<CreditCard className="h-5 w-5 text-ink-muted" />}
-        title="Bank Accounts"
-        subtitle="For refunds of prepaid orders and payouts. Account numbers stored encrypted."
+        title={t('account.bankAccountsTitle')}
+        subtitle={t('account.bankAccountsSubtitle')}
       >
         {bankLoading ? <Spinner /> : bankErr ? <ErrorState onRetry={bankReload} /> : (
           <>
             {banks.length === 0 ? (
-              <EmptyState icon={<CreditCard className="h-7 w-7" />} title="No bank accounts" body="Add a bank account to receive refunds." />
+              <EmptyState icon={<CreditCard className="h-7 w-7" />} title={t('account.noBankAccountsTitle')} body={t('account.noBankAccountsBody')} />
             ) : (
               <ul className="space-y-2">
                 {banks.map((a) => (
@@ -279,13 +280,13 @@ export default function BankUpiPage() {
       {/* UPI IDs */}
       <Section
         icon={<Smartphone className="h-5 w-5 text-ink-muted" />}
-        title="UPI IDs"
-        subtitle="Linked UPI IDs for fast refunds and payments."
+        title={t('account.upiIdsTitle')}
+        subtitle={t('account.upiIdsSubtitle')}
       >
         {upiLoading ? <Spinner /> : upiErr ? <ErrorState onRetry={upiReload} /> : (
           <>
             {upis.length === 0 ? (
-              <EmptyState icon={<Smartphone className="h-7 w-7" />} title="No UPI IDs" body="Add a UPI ID to receive refunds instantly." />
+              <EmptyState icon={<Smartphone className="h-7 w-7" />} title={t('account.noUpiIdsTitle')} body={t('account.noUpiIdsBody')} />
             ) : (
               <ul className="space-y-2">
                 {upis.map((u) => (

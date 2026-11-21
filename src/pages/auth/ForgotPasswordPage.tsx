@@ -10,7 +10,7 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { authService } from '@/services/authService';
 import { useUi } from '@/store/ui';
 import { forgotSchema, type ForgotValues } from '@/utils/validation';
-import { AuthShell } from './AuthShell';
+import { AuthShell } from '@/components/auth/AuthShell';
 
 export default function ForgotPasswordPage() {
   const { t } = useTranslation();

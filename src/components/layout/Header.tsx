@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Check, ChevronRight, Heart, Lock, Menu, MapPin, Plus, Search, ShoppingBag, User, X } from 'lucide-react';
-import logoMark from '@/assets/logo-mark.png';
+import logoMark from '@/assets/logo-mark.webp';
 import { fetchCollections, fetchNavLinks } from '@/api';
 import { useAsync } from '@/hooks/useAsync';
 import { useLocalized } from '@/hooks/useLocale';
 import { selectCartCount, useCart } from '@/store/cart';
 import { useAuth } from '@/store/session';
+import { useSiteSettings } from '@/store/siteSettings';
 import { useUi } from '@/store/ui';
 import { useWishlist } from '@/store/wishlist';
 import { usePreferences } from '@/store/preferences';
@@ -32,14 +33,19 @@ function CountBadge({ count }: { count: number }) {
 }
 
 export function Logo({ className }: { className?: string }) {
+  // H1: the logo comes from the live store settings (GET /api/settings → store.logo.url,
+  // admin-uploaded and served via Cloudinary); the bundled mark is only the fallback
+  // while settings have not loaded or no logo is configured.
+  const logoUrl = useSiteSettings((s) => s.store.logo?.url);
   return (
     <Link to="/" className={cn('flex shrink-0 items-center', className)}>
-      <img src={logoMark} alt="Home" className="h-9 w-9 object-contain sm:h-11 sm:w-11 lg:h-12 lg:w-12" />
+      <img src={logoUrl ?? logoMark} alt="Home" className="h-9 w-9 object-contain sm:h-11 sm:w-11 lg:h-12 lg:w-12" />
     </Link>
   );
 }
 
 function NavLinksBar() {
+  const { t } = useTranslation();
   const loc = useLocalized();
   const location = useLocation();
   const { data: navLinks } = useAsync('nav-links', () => fetchNavLinks());
@@ -63,7 +69,7 @@ function NavLinksBar() {
     <div className="hidden lg:block">
       <div className="container-chrome flex h-10 items-center">
         {hasLinks && (
-          <nav aria-label="Quick links" className="scrollbar-none min-w-0 flex-1 overflow-x-auto">
+          <nav aria-label={t('a11y.quickLinks')} className="scrollbar-none min-w-0 flex-1 overflow-x-auto">
             <ul className="mx-auto flex w-max items-center gap-6">
               {navCollections.map((c) => (
                 <li key={c.slug}>
@@ -264,7 +270,7 @@ export function Header() {
               {searchOpen ? <X className="h-5 w-5" aria-hidden /> : <Search className="h-5 w-5" aria-hidden />}
             </IconButton>
 
-            {user && <NotificationBell className="hidden sm:flex" />}
+            {user && <NotificationBell />}
 
             <Link
               to={user ? '/account' : '/login'}

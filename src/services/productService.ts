@@ -4,7 +4,7 @@ import { RATE_SNAPSHOT } from '@/data/currencies';
 import type { AvailabilityFilter, Category, CategorySlug, Product, ProductListResult, ProductQuery } from '@/types';
 import { convertFromBase } from '@/utils/money';
 import { effectivePrice, totalStock } from '@/utils/variants';
-import { fetchCategories, fetchItemGroups, fetchItemGroupsWithProducts, fetchProductBySlug, fetchProducts, fetchProductsByIds } from '@/api';
+import { fetchCategories, fetchItemGroups, fetchItemGroupsWithProducts, fetchProductBySlug, fetchProducts, fetchProductsByIds, fetchProductsPage } from '@/api';
 import type { PublicItemGroup } from '@/api/itemGroups';
 import { contentService } from './contentService';
 
@@ -13,8 +13,11 @@ import { contentService } from './contentService';
 
 // --- Catalogue cache -----------------------------------------------------------------------------
 let catalogCache: { at: number; products: Promise<Product[]> } | null = null;
-const productDetailCache = new Map<string, Promise<Product>>();
+const productDetailCache = new Map<string, { at: number; promise: Promise<Product> }>();
 const CATALOG_TTL = 15_000;
+// Detail entries expire like the catalogue: a product page revisited after
+// this long refetches instead of serving a potentially stale price/stock.
+const DETAIL_TTL = 15_000;
 
 function fetchCatalog(): Promise<Product[]> {
   const now = Date.now();
@@ -128,14 +131,15 @@ export const productService = {
   },
 
   preloadProduct(slug: string): Promise<Product> {
+    const now = Date.now();
     const existing = productDetailCache.get(slug);
-    if (existing) return existing;
-    const request = fetchProductBySlug(slug).catch((error) => {
+    if (existing && now - existing.at <= DETAIL_TTL) return existing.promise;
+    const promise = fetchProductBySlug(slug).catch((error) => {
       productDetailCache.delete(slug);
       throw error;
     });
-    productDetailCache.set(slug, request);
-    return request;
+    productDetailCache.set(slug, { at: now, promise });
+    return promise;
   },
 
   async list(query: ProductQuery): Promise<ProductListResult> {
@@ -148,6 +152,29 @@ export const productService = {
     }
     if (query.navLinkId) items = items.filter((p) => p.navLinkId === query.navLinkId);
     return queryProducts(query, items);
+  },
+
+  /**
+   * One page of the plain shop browse, straight from the server — 12
+   * products per request instead of the whole 200-product catalogue. Only
+   * valid for the unfiltered, default-sorted browse: the server orders by
+   * display order (the same order as the client's default `featured` sort)
+   * and returns full-set facet counts, so the shop's infinite scroll,
+   * result count and filter counts behave exactly as before. Any query with
+   * a search term, filter, group, nav link or non-default sort must use
+   * `list()` instead — the server cannot apply those yet.
+   */
+  async listServerPage(query: { page?: number; pageSize?: number }): Promise<ProductListResult> {
+    const pageSize = query.pageSize ?? PAGE_SIZE;
+    const res = await fetchProductsPage({ limit: pageSize, page: query.page ?? 1 });
+    return {
+      items: res.items,
+      total: res.total,
+      page: res.page,
+      pageSize: res.pageSize,
+      pageCount: res.pageCount,
+      facets: res.facets,
+    };
   },
 
   getBySlug(slug: string): Promise<Product> {
@@ -209,7 +236,7 @@ export const productService = {
     const catRows = cats.map((c) => ({ ...c, count: all.filter((p) => p.categoryId === c.id).length }));
     if (onSaleCount > 0) {
       return [
-        { id: '__on_sale__', slug: '__on_sale__', name: { en: 'On sale' }, count: onSaleCount, isOnSale: true } as Category & { count: number; isOnSale: boolean },
+        { id: '__on_sale__', slug: '__on_sale__', name: { en: 'On sale', de: 'Im Angebot', es: 'En oferta', fr: 'En promotion', it: 'In saldo' }, count: onSaleCount, isOnSale: true } as Category & { count: number; isOnSale: boolean },
         ...catRows,
       ];
     }

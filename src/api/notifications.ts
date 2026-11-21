@@ -41,6 +41,9 @@ export function registerFcmToken(token: string): Promise<{ ok: boolean }> {
   return apiClient.post<{ ok: boolean }>('/api/customer/notifications/token', { token });
 }
 
-export function deleteFcmToken(token: string): Promise<{ ok: boolean }> {
-  return apiClient.delete<{ ok: boolean }>('/api/customer/notifications/token', { body: { token } } as never);
+/** Unregister a device token (called on logout) so the signed-out device stops
+ *  receiving the previous account's push notifications. Best-effort by callers. */
+export function unregisterFcmToken(token: string): Promise<{ ok: boolean }> {
+  return apiClient.delete<{ ok: boolean }>('/api/customer/notifications/token', { body: { token } });
 }
+

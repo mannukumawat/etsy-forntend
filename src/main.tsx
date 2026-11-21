@@ -27,9 +27,10 @@ render();
 
 if (API_MODE) {
   void syncCategoriesFromApi(() => fetchCategories());
-  // Warm the shared catalogue after the critical homepage requests have started. Shop, category,
-  // search and navigation pages can then reuse it without another visible wait.
-  window.setTimeout(() => {
-    void import('./services/productService').then(({ productService }) => productService.preloadCatalog());
-  }, 1200);
+  // No catalogue preload here: the homepage renders from the lightweight
+  // item-groups endpoint, and every catalogue consumer (Shop, search,
+  // related products) fetches on demand through the 15 s cached fetchCatalog
+  // below, so preloading 200 products on every home visit only burns
+  // bandwidth for visitors who never open the shop. Product detail is still
+  // prefetched on hover/focus in ProductCard.
 }

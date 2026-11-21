@@ -36,7 +36,7 @@ export async function uploadReviewPhoto(file: File): Promise<{ id: string; url: 
     credentials: 'include',
     body: file,
   });
-  if (!resp.ok) { const j = await resp.json().catch(() => ({})); throw new Error((j as any).message ?? 'Upload failed'); }
+  if (!resp.ok) { const j: unknown = await resp.json().catch(() => ({})); const message = typeof j === 'object' && j !== null && typeof (j as Record<string, unknown>).message === 'string' ? (j as Record<string, unknown>).message as string : 'Upload failed'; throw new Error(message); }
   return resp.json();
 }
 

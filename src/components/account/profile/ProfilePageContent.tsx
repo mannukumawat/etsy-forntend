@@ -77,8 +77,8 @@ function DeleteAccountSection() {
       signOutUser();
       resetCheckout();
       toast('Your account has been scheduled for deletion. You have 14 days to reactivate it.', 'info');
-    } catch (e: any) {
-      setErr(e.message ?? 'Something went wrong.');
+    } catch (e: unknown) {
+      setErr(e instanceof Error ? e.message : 'Something went wrong.');
       setStep('confirm');
     }
   };

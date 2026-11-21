@@ -45,7 +45,12 @@ export interface RazorpayOrderResponse {
 /** Create a Razorpay order whose amount is computed server-side from the checkout quote.
  *  Pass the same params you send to /totals so the server can recompute authoritatively. */
 export interface CreateRazorpayOrderRequest extends CheckoutTotalsRequest {
-  receipt: string;
+  /** Idempotency key for this checkout attempt — the server derives the Razorpay
+   *  receipt from it (first 40 chars). Required since the backend fix: the receipt
+   *  is no longer accepted as a client-chosen value. */
+  idempotencyKey: string;
+  /** Optional echo of the receipt; must equal idempotencyKey.slice(0, 40) if sent. */
+  receipt?: string;
   /** Paise to deduct from wallet; Razorpay will only charge the remainder. */
   walletPartialPaise?: number;
 }

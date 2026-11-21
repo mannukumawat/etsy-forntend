@@ -1,6 +1,8 @@
 import { create } from "zustand";
+import i18n from "@/i18n";
 import { fetchPublicSettings } from "@/api";
 import type { PublicSettingsResponse } from "@/api/types";
+import { useUi } from "./ui";
 
 // Live store identity, currencies, and shipping — fetched once from `/api/settings` on app boot.
 // Every consumer reads from this store or from the module-level synced data in data/ files.
@@ -39,5 +41,8 @@ export function initSiteSettings() {
     })
     .catch(() => {
       useSiteSettings.setState({ loaded: true });
+      // The store falls back to empty settings (blank name, no currencies),
+      // which looks like a broken store rather than a failed request. Say so.
+      useUi.getState().toast(i18n.t('toast.settingsLoadFailed'), 'error');
     });
 }

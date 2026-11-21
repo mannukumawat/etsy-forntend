@@ -86,6 +86,12 @@ export default function CheckoutPage() {
   const lock = useRef(false);
   const contentRef = useRef<HTMLDivElement>(null);
   const firstRender = useRef(true);
+  /**
+   * The Razorpay order created for this attempt. Reused on retry (same idempotency key, same
+   * Razorpay order) so a failed placeOrder after a successful payment cannot charge twice.
+   * Cleared on success / reset; recreated only if the chargeable remainder changed.
+   */
+  const rzpOrderRef = useRef<{ id: string; amount: number; currency: string; walletPartialPaise: number } | null>(null);
 
   const step: CheckoutStep = checkout.step !== 'details' && !checkout.details ? 'details' : checkout.step;
   const stepIndex = STEPS.indexOf(step);
@@ -162,7 +168,11 @@ export default function CheckoutPage() {
       setServerTotals(freshTotals);
 
       if (checkout.useWallet) {
-        // Full wallet payment — skip Razorpay entirely.
+        // Full wallet payment — skip Razorpay entirely. Mark the payment as attempted BEFORE
+        // place(): if the call fails after the server committed (wallet debited, response
+        // lost), the retry must reuse the same idempotency key so the backend replays the
+        // original order instead of debiting the wallet a second time.
+        checkout.markPaymentAttempted();
         const order = await orderService.place({
           idempotencyKey: checkout.idempotencyKey,
           lines,
@@ -190,12 +200,23 @@ export default function CheckoutPage() {
       const walletPartialPaise = checkout.walletPartialPaise ?? 0;
       // For partial wallet, Razorpay only charges the shortfall.
       // Pass walletPartialPaise in the create-order request so the server computes the reduced amount.
-      const rzpOrder = await createRazorpayOrder({
-        ...checkoutParams,
-        lines: lines.map((l) => ({ productId: l.productId, variantId: l.variantId, quantity: l.quantity })),
-        receipt: checkout.idempotencyKey.slice(0, 40),
-        ...(walletPartialPaise > 0 ? { walletPartialPaise } : {}),
-      });
+      // Reuse the Razorpay order created for this attempt when the chargeable remainder is
+      // unchanged: a retry after a successful payment must not create a second Razorpay
+      // order (and a second charge). A new order is created only if the remainder changed.
+      const remainderPaise = freshTotals.totals.total - walletPartialPaise;
+      let rzpOrder = rzpOrderRef.current;
+      if (!rzpOrder || rzpOrder.amount !== remainderPaise || rzpOrder.currency !== money.currency || rzpOrder.walletPartialPaise !== walletPartialPaise) {
+        const created = await createRazorpayOrder({
+          ...checkoutParams,
+          lines: lines.map((l) => ({ productId: l.productId, variantId: l.variantId, quantity: l.quantity })),
+          idempotencyKey: checkout.idempotencyKey,
+          receipt: checkout.idempotencyKey.slice(0, 40),
+          ...(walletPartialPaise > 0 ? { walletPartialPaise } : {}),
+        });
+        rzpOrder = { id: created.id, amount: created.amount, currency: created.currency, walletPartialPaise };
+        rzpOrderRef.current = rzpOrder;
+        checkout.markPaymentAttempted(created.id);
+      }
 
       const razorpayResult = await openRazorpayModal({
         keyId,
@@ -220,12 +241,16 @@ export default function CheckoutPage() {
       });
 
       setPlaced(true);
+      rzpOrderRef.current = null;
       invalidateQueries('catalog:');
       invalidateQueries('orders:');
       navigate(`/order/success/${order.id}`, { replace: true });
       clearCart();
       checkout.reset();
     } catch (e) {
+      // newAttempt() rotates the idempotency key ONLY when no payment was initiated for
+      // this attempt. After a Razorpay order was created (or a wallet place() started),
+      // the key is kept so a retry replays the same order instead of double-charging.
       checkout.newAttempt();
       if (e instanceof PaymentError) {
         navigate(`/order/payment-failed?reason=${e.reason}`);

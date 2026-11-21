@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
 import { BookOpen, ChevronDown, HelpCircle, Mail, Package, RefreshCw, Truck, X } from 'lucide-react';
 import { Breadcrumbs } from '@/components/ui/Navigation';
@@ -21,13 +22,14 @@ interface CustomerCareShellProps {
 }
 
 export function CustomerCareShell({ title, intro, children, isRoot }: CustomerCareShellProps) {
+  const { t } = useTranslation();
   useDocumentTitle(title);
   const { pathname } = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const breadcrumbs = isRoot
-    ? [{ label: 'Home', to: '/' }, { label: 'Customer Care' }]
-    : [{ label: 'Home', to: '/' }, { label: 'Customer Care', to: '/help' }, { label: title }];
+    ? [{ label: t('common.home'), to: '/' }, { label: t('help.customerCare') }]
+    : [{ label: t('common.home'), to: '/' }, { label: t('help.customerCare'), to: '/help' }, { label: title }];
 
   const currentItem = NAV_ITEMS.find((n) => n.to === pathname);
 
@@ -45,7 +47,7 @@ export function CustomerCareShell({ title, intro, children, isRoot }: CustomerCa
         >
           <span className="flex items-center gap-2">
             {currentItem && <currentItem.icon className="h-4 w-4 text-brand-600" aria-hidden />}
-            {currentItem?.label ?? 'Help topics'}
+            {currentItem?.label ?? t('help.helpTopics')}
           </span>
           {mobileOpen ? <X className="h-4 w-4 text-ink-muted" aria-hidden /> : <ChevronDown className="h-4 w-4 text-ink-muted" aria-hidden />}
         </button>
@@ -76,7 +78,7 @@ export function CustomerCareShell({ title, intro, children, isRoot }: CustomerCa
         {/* Desktop sidebar */}
         <aside className="hidden lg:block">
           <div className="sticky top-6">
-            <p className="mb-3 px-3 text-xs font-semibold uppercase tracking-widest text-ink-muted">Customer Care</p>
+            <p className="mb-3 px-3 text-xs font-semibold uppercase tracking-widest text-ink-muted">{t('help.customerCare')}</p>
             <nav aria-label="Customer care navigation">
               {NAV_ITEMS.map(({ to, label, icon: Icon }) => {
                 const active = pathname === to;

@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import { LocateFixed, Map, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { AddressFormValues } from '@/utils/validation';
@@ -45,28 +47,9 @@ function nominatimToForm(a: NominatimAddress): Partial<AddressFormValues> {
   return { line1, line2, city, region, postalCode, country };
 }
 
-declare global {
-  interface Window {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    L?: any;
-  }
-}
-
-/** Dynamically load Leaflet from CDN (once). */
-function loadLeaflet(): Promise<typeof window.L> {
-  if (window.L) return Promise.resolve(window.L);
-  return new Promise((resolve, reject) => {
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-    document.head.appendChild(link);
-    const script = document.createElement('script');
-    script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-    script.onload = () => resolve(window.L);
-    script.onerror = reject;
-    document.head.appendChild(script);
-  });
-}
+/** Leaflet is bundled locally (see package.json) — no runtime load from
+ * unpkg, so the map cannot execute untrusted remote code and works even
+ * when the CDN is unreachable. Tiles still come from OpenStreetMap. */
 
 interface MapModalProps {
   initialLat: number;
@@ -78,53 +61,38 @@ interface MapModalProps {
 function MapModal({ initialLat, initialLon, onConfirm, onClose }: MapModalProps) {
   const { t } = useTranslation();
   const mapRef = useRef<HTMLDivElement>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const markerRef = useRef<any>(null);
+  const markerRef = useRef<L.Marker | null>(null);
   const [pos, setPos] = useState({ lat: initialLat, lon: initialLon });
-  const [leafletReady, setLeafletReady] = useState(false);
 
   useEffect(() => {
-    let map: unknown;
-    loadLeaflet().then((L) => {
-      if (!mapRef.current || !L) return;
-      setLeafletReady(true);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const m = (L as any).map(mapRef.current, { zoomControl: true }).setView([initialLat, initialLon], 16);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (L as any).tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        maxZoom: 19,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      }).addTo(m as any);
+    if (!mapRef.current) return;
+    const map = L.map(mapRef.current, { zoomControl: true }).setView([initialLat, initialLon], 16);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      maxZoom: 19,
+    }).addTo(map);
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const icon = (L as any).divIcon({
-        html: `<div style="width:28px;height:36px;background:#c0392b;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.4)"></div>`,
-        iconSize: [28, 36],
-        iconAnchor: [14, 36],
-        className: '',
-      });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      markerRef.current = (L as any).marker([initialLat, initialLon], { draggable: true, icon }).addTo(m as any);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      markerRef.current.on('dragend', (e: any) => {
-        const { lat, lng } = e.target.getLatLng();
-        setPos({ lat, lon: lng });
-      });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (m as any).on('click', (e: any) => {
-        const { lat, lng } = e.latlng;
-        markerRef.current?.setLatLng([lat, lng]);
-        setPos({ lat, lon: lng });
-      });
-      map = m;
+    const icon = L.divIcon({
+      html: `<div style="width:28px;height:36px;background:#c0392b;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.4)"></div>`,
+      iconSize: [28, 36],
+      iconAnchor: [14, 36],
+      className: '',
+    });
+    markerRef.current = L.marker([initialLat, initialLon], { draggable: true, icon }).addTo(map);
+    markerRef.current.on('dragend', (e: L.DragEndEvent) => {
+      const { lat, lng } = e.target.getLatLng();
+      setPos({ lat, lon: lng });
+    });
+    map.on('click', (e: L.LeafletMouseEvent) => {
+      const { lat, lng } = e.latlng;
+      markerRef.current?.setLatLng([lat, lng]);
+      setPos({ lat, lon: lng });
     });
     return () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (map as any)?.remove();
+      map.remove();
     };
-  // only on mount
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // only on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -138,11 +106,6 @@ function MapModal({ initialLat, initialLon, onConfirm, onClose }: MapModalProps)
         </div>
         <p className="px-5 pt-3 text-sm text-ink-muted">{t('address.mapHint')}</p>
         <div ref={mapRef} className="mx-4 mt-3 flex-1 rounded-xl" style={{ minHeight: 340, height: 400 }} />
-        {!leafletReady && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-200 border-t-brand-600" />
-          </div>
-        )}
         <div className="flex justify-end gap-3 border-t border-sand-200 px-5 py-4">
           <button type="button" onClick={onClose} className="btn-ghost rounded-lg px-4 py-2 text-sm">
             {t('common.cancel')}

@@ -12,7 +12,7 @@ import { authService } from '@/services/authService';
 import { useAuth } from '@/store/session';
 import { useUi } from '@/store/ui';
 import { registerSchema, type RegisterValues } from '@/utils/validation';
-import { AuthShell, safeRedirect, usePasswordToggle } from './AuthShell';
+import { AuthShell, safeRedirect, usePasswordToggle } from '@/components/auth/AuthShell';
 
 export default function RegisterPage() {
   const { t } = useTranslation();

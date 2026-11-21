@@ -32,8 +32,11 @@ export default function NotificationsPage() {
   const items = localItems ?? data?.items ?? [];
 
   const handleMarkRead = async (id: string) => {
+    const previous = items;
     setLocalItems((prev) => (prev ?? items).map((n) => n.id === id ? { ...n, isRead: true } : n));
-    await markNotificationRead(id).catch(() => { /* silent */ });
+    // The read state is optimistic: if the server call fails, roll it back
+    // instead of leaving the item shown as read while it is still unread.
+    await markNotificationRead(id).catch(() => setLocalItems(previous));
   };
 
   const handleMarkAll = async () => {

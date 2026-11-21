@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import { MAX_QTY_PER_LINE } from '@/config/store';
+import { getMaxQtyPerLine } from '@/config/store';
 import type { CartLine } from '@/types';
 import { normalizeCoupon } from '@/utils/pricing';
 
@@ -31,7 +31,7 @@ export const useCart = create<CartState>()(
       addItem: (productId, variantId, quantity, maxQuantity) => {
         const existing = get().lines.find((l) => same(l, productId, variantId));
         const current = existing?.quantity ?? 0;
-        const limit = Math.min(maxQuantity, MAX_QTY_PER_LINE);
+        const limit = Math.min(maxQuantity, getMaxQtyPerLine());
         const next = Math.min(limit, current + Math.max(0, Math.floor(quantity)));
         const added = next - current;
         if (added <= 0) return 0;
@@ -48,7 +48,7 @@ export const useCart = create<CartState>()(
           lines:
             quantity <= 0
               ? s.lines.filter((l) => !same(l, productId, variantId))
-              : s.lines.map((l) => (same(l, productId, variantId) ? { ...l, quantity: Math.min(Math.floor(quantity), MAX_QTY_PER_LINE) } : l)),
+              : s.lines.map((l) => (same(l, productId, variantId) ? { ...l, quantity: Math.min(Math.floor(quantity), getMaxQtyPerLine()) } : l)),
         })),
 
       removeItem: (productId, variantId) => set((s) => ({ lines: s.lines.filter((l) => !same(l, productId, variantId)) })),

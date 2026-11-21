@@ -53,7 +53,7 @@ function WithdrawSection({ ret }: { ret: ReturnRequest }) {
       invalidateQueries(`return:${ret.reference}`);
       invalidateQueries('returns:list:');
       navigate('/account/returns');
-    } catch (e: any) { setErr(e.message); setLoading(false); }
+    } catch (e: unknown) { setErr(e instanceof Error ? e.message : t('toast.error')); setLoading(false); }
   };
 
   return (
@@ -96,7 +96,7 @@ export default function ReturnDetailPage() {
   if (isLoading) return <Spinner />;
   if (error || !ret) return <ErrorState onRetry={reload} />;
 
-  const stepIndex = TIMELINE_STEPS.indexOf(ret.status as any);
+  const stepIndex = (TIMELINE_STEPS as readonly string[]).indexOf(ret.status);
   const isRejected = ret.status === 'rejected';
   const isWithdrawn = ret.status === 'withdrawn';
 

@@ -1,12 +1,18 @@
-import type { Category, CurrencyCode, Localized, Product } from '@/types';
+import type { Category, CurrencyCode, Localized, Product, ProductListResult } from '@/types';
 
 // Wire shapes for the public catalog endpoints. The backend already maps rows into the storefront's
 // own Product/Category shapes (see backend/src/mappers.ts), so these mostly describe the envelopes.
 
-/** `GET /api/products` */
+/** `GET /api/products` — server-paged since the backend pagination change;
+ * `total` is the full filtered count, and the page fields are present on
+ * every response (older callers that only read `items` are unaffected). */
 export interface ProductListResponse {
   items: Product[];
   total: number;
+  page: number;
+  pageSize: number;
+  pageCount: number;
+  facets: ProductListResult['facets'];
 }
 
 /** `GET /api/products/:slug` returns a bare Product. */
@@ -24,12 +30,9 @@ export interface ProductListParams {
   category?: string;
   /** Comma-joined product ids. */
   ids?: string;
+  /** 1-based page for server-side pagination. */
+  page?: number;
   limit?: number;
-}
-
-/** Error envelope every endpoint uses on failure. */
-export interface ApiErrorResponse {
-  error: { code: string; message: string; issues: Array<{ path: string; message: string }> };
 }
 
 /** A real empty state (not a silent fallback) when nothing has been published yet. */
@@ -94,11 +97,13 @@ export interface PublicSettingsResponse {
   store: {
     name: string;
     tagline: Localized;
-    logo: { id: string } | null;
+    logo: { id: string; url?: string } | null;
     /** Short location string shown under store name, e.g. "Jaipur, Rajasthan" */
     location?: string;
     /** Public-facing store stats shown on the shop profile strip */
     stats?: { rating: number; reviewCount: number; salesCount: number; yearsOnPlatform?: number };
+    /** Maximum quantity per cart line, from the admin store settings (default 10). */
+    maxQtyPerLine?: number;
     contact: { email: string; phone: string; address: string; hours: Localized };
     social: { instagram: string; pinterest: string; facebook: string; youtube: string };
   };

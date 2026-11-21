@@ -51,23 +51,43 @@ export default function ShopPage() {
   }, [listStateKey, currency]);
 
   const queryKey = `catalog:list:${currency}:${listStateKey}:${loadedPage}`;
+  // Plain browse (no search, filter, group, nav link or non-default sort) is
+  // served one server page at a time — 12 products per request instead of the
+  // whole 200-product catalogue. Anything else keeps the client-side catalogue
+  // path, which is the only place price/rating/availability filters, search
+  // and sorting can be applied; the infinite scroll, result count and facet
+  // counts are identical in both paths.
+  const isPlainBrowse =
+    !slug &&
+    !state.q &&
+    state.categories.length === 0 &&
+    state.min === undefined &&
+    state.max === undefined &&
+    !state.rating &&
+    state.availability.length === 0 &&
+    !state.onSale &&
+    !state.group &&
+    !state.nav &&
+    state.sort === 'featured';
   const { data, isLoading, isError, reload } = useAsync(
     slug && !category ? null : queryKey,
     () =>
-      productService.list({
-        q: state.q,
-        categories: state.categories,
-        minPrice: state.min,
-        maxPrice: state.max,
-        currency,
-        minRating: state.rating,
-        availability: state.availability,
-        onSale: state.onSale,
-        itemGroupSlug: state.group,
-        navLinkId: state.nav,
-        sort: state.sort,
-        page: loadedPage,
-      }),
+      isPlainBrowse
+        ? productService.listServerPage({ page: loadedPage })
+        : productService.list({
+            q: state.q,
+            categories: state.categories,
+            minPrice: state.min,
+            maxPrice: state.max,
+            currency,
+            minRating: state.rating,
+            availability: state.availability,
+            onSale: state.onSale,
+            itemGroupSlug: state.group,
+            navLinkId: state.nav,
+            sort: state.sort,
+            page: loadedPage,
+          }),
     { keepPrevious: true },
   );
 
@@ -124,7 +144,7 @@ export default function ShopPage() {
   }
   if (state.rating) chips.push({ key: 'rating', label: t('shop.ratingChip', { rating: state.rating }), onRemove: () => update({ rating: undefined }) });
   state.availability.forEach((a) => chips.push({ key: a, label: t(a === 'in_stock' ? 'shop.inStock' : 'shop.outOfStock'), onRemove: () => update({ availability: state.availability.filter((x) => x !== a) }) }));
-  if (state.onSale) chips.push({ key: 'onSale', label: 'On sale', onRemove: () => update({ onSale: undefined }) });
+  if (state.onSale) chips.push({ key: 'onSale', label: t('shop.onSale'), onRemove: () => update({ onSale: undefined }) });
 
   const clearAll = () =>
     navigate(shopUrl({ q: '', categories: [], availability: [], group: state.group, nav: state.nav, sort: state.sort, page: 1 }), { preventScrollReset: true });

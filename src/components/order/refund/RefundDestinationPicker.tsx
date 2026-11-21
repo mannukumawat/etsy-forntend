@@ -6,10 +6,7 @@ import { bankAccountsApi } from '@/api/bankAccounts';
 import { upiApi, type UpiId } from '@/api/upi';
 import { walletApi } from '@/api/wallet';
 import { cn } from '@/utils/cn';
-
-function formatPaise(paise: number) {
-  return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2 }).format(paise / 100);
-}
+import { formatPaise } from '@/utils/money';
 
 type Option =
   | { id: 'wallet'; label: string; sub: string; icon: typeof Wallet }

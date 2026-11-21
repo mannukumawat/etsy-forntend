@@ -8,12 +8,10 @@ import { useCheckout, useAuth } from '@/store/session';
 import { walletApi } from '@/api/wallet';
 import type { PaymentMethodPreview } from '@/types';
 import { cn } from '@/utils/cn';
+import { formatPaise } from '@/utils/money';
+import { useUi } from '@/store/ui';
 
 const RAZORPAY_CONFIGURED = Boolean((import.meta.env.VITE_RAZORPAY_KEY_ID as string | undefined)?.trim());
-
-function formatPaise(paise: number) {
-  return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(paise / 100);
-}
 
 interface PaymentStepProps {
   onBack: () => void;
@@ -46,11 +44,43 @@ export function PaymentStep({ onBack, onPlace, walletInfo, total, submitting, er
 
   const [showTopup, setShowTopup] = useState(false);
   const [walletMode, setWalletMode] = useState<WalletMode>(null);
+  const [walletDefaultApplied, setWalletDefaultApplied] = useState(false);
+  const toast = useUi((s) => s.toast);
+
+  // Country-specific payments (rule 6): UPI is India-only, so it is hidden when the
+  // shipping country is known and is not India. The country comes from the checkout
+  // details step (useCheckout details.country, ISO code). When the country is not
+  // known yet the method stays visible; the backend rejects non-IN UPI in any case.
+  const shippingCountry = useCheckout((s) => s.details?.country);
+  const upiAvailable = !shippingCountry || shippingCountry === 'IN';
+  const visibleMethods = NON_WALLET_METHODS.filter((m) => m.id !== 'upi' || upiAvailable);
+
+  // If UPI was selected and the destination turns out to be outside India, fall back
+  // to card instead of leaving a hidden method selected.
+  useEffect(() => {
+    if (!upiAvailable && method === 'upi') setMethod('card');
+  }, [upiAvailable, method, setMethod]);
 
   useEffect(() => {
     if (!user) return;
-    walletApi.getBalance().then((b) => setWalletBalance(b.balancePaise)).catch(() => {});
-  }, [user, setWalletBalance]);
+    walletApi.getBalance().then((b) => setWalletBalance(b.balancePaise)).catch(() => {
+      // The balance is load-bearing here: without it the wallet rows show ₹0
+      // and the customer cannot tell whether the wallet is empty or the
+      // request failed. Say so instead of silently showing no balance.
+      toast(t('toast.walletBalanceError'), 'error');
+    });
+  }, [user, setWalletBalance, toast, t]);
+
+  // When Razorpay is not configured the card/UPI radios are disabled, so the
+  // store default ('card') would leave a disabled option selected. Default to
+  // the wallet instead for signed-in users; guests have no wallet row, so the
+  // default stays 'card' (and Place stays disabled until Razorpay is set up).
+  useEffect(() => {
+    if (!RAZORPAY_CONFIGURED && user && method === 'card' && !walletDefaultApplied) {
+      setWalletDefaultApplied(true);
+      selectWallet();
+    }
+  }, [user, method, walletDefaultApplied]);
 
   const balance = walletInfo?.balancePaise ?? walletBalancePaise ?? 0;
   const orderTotalPaise = walletInfo?.maxApplicablePaise ?? 0;
@@ -121,7 +151,7 @@ export function PaymentStep({ onBack, onPlace, walletInfo, total, submitting, er
                   </p>
                   <p className="text-xs text-ink-muted">
                     {balance > 0
-                      ? t('checkout.walletBalance', { balance: formatPaise(balance), defaultValue: `Balance: ${formatPaise(balance)}` })
+                      ? t('checkout.walletBalance', { balance: formatPaise(balance, 0), defaultValue: `Balance: ${formatPaise(balance, 0)}` })
                       : t('checkout.walletEmpty', { defaultValue: 'No balance — tap to add money' })}
                   </p>
                 </div>
@@ -164,10 +194,10 @@ export function PaymentStep({ onBack, onPlace, walletInfo, total, submitting, er
                         </span>
                         <div className="flex-1">
                           <p className="text-sm font-medium text-ink">
-                            {t('checkout.walletFullPay', { amount: formatPaise(orderTotalPaise), defaultValue: `Pay full ${formatPaise(orderTotalPaise)} from wallet` })}
+                            {t('checkout.walletFullPay', { amount: formatPaise(orderTotalPaise, 0), defaultValue: `Pay full ${formatPaise(orderTotalPaise, 0)} from wallet` })}
                           </p>
                           <p className="text-xs text-emerald-700">
-                            {t('checkout.walletAfter', { after: formatPaise(balance - orderTotalPaise), defaultValue: `Remaining balance: ${formatPaise(balance - orderTotalPaise)}` })}
+                            {t('checkout.walletAfter', { after: formatPaise(balance - orderTotalPaise, 0), defaultValue: `Remaining balance: ${formatPaise(balance - orderTotalPaise, 0)}` })}
                           </p>
                         </div>
                       </label>
@@ -192,7 +222,7 @@ export function PaymentStep({ onBack, onPlace, walletInfo, total, submitting, er
                         </span>
                         <div className="flex-1">
                           <p className="text-sm font-medium text-ink">
-                            {t('checkout.walletPartialUse', { wallet: formatPaise(balance), rest: formatPaise(orderTotalPaise - balance), defaultValue: `Use ${formatPaise(balance)} from wallet + pay ${formatPaise(orderTotalPaise - balance)} via card/UPI` })}
+                            {t('checkout.walletPartialUse', { wallet: formatPaise(balance, 0), rest: formatPaise(orderTotalPaise - balance, 0), defaultValue: `Use ${formatPaise(balance, 0)} from wallet + pay ${formatPaise(orderTotalPaise - balance, 0)} via card/UPI` })}
                           </p>
                           <p className="text-xs text-ink-muted">{t('checkout.walletPartialNote', { defaultValue: 'Remaining will be charged via Razorpay.' })}</p>
                         </div>
@@ -219,8 +249,8 @@ export function PaymentStep({ onBack, onPlace, walletInfo, total, submitting, er
             </>
           )}
 
-          {/* Card & UPI rows */}
-          {NON_WALLET_METHODS.map(({ id, icon: Icon, descKey }) => (
+          {/* Card & UPI rows (UPI hidden outside India — see above) */}
+          {visibleMethods.map(({ id, icon: Icon, descKey }) => (
             <label key={id} className={cn(
               'flex cursor-pointer items-center gap-4 px-4 py-4 transition-colors hover:bg-sand-50',
               'has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-brand-600',

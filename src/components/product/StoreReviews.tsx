@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ChevronLeft, ChevronRight, MessageCircle, Star } from 'lucide-react';
 import { reviewsApi } from '@/api';
-import logoMark from '@/assets/logo-mark.png';
+import logoMark from '@/assets/logo-mark.webp';
 import { Skeleton } from '@/components/ui/Feedback';
 import { Rating } from '@/components/ui/Rating';
 import { useAsync } from '@/hooks/useAsync';

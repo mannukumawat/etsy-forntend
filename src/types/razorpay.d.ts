@@ -15,6 +15,8 @@ interface RazorpayOptions {
 
 interface RazorpayInstance {
   open(): void;
+  /** Subscribes to checkout events; 'payment.failed' fires on an in-modal failure. */
+  on(event: 'payment.failed', handler: (response: { error: { code: string; description: string; reason?: string } }) => void): void;
 }
 
 interface Window {

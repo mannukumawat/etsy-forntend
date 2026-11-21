@@ -5,7 +5,7 @@ import { useLanguage, useLocalized, useMoney } from '@/hooks/useLocale';
 import { contentService } from '@/services/contentService';
 import { useSiteSettings } from '@/store/siteSettings';
 import { CustomerCareShell } from '@/components/layout/CustomerCareShell';
-import { Sections, type InfoSection } from './InfoShell';
+import { Sections, type InfoSection } from '@/components/info/InfoShell';
 
 export default function ShippingPage() {
   const { t } = useTranslation();

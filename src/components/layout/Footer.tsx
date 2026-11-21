@@ -5,7 +5,7 @@ import { CATEGORIES } from '@/data/categories';
 import { RATE_SNAPSHOT } from '@/data/currencies';
 import { useLanguage, useLocalized } from '@/hooks/useLocale';
 import { formatDate } from '@/utils/dates';
-import logoMark from '@/assets/logo-mark.png';
+import logoMark from '@/assets/logo-mark.webp';
 import { useSiteSettings } from '@/store/siteSettings';
 import { NewsletterForm } from './NewsletterForm';
 
@@ -38,7 +38,8 @@ export function Footer() {
       <div className="container-chrome grid gap-10 py-12 md:grid-cols-2 lg:grid-cols-12 lg:gap-8">
         <div className="lg:col-span-3">
           <div className="flex items-center gap-2">
-            <img src={logoMark} alt="" className="h-9 w-9 object-contain" />
+            {/* H1: live store logo from settings, falling back to the bundled mark. */}
+            <img src={STORE.logo?.url ?? logoMark} alt="" className="h-9 w-9 object-contain" />
             <p className="font-serif text-3xl font-semibold">{STORE.name}</p>
           </div>
           <p className="mt-3 max-w-xs text-sm text-ink-muted">{loc(STORE.tagline)}</p>

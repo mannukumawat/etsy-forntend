@@ -18,6 +18,7 @@ export function NotificationBell({ className }: { className?: string }) {
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<NotificationItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
 
   // Fetch unread count on mount and poll
@@ -50,11 +51,16 @@ export function NotificationBell({ className }: { className?: string }) {
     setOpen((v) => !v);
     if (!open) {
       setLoading(true);
+      setLoadError(false);
       try {
         const page = await fetchNotifications(undefined, 10);
         setItems(page.items);
         setUnread(0); // optimistic
-      } catch { /* silent */ } finally {
+      } catch {
+        // Previously silent: the dropdown showed "No notifications yet" even
+        // though the list simply failed to load. Show the failure instead.
+        setLoadError(true);
+      } finally {
         setLoading(false);
       }
       // Request push permission on first user interaction with the bell
@@ -96,6 +102,8 @@ export function NotificationBell({ className }: { className?: string }) {
 
           {loading ? (
             <div className="flex items-center justify-center py-8 text-ink-muted text-sm">Loading…</div>
+          ) : loadError ? (
+            <div className="px-4 py-8 text-center text-sm text-red-700">Couldn't load notifications. Try again.</div>
           ) : items.length === 0 ? (
             <div className="px-4 py-8 text-center text-sm text-ink-muted">No notifications yet.</div>
           ) : (

@@ -49,7 +49,7 @@ function WithdrawSection({ exc }: { exc: ExchangeRequest }) {
       invalidateQueries(`exchange:${exc.reference}`);
       invalidateQueries('returns:list:');
       navigate('/account/returns');
-    } catch (e: any) { setErr(e.message); setLoading(false); }
+    } catch (e: unknown) { setErr(e instanceof Error ? e.message : t('toast.error')); setLoading(false); }
   };
 
   return (

@@ -1,5 +1,5 @@
-importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js');
-importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/13.4.0/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/13.4.0/firebase-messaging-compat.js');
 
 // Config injected at build time via VITE_FIREBASE_* env vars in the main app,
 // but service workers can't import ES modules, so we self-configure here.
@@ -15,7 +15,7 @@ self.addEventListener('message', (event) => {
         self.registration.showNotification(title ?? 'New notification', {
           body,
           data: { link },
-          icon: '/favicon.ico',
+          icon: '/favicon.png',
         });
       });
     }

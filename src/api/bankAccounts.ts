@@ -4,10 +4,20 @@ import { API_BASE_URL } from './config';
 const csrf = () => document.cookie.match(/ys_csrf=([^;]+)/)?.[1] ?? '';
 const headers = () => ({ 'content-type': 'application/json', 'x-csrf-token': csrf() });
 
+function errorMessage(j: unknown): string | undefined {
+  if (typeof j !== 'object' || j === null) return undefined;
+  const o = j as Record<string, unknown>;
+  const nested = o.error;
+  if (typeof nested === 'object' && nested !== null && typeof (nested as Record<string, unknown>).message === 'string') {
+    return (nested as Record<string, unknown>).message as string;
+  }
+  return typeof o.message === 'string' ? o.message : undefined;
+}
+
 async function handle<T>(r: Response): Promise<T> {
   if (r.ok) return r.json();
-  const j = await r.json().catch(() => ({}));
-  throw new Error((j as any).error?.message ?? (j as any).message ?? 'Something went wrong. Please try again.');
+  const j: unknown = await r.json().catch(() => ({}));
+  throw new Error(errorMessage(j) ?? 'Something went wrong. Please try again.');
 }
 
 export const bankAccountsApi = {

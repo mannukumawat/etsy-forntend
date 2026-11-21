@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useLocalized } from '@/hooks/useLocale';
 import type { ProductImage } from '@/types';
 import { cn } from '@/utils/cn';
+import { PRODUCT_GALLERY_SIZES, PRODUCT_GALLERY_WIDTHS, productImageSrcSet } from '@/utils/images';
 
 export function ProductGallery({ images }: { images: ProductImage[] }) {
   const { t } = useTranslation();
@@ -16,6 +17,7 @@ export function ProductGallery({ images }: { images: ProductImage[] }) {
 
   if (!images.length) return null;
   const current = images[Math.min(index, images.length - 1)];
+  const currentResponsive = productImageSrcSet(current.src, PRODUCT_GALLERY_WIDTHS, PRODUCT_GALLERY_SIZES);
   const go = (delta: number) => setIndex((i) => (i + delta + images.length) % images.length);
 
   return (
@@ -40,7 +42,7 @@ export function ProductGallery({ images }: { images: ProductImage[] }) {
       </ul>
       <div className="relative flex-1">
         <div className="aspect-square overflow-hidden bg-sand-100 md:rounded-xl lg:aspect-auto lg:h-[min(66vh,560px)] xl:h-[min(68vh,600px)]">
-          <img key={current.src.slice(-60)} src={current.src} alt={loc(current.alt)} width={800} height={800} className="h-full w-full animate-fade-in object-cover" decoding="async" />
+          <img key={current.src.slice(-60)} src={current.src} srcSet={currentResponsive.srcSet} sizes={currentResponsive.sizes} alt={loc(current.alt)} width={800} height={800} className="h-full w-full animate-fade-in object-cover" decoding="async" />
         </div>
         {images.length > 1 && (
           <>

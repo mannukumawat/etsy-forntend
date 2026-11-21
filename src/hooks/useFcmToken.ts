@@ -16,6 +16,27 @@ const FIREBASE_CONFIG = {
 
 const VAPID_KEY = import.meta.env.VITE_FIREBASE_VAPID_KEY as string | undefined;
 
+/** Local storage key for the registered FCM token, so logout can unregister the
+ *  device even if the hook has not run in this page load. A device token is not
+ *  a secret, and the unregister endpoint requires the customer session anyway. */
+const FCM_TOKEN_STORAGE_KEY = 'ys_fcm_token';
+
+export function getRegisteredFcmToken(): string | null {
+  try {
+    return localStorage.getItem(FCM_TOKEN_STORAGE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function clearRegisteredFcmToken(): void {
+  try {
+    localStorage.removeItem(FCM_TOKEN_STORAGE_KEY);
+  } catch {
+    // Storage unavailable — nothing to clear.
+  }
+}
+
 export function useFcmToken() {
   const registeredRef = useRef(false);
 
@@ -48,6 +69,11 @@ export function useFcmToken() {
       if (!token) return;
 
       await registerFcmToken(token);
+      try {
+        localStorage.setItem(FCM_TOKEN_STORAGE_KEY, token);
+      } catch {
+        // Storage unavailable — the token still works for this page load.
+      }
       registeredRef.current = true;
     } catch (err) {
       console.warn('[fcm] registration failed:', err instanceof Error ? err.message : err);

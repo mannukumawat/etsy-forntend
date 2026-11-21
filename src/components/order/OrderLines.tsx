@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { ArrowLeftRight, RotateCcw, RotateCw, Star } from 'lucide-react';
 import { useLanguage, useLocalized } from '@/hooks/useLocale';
 import type { Order, OrderLine } from '@/types';
-import { MAX_QTY_PER_LINE } from '@/config/store';
+import { getMaxQtyPerLine } from '@/config/store';
 import { useCart } from '@/store/cart';
 import { useUi } from '@/store/ui';
 import { formatMoney } from '@/utils/money';
@@ -91,7 +91,7 @@ export function OrderLines({ order, reviewLinks = false }: { order: Order; revie
                 <button
                   type="button"
                   onClick={() => {
-                    useCart.getState().addItem(l.productId, l.variantId, l.quantity, MAX_QTY_PER_LINE);
+                    useCart.getState().addItem(l.productId, l.variantId, l.quantity, getMaxQtyPerLine());
                     useUi.getState().openCart();
                   }}
                   className="inline-flex items-center gap-1.5 rounded-md border border-brand-600 px-2.5 py-1 text-xs font-semibold text-brand-700 transition-colors hover:bg-brand-50"

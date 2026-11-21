@@ -3,7 +3,7 @@ import { ArrowLeft, ChevronRight, FileText } from 'lucide-react';
 import { useAsync } from '@/hooks/useAsync';
 import { useLocalized } from '@/hooks/useLocale';
 import { helpService, type HelpArticle } from '@/services/miscService';
-import { InfoShell } from '@/pages/info/InfoShell';
+import { InfoShell } from '@/components/info/InfoShell';
 
 function ArticleRow({ article, catSlug }: { article: HelpArticle; catSlug: string }) {
   const loc = useLocalized();

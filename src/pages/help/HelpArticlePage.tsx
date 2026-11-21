@@ -1,11 +1,13 @@
 import { Link, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ArrowLeft } from 'lucide-react';
 import { useAsync } from '@/hooks/useAsync';
 import { useLocalized } from '@/hooks/useLocale';
 import { helpService } from '@/services/miscService';
-import { InfoShell } from '@/pages/info/InfoShell';
+import { InfoShell } from '@/components/info/InfoShell';
 
 export default function HelpArticlePage() {
+  const { t } = useTranslation();
   const { category: catSlug, article: articleSlug } = useParams<{ category: string; article: string }>();
   const loc = useLocalized();
   const { data, isLoading } = useAsync(
@@ -19,7 +21,7 @@ export default function HelpArticlePage() {
   return (
     <InfoShell title={title} className="!max-w-2xl">
       <div className="mb-6 flex items-center gap-2 text-sm text-ink-muted">
-        <Link to="/help" className="hover:text-brand-600">Help Center</Link>
+        <Link to="/help" className="hover:text-brand-600">{t('help.helpCenter')}</Link>
         <span>/</span>
         <Link to={`/help/${catSlug}`} className="hover:text-brand-600">{catName}</Link>
       </div>
@@ -33,7 +35,7 @@ export default function HelpArticlePage() {
           <div className="whitespace-pre-wrap">{loc(data.article.body)}</div>
         </div>
       ) : (
-        <p className="text-ink-soft">Article not found.</p>
+        <p className="text-ink-soft">{t('help.articleNotFound')}</p>
       )}
 
       <div className="mt-10 border-t border-sand-200 pt-6">

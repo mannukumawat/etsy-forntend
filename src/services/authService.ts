@@ -1,5 +1,7 @@
 import type { SavedAddress, User } from '@/types';
 import { customerApi, customerAuthApi } from '@/api';
+import { unregisterFcmToken } from '@/api/notifications';
+import { clearRegisteredFcmToken, getRegisteredFcmToken } from '@/hooks/useFcmToken';
 
 export const authService = {
   login(email: string, password: string): Promise<User> {
@@ -10,7 +12,14 @@ export const authService = {
     return customerAuthApi.register(input);
   },
 
-  logout(): Promise<void> {
+  async logout(): Promise<void> {
+    // Best-effort: unregister this device's push token so the signed-out device
+    // stops receiving the previous account's notifications. Never blocks logout.
+    const fcmToken = getRegisteredFcmToken();
+    if (fcmToken) {
+      clearRegisteredFcmToken();
+      await unregisterFcmToken(fcmToken).catch(() => {});
+    }
     return customerAuthApi.logout();
   },
 

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback, type ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { ButtonLink } from '@/components/ui/Button';
@@ -25,6 +26,7 @@ interface HeroSliderProps {
 }
 
 export function HeroSlider({ slides, autoplayMs = 5000, compact = false, linkWholeSlide = false, overlay }: HeroSliderProps) {
+  const { t } = useTranslation();
   const [current, setCurrent] = useState(0);
   if (current >= slides.length && slides.length > 0) setCurrent(0);
   const [prev3d, setPrev3d] = useState<number | null>(null);
@@ -204,23 +206,23 @@ export function HeroSlider({ slides, autoplayMs = 5000, compact = false, linkWho
 
         {slides.length > 1 && (
           <>
-            <button onClick={goPrev} aria-label="Previous slide" className="absolute left-1.5 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/20 p-1.5 text-white backdrop-blur transition hover:bg-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:left-4 sm:p-2.5">
+            <button onClick={goPrev} aria-label={t('a11y.previousSlide')} className="absolute left-1.5 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/20 p-1.5 text-white backdrop-blur transition hover:bg-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:left-4 sm:p-2.5">
               <ChevronLeft className="h-5 w-5" />
             </button>
-            <button onClick={goNext} aria-label="Next slide" className="absolute right-1.5 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/20 p-1.5 text-white backdrop-blur transition hover:bg-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:right-4 sm:p-2.5">
+            <button onClick={goNext} aria-label={t('a11y.nextSlide')} className="absolute right-1.5 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/20 p-1.5 text-white backdrop-blur transition hover:bg-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:right-4 sm:p-2.5">
               <ChevronRight className="h-5 w-5" />
             </button>
           </>
         )}
 
         {slides.length > 1 && (
-          <div className="absolute bottom-5 left-1/2 z-20 flex -translate-x-1/2 gap-2" role="tablist" aria-label="Slide indicators">
+          <div className="absolute bottom-5 left-1/2 z-20 flex -translate-x-1/2 gap-2" role="tablist" aria-label={t('a11y.slideIndicators')}>
             {slides.map((_, i) => (
               <button
                 key={i}
                 role="tab"
                 aria-selected={i === current}
-                aria-label={`Go to slide ${i + 1}`}
+                aria-label={t('a11y.goToSlide', { index: i + 1 })}
                 onClick={() => go(i, i > current ? 'next' : 'prev')}
                 className={cn(
                   'h-1.5 rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white',

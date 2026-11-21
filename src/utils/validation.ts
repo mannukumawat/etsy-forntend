@@ -149,7 +149,6 @@ export const trackSchema = z.object({
 });
 export type TrackValues = z.infer<typeof trackSchema>;
 
-export const couponSchema = z.object({ code: z.string().trim().min(1, 'validation.required').max(30, 'validation.tooLong') });
 
 /** Normalise "ys240117" / "YS-240117" to the canonical form. */
 export function normalizeOrderNumber(v: string): string {

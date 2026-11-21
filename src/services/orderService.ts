@@ -10,13 +10,6 @@ export class PaymentError extends ApiError {
   }
 }
 
-export interface StockIssue {
-  productId: string;
-  variantId: string;
-  requested: number;
-  available: number;
-}
-
 export interface RazorpayPaymentResult {
   razorpayOrderId: string;
   razorpayPaymentId: string;
@@ -62,6 +55,16 @@ export async function openRazorpayModal(input: {
 }): Promise<RazorpayPaymentResult> {
   await loadRazorpayScript();
   return new Promise((resolve, reject) => {
+    // Exactly one terminal outcome: success, in-modal failure, or dismiss.
+    // Without the guard a 'payment.failed' event followed by a dismiss would
+    // reject twice (harmless for the promise, but confusing); with it the
+    // first outcome wins.
+    let settled = false;
+    const fail = (reason: 'declined' | 'cancelled') => {
+      if (settled) return;
+      settled = true;
+      reject(new PaymentError(reason));
+    };
     const rzp = new window.Razorpay({
       key: input.keyId,
       amount: input.amount,
@@ -79,6 +82,8 @@ export async function openRazorpayModal(input: {
         emi: false,
       },
       handler(response) {
+        if (settled) return;
+        settled = true;
         resolve({
           razorpayOrderId: response.razorpay_order_id,
           razorpayPaymentId: response.razorpay_payment_id,
@@ -86,9 +91,13 @@ export async function openRazorpayModal(input: {
         });
       },
       modal: {
-        ondismiss() { reject(new PaymentError('cancelled')); },
+        ondismiss() { fail('cancelled'); },
       },
     });
+    // A genuine in-modal failure (e.g. bank declined the card) fires this
+    // event; without it the failure only surfaced as a dismiss and was
+    // misreported to the customer as 'cancelled'.
+    rzp.on('payment.failed', () => fail('declined'));
     rzp.open();
   });
 }

@@ -1,11 +1,11 @@
 // Shared domain types matching the shapes returned by the backend API.
 
 /** Storefront UI language. English variants share one translation and differ only in date/number format. */
-export type LanguageCode = 'en-US' | 'en-GB' | 'en-IN' | 'de' | 'fr' | 'it' | 'es';
+export type LanguageCode = 'en-US' | 'en-GB' | 'en-IN' | 'de' | 'fr' | 'it' | 'es' | 'hi';
 export type CurrencyCode = string;
 
-/** Store content is authored in English; the API adds `de`/`fr`/`it`/`es` when a translation exists. */
-export type ContentLanguage = 'de' | 'fr' | 'it' | 'es';
+/** Store content is authored in English; the API adds `de`/`fr`/`it`/`es`/`hi` when a translation exists. */
+export type ContentLanguage = 'de' | 'fr' | 'it' | 'es' | 'hi';
 export type Localized = { en: string } & Partial<Record<ContentLanguage, string>>;
 
 /** Integer amount in minor units (cents, paise...). Never use floats for money. */

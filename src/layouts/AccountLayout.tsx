@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Navigate, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Bell, CreditCard, IndianRupee, LogOut, MapPin, Package, RotateCcw, User, Wallet } from 'lucide-react';
+import { Spinner } from '@/components/ui/Feedback';
 import { authService } from '@/services/authService';
 import { useAuth, useCheckout } from '@/store/session';
 import { useUi } from '@/store/ui';
@@ -16,10 +17,19 @@ function HomeAfterSignOut() {
 /** Redirects to /login when signed out, remembering where to return. */
 export function RequireAuth({ children }: { children: JSX.Element }) {
   const user = useAuth((s) => s.user);
+  const isHydrated = useAuth((s) => s.isHydrated);
   const signedOut = useAuth((s) => s.signedOut);
-  const location = useLocation();
+
+  if (!isHydrated) {
+    return (
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <Spinner className="py-24" />
+      </div>
+    );
+  }
+
   if (!user && signedOut) return <HomeAfterSignOut />;
-  if (!user) return <Navigate to={`/login?redirect=${encodeURIComponent(location.pathname + location.search)}`} replace />;
+  if (!user) return <Navigate to="/login" replace />;
   return children;
 }
 

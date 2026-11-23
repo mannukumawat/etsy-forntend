@@ -43,7 +43,16 @@ export function usePasswordToggle() {
   return { type: visible ? 'text' : 'password', button };
 }
 
-/** Only allow same-origin relative redirects. */
-export function safeRedirect(value: string | null, fallback = '/account'): string {
-  return value && value.startsWith('/') && !value.startsWith('//') ? value : fallback;
+/** Only allow same-origin relative redirects. Never redirect to account or auth pages. Defaults to the main homepage (/). */
+export function safeRedirect(value: string | null, fallback = '/'): string {
+  if (
+    !value ||
+    value === '/account' ||
+    value.startsWith('/account/') ||
+    value.startsWith('/login') ||
+    value.startsWith('/register')
+  ) {
+    return fallback;
+  }
+  return value.startsWith('/') && !value.startsWith('//') ? value : fallback;
 }

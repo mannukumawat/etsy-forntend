@@ -45,11 +45,12 @@ const LOCALE_FOR_LANGUAGE: Record<LanguageCode, string> = {
   fr: 'fr-FR',
   it: 'it-IT',
   es: 'es-ES',
+  hi: 'hi-IN',
 };
 
 /** The store-content translation to request for a UI language (English variants use the original). */
 export function contentLanguage(lang: LanguageCode): ContentLanguage | null {
-  return lang === 'de' || lang === 'fr' || lang === 'it' || lang === 'es' ? lang : null;
+  return lang === 'de' || lang === 'fr' || lang === 'it' || lang === 'es' || lang === 'hi' ? lang : null;
 }
 
 export function toLanguageCode(value: string | undefined | null): LanguageCode {

@@ -1,4 +1,3 @@
-import { isCategorySlug } from '@/data/categories';
 import type { AvailabilityFilter, CategorySlug, SortOption } from '@/types';
 
 // Shop filters live in the URL so searches are shareable and survive refresh/back navigation.
@@ -30,8 +29,8 @@ function num(v: string | null): number | undefined {
 }
 
 export function parseShopState(params: URLSearchParams, slug?: string): ShopState {
-  const fromPath = slug && isCategorySlug(slug) ? [slug] : [];
-  const fromQuery = (params.get('cat') ?? '').split(',').filter(isCategorySlug);
+  const fromPath = slug ? [slug.trim()] : [];
+  const fromQuery = (params.get('cat') ?? '').split(',').map((s) => s.trim()).filter(Boolean);
   const sort = params.get('sort') as SortOption;
   const rating = num(params.get('rating'));
   return {

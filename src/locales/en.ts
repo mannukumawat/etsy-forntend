@@ -31,7 +31,8 @@ const en = {
     "next": "Next",
     "wishlist": "Wishlist",
     "signIn": "Sign in",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "share": "Share"
   },
   "a11y": {
     "skipToContent": "Skip to main content",
@@ -77,7 +78,8 @@ const en = {
     "suggestions": "Suggestions",
     "viewAllResults": "See all results for \"{{q}}\"",
     "signedInAs": "Signed in as {{name}}",
-    "preferences": "Language & currency"
+    "preferences": "Language & currency",
+    "deliveringTo": "Delivering to"
   },
   "nav": {
     "shopAll": "Shop all",
@@ -128,7 +130,84 @@ const en = {
     "ratesNote": "Currency conversions use fixed illustrative rates (as of {{date}}), not live market rates."
   },
   "home": {
-    "viewAll": "View all"
+    "viewAll": "View all",
+    "shopByCategory": "Shop by Category",
+    "shopByCategorySubtitle": "Explore handcrafted goods made with intention",
+    "featuredTitle": "Most-Loved Pieces",
+    "featuredSubtitle": "Timeless designs our customers cherish every day",
+    "newInTitle": "Fresh from the Studio",
+    "exploreNewIn": "Explore new in",
+    "trustHandmade": "Handmade in Small Batches",
+    "trustHandmadeSub": "Crafted with care & heritage craft",
+    "trustPackaging": "Plastic-Free Packaging",
+    "trustPackagingSub": "100% recyclable eco-friendly wrap",
+    "trustShipping": "Tracked Worldwide Delivery",
+    "trustShippingSub": "Safe, insured shipping to your door",
+    "trustReturns": "30-Day Easy Returns",
+    "trustReturnsSub": "Shop with full confidence",
+    "storyTitle": "Crafted with Patience, Intention, and Soul.",
+    "storyBody": "In a world of fast mass production, we cherish the marks of the human hand — small textures, natural variations, and honest raw materials that make each piece uniquely yours. Every object is created in small batches to celebrate timeless slow living.",
+    "storyCta": "Read our story",
+    "exploreCraft": "Explore the Studio",
+    "allCategories": "Browse All Categories",
+    "piecesCount": "{{count}} Pieces",
+    "heroBadge": "⭐ 4.9/5 Rating from 1,200+ Happy Shoppers",
+    "heroCta": "Explore Bestsellers",
+    "heroSecondaryCta": "Discover Our Craft",
+    "marqueeHandmade": "HANDMADE IN SMALL BATCHES",
+    "marqueePackaging": "100% PLASTIC-FREE PACKAGING",
+    "marqueeDelivery": "TRACKED WORLDWIDE DELIVERY",
+    "marqueeExchanges": "30-DAY EASY EXCHANGES",
+    "marqueeEthical": "ETHICALLY SOURCED MATERIALS",
+    "marqueeSmallBatch": "AUTHENTIC JAIPUR CRAFTSMANSHIP",
+    "curatedCollectionTag": "Handpicked Editions",
+    "tabSectionTitle": "The Artisan Showcase",
+    "tabSectionSubtitle": "Discover small-batch treasures crafted by traditional master artisans.",
+    "tabBestsellers": "Bestsellers",
+    "tabNew": "Fresh Arrivals",
+    "tabJewellery": "Jewellery",
+    "tabCeramics": "Ceramics",
+    "tabBags": "Artisan Bags",
+    "noProductsFound": "No products in this collection yet.",
+    "viewEntireTab": "Explore All in This Collection",
+    "bentoEyebrow": "Editorial Curations",
+    "bentoTitle": "Stories in Clay, Metal & Fiber",
+    "bentoDaily": "✦ DAILY RITUALS",
+    "bentoCeramicsTitle": "Wheel-Thrown Stoneware",
+    "bentoCeramicsDesc": "Earth-toned mugs, bowls and sculptural vases thrown on the wheel and finished with satin glazes.",
+    "exploreCeramics": "Explore Ceramics",
+    "bentoCurator": "✦ CURATOR'S PICK",
+    "bentoJewelleryTitle": "Hammered Brass & Silver",
+    "bentoJewelleryDesc": "Artisanal pendants and ear weights cut from recycled sheet metal and polished by hand.",
+    "exploreJewellery": "Explore Jewellery",
+    "bentoSlow": "✦ SLOW TEXTILES",
+    "bentoBagsTitle": "Handwoven Canvas & Totes",
+    "exploreBags": "Explore Bags",
+    "bentoFragrance": "✦ BOTANIC AROMAS",
+    "bentoCandlesTitle": "Hand-Poured Soy Candles",
+    "exploreCandles": "Explore Candles",
+    "storyEyebrow": "The Art of Slow Living",
+    "storyStatsPlastic": "Plastic-Free Packaging",
+    "storyStatsFamilies": "Artisan Families",
+    "storyStatsRating": "Verified Global Rating",
+    "storyContactCta": "Get in Touch",
+    "valuesEyebrow": "Why Choose Us",
+    "valuesTitle": "Conscious Craft, Ethical Living",
+    "val1Title": "Handmade in Small Batches",
+    "val1Desc": "Every piece carries the unique touch and fingerprint of its maker.",
+    "val2Title": "100% Plastic-Free",
+    "val2Desc": "Recyclable cardboard, paper tape and natural cotton drawstring pouches.",
+    "val3Title": "Tracked Worldwide Delivery",
+    "val3Desc": "Insured and carbon-neutral shipping straight to your doorstep.",
+    "val4Title": "30-Day Easy Exchanges",
+    "val4Desc": "Shop with complete peace of mind. Easy returns and size exchanges.",
+    "reviewsEyebrow": "Patron Love",
+    "reviewsTitle": "Loved by Conscious Homes Worldwide",
+    "reviewsSubtitle": "Verified reviews from real collectors across 40+ countries",
+    "galleryHandle": "@dignityartedge",
+    "galleryTitle": "Moments from the Studio",
+    "gallerySubtitle": "Follow our craft journey, slow mornings & restock announcements",
+    "galleryFollow": "Follow on Instagram"
   },
   "shop": {
     "title": "Shop all",
@@ -189,6 +268,8 @@ const en = {
     "savedToWishlist": "Saved to wishlist",
     "removedFromWishlist": "Removed from wishlist",
     "dims": {
+      "pendantsize": "Pendant size",
+      "pendantSize": "Pendant size",
       "height": "Height",
       "width": "Width",
       "depth": "Depth",
@@ -521,7 +602,8 @@ const en = {
     "saveChanges": "Save Changes",
     "tabPrimary": "Primary",
     "tabOtherInfo": "Other Info",
-    "tabSettings": "Settings"
+    "tabSettings": "Settings",
+    "changeDeliveryLocation": "Change delivery location"
   },
   "notifications": {
     "empty": "You're all caught up",
@@ -881,5 +963,5 @@ export type PartialTranslationSchema<T = TranslationSchema> = {
     ? T[K]
     : T[K] extends object
       ? PartialTranslationSchema<T[K]>
-      : T[K];
+      : string;
 };

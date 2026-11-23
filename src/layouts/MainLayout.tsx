@@ -41,9 +41,17 @@ export function MainLayout() {
   // Restores the signed-in customer from the httpOnly session cookie after a page refresh, and signs
   // the customer out locally (no redirect loop) if the server ever rejects a request as unauthorized.
   useEffect(() => {
-    authService.me().then((user) => {
-      if (user) setUser(user);
-    });
+    authService
+      .me()
+      .then((user) => {
+        if (user) setUser(user);
+      })
+      .catch(() => {
+        setUser(null);
+      })
+      .finally(() => {
+        useAuth.getState().setHydrated(true);
+      });
     setUnauthorizedHandler(() => {
       if (useAuth.getState().user) {
         signOut();

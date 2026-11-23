@@ -24,7 +24,7 @@ export function MobileBottomNav() {
 
   const items = [
     { to: '/', label: t('nav.home', { defaultValue: 'Home' }), icon: Home, active: pathname === '/' },
-    { to: '/shop', label: t('nav.categories', { defaultValue: 'Categories' }), icon: LayoutGrid, active: pathname === '/shop' || pathname.startsWith('/category/') || pathname.startsWith('/collection/') },
+    { to: '/categories', label: t('nav.categories', { defaultValue: 'Categories' }), icon: LayoutGrid, active: pathname === '/categories' || pathname.startsWith('/category/') },
     { to: '/wishlist', label: t('common.wishlist'), icon: Heart, active: pathname === '/wishlist', badge: wishlistCount },
     { to: user ? '/account/orders' : '/login', label: t('nav.orders', { defaultValue: 'Orders' }), icon: Package, active: pathname.startsWith('/account/orders') },
   ];

@@ -257,7 +257,11 @@ export function ProductDetail({ product, onReviewsChanged }: { product: Product;
                 <dl className="mt-4 divide-y divide-sand-200 text-sm">
                   {product.dimensions.map((d) => (
                     <div key={d.key + d.value} className="flex justify-between gap-4 py-2">
-                      <dt className="text-ink-muted">{t(`product.dims.${d.key}`)}</dt>
+                      <dt className="text-ink-muted">
+                        {t(`product.dims.${d.key}`, {
+                          defaultValue: (d.key as string) === 'pendantsize' ? 'Pendant size' : (d.key as string).replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^./, (s) => s.toUpperCase())
+                        })}
+                      </dt>
                       <dd className="text-right text-ink">{d.value}</dd>
                     </div>
                   ))}

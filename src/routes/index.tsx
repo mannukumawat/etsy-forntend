@@ -8,7 +8,6 @@ import { RouteError } from '@/pages/RouteError';
 const HomePage = lazy(() => import('@/pages/HomePage'));
 const ShopPage = lazy(() => import('@/pages/ShopPage'));
 const CollectionPage = lazy(() => import('@/pages/CollectionPage'));
-const CategoryHubPage = lazy(() => import('@/pages/CategoryHubPage'));
 const NewInPage = lazy(() => import('@/pages/NewInPage'));
 const ProductPage = lazy(() => import('@/pages/ProductPage'));
 const CartPage = lazy(() => import('@/pages/CartPage'));
@@ -44,6 +43,7 @@ const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
 const HelpCenterPage = lazy(() => import('@/pages/help/HelpCenterPage'));
 const HelpCategoryPage = lazy(() => import('@/pages/help/HelpCategoryPage'));
 const HelpArticlePage = lazy(() => import('@/pages/help/HelpArticlePage'));
+const CategoriesPage = lazy(() => import('@/pages/CategoriesPage'));
 
 export const router = createBrowserRouter([
   {
@@ -51,8 +51,9 @@ export const router = createBrowserRouter([
     errorElement: <RouteError />,
     children: [
       { path: '/', element: <HomePage /> },
+      { path: '/categories', element: <CategoriesPage /> },
       { path: '/shop', element: <ShopPage /> },
-      { path: '/category/:slug', element: <CategoryHubPage /> },
+      { path: '/category/:slug', element: <ShopPage /> },
       { path: '/new-in', element: <NewInPage /> },
       { path: '/collection/:slug', element: <CollectionPage /> },
       { path: '/product/:slug', element: <ProductPage /> },

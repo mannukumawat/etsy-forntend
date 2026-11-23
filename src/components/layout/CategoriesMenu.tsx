@@ -123,6 +123,16 @@ export function CategoriesMenu({ className }: { className?: string }) {
               panel.headingHref,
             )}
             {categories.map((c) => listItem(c.slug, loc(c.name), `/category/${c.slug}`))}
+            <li className="mt-2 border-t border-sand-200 px-3 pt-2">
+              <Link
+                to="/categories"
+                onClick={close}
+                className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-semibold text-brand-700 transition-colors hover:bg-brand-50"
+              >
+                <span>{t('categories.viewAll', { defaultValue: 'Explore All Categories' })}</span>
+                <ArrowRight className="h-4 w-4" aria-hidden />
+              </Link>
+            </li>
           </ul>
 
           {/* right: tiles */}

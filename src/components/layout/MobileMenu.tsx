@@ -8,6 +8,7 @@ import { productService } from '@/services/productService';
 import { useAuth } from '@/store/session';
 import { useSiteSettings } from '@/store/siteSettings';
 import { useWishlist } from '@/store/wishlist';
+import { cn } from '@/utils/cn';
 import { Drawer } from '../ui/Dialog';
 import { SettingsButton } from './Preferences';
 
@@ -67,6 +68,12 @@ export function MobileMenu({ open, onClose }: { open: boolean; onClose: () => vo
               </Link>
             </li>
           ))}
+          <li>
+            <Link to="/categories" className={cn(item, 'font-semibold text-brand-700 hover:bg-brand-50')} onClick={onClose}>
+              <span>{t('categories.viewAll', { defaultValue: 'Explore All Categories' })}</span>
+              <ChevronRight className="h-4 w-4 text-brand-700" aria-hidden />
+            </Link>
+          </li>
         </ul>
       </nav>
 

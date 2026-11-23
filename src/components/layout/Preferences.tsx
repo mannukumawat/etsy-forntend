@@ -1,11 +1,12 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChevronDown, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Dialog';
-import { COUNTRIES } from '@/data/countries';
 import { CURRENCIES, CURRENCY_CODES } from '@/data/currencies';
 import { useLanguage } from '@/hooks/useLocale';
+import { useCountries } from '@/hooks/useCountries';
+import { useSiteSettings } from '@/store/siteSettings';
 import { LANGUAGES } from '@/i18n';
 import { usePreferences } from '@/store/preferences';
 import type { CurrencyCode, LanguageCode } from '@/types';
@@ -37,9 +38,7 @@ export function languageForRegion(code: string): LanguageCode {
   return map[code] ?? 'en-US';
 }
 
-/** Regions = countries the store actually ships to, alphabetical (like Etsy's region list). */
-const REGIONS = COUNTRIES.filter((c) => c.zone !== null).sort((a, b) => a.name.localeCompare(b.name));
-const regionName = (code: string) => COUNTRIES.find((c) => c.code === code)?.name ?? code;
+
 
 function SelectRow({ id, label, value, onChange, children }: { id: string; label: string; value: string; onChange: (v: string) => void; children: React.ReactNode }) {
   return (
@@ -62,6 +61,12 @@ export function SettingsDialog({ open, onClose }: { open: boolean; onClose: () =
   const { t, i18n } = useTranslation();
   const currentLang = useLanguage();
   const { currency, deliveryCountry, setCurrency, setDeliveryCountry } = usePreferences();
+  const { list: countryList } = useCountries();
+  const shipping = useSiteSettings((s) => s.shipping);
+  const regions = useMemo(() => {
+    const shipped = countryList.filter((c) => c.zone !== null);
+    return shipped.length > 0 ? shipped : countryList;
+  }, [countryList, shipping]);
   const [region, setRegion] = useState(deliveryCountry);
   const [cur, setCur] = useState<CurrencyCode>(currency);
   const [lang, setLang] = useState<LanguageCode>(currentLang);
@@ -108,9 +113,9 @@ export function SettingsDialog({ open, onClose }: { open: boolean; onClose: () =
             if (!touchedLang) setLang(languageForRegion(v));
           }}
         >
-          {REGIONS.map((c) => (
+          {regions.map((c) => (
             <option key={c.code} value={c.code}>
-              {c.name}
+              {c.label || c.name}
             </option>
           ))}
         </SelectRow>
@@ -157,13 +162,14 @@ export function SettingsButton({ variant = 'compact', className }: { variant?: '
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const { currency, deliveryCountry } = usePreferences();
+  const { nameOf } = useCountries();
   return (
     <>
       <button
         type="button"
         onClick={() => setOpen(true)}
         aria-haspopup="dialog"
-        aria-label={t('prefs.open', { region: regionName(deliveryCountry), currency })}
+        aria-label={t('prefs.open', { region: nameOf(deliveryCountry), currency })}
         className={cn(
           variant === 'icon'
             ? 'flex h-10 w-10 items-center justify-center rounded-full text-ink hover:bg-sand-100'
@@ -176,7 +182,7 @@ export function SettingsButton({ variant = 'compact', className }: { variant?: '
         {variant === 'icon' ? <Globe className="h-5 w-5" aria-hidden /> : (
           <span className="flex items-center gap-1.5">
             <Globe className="h-4 w-4 text-ink-muted" aria-hidden />
-            {variant === 'compact' ? deliveryCountry : regionName(deliveryCountry)}
+            {variant === 'compact' ? deliveryCountry : nameOf(deliveryCountry)}
             <span className="text-sand-300" aria-hidden>|</span>
             {getCurrencySymbol(currency)} {currency}
           </span>

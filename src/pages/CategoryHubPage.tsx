@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { HubHero, HubSection } from '@/components/hub/Hub';
 import { ProductGridSkeleton } from '@/components/product/ProductCard';
 import { EmptyState, ErrorState } from '@/components/ui/Feedback';
-import { CATEGORIES, CATEGORY_BY_SLUG } from '@/data/categories';
+import { CATEGORY_BY_SLUG } from '@/data/categories';
 import { useAsync } from '@/hooks/useAsync';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useLocalized } from '@/hooks/useLocale';
@@ -39,7 +39,6 @@ export default function CategoryHubPage() {
       <HubHero
         title={loc(category.name)}
         subtitle={loc(category.description)}
-        circles={CATEGORIES.filter((c) => c.slug !== slug).slice(0, 12).map((c) => ({ label: loc(c.name), href: `/category/${c.slug}`, image: c.image.src }))}
       />
       {list.isError ? (
         <div className="container-site mt-12">

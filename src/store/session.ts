@@ -10,21 +10,26 @@ import { useWishlist } from './wishlist';
 
 interface AuthState {
   user: User | null;
+  /** True once the initial session check (authService.me) has completed. */
+  isHydrated: boolean;
   /** True right after an explicit sign-out, so protected pages redirect home instead of to /login. */
   signedOut: boolean;
   setUser: (user: User | null) => void;
+  setHydrated: (hydrated: boolean) => void;
   signOut: () => void;
 }
 
 export const useAuth = create<AuthState>()((set) => ({
   user: null,
+  isHydrated: false,
   signedOut: false,
   setUser: (user) => {
-    set({ user, signedOut: false });
+    set({ user, isHydrated: true, signedOut: false });
     useWishlist.getState().setAccount(user?.id ?? null);
   },
+  setHydrated: (isHydrated) => set({ isHydrated }),
   signOut: () => {
-    set({ user: null, signedOut: true });
+    set({ user: null, isHydrated: true, signedOut: true });
     useWishlist.getState().setAccount(null);
   },
 }));

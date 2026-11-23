@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState, useCallback, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { ButtonLink } from '@/components/ui/Button';
 import { cn } from '@/utils/cn';
 
 export interface HeroSlide {
   image: string;
+  badge?: string;
   title?: string;
   subtitle?: string;
   ctaLabel?: string;
@@ -173,9 +174,17 @@ export function HeroSlider({ slides, autoplayMs = 5000, compact = false, linkWho
                   className="absolute inset-0 h-full w-full object-cover object-[78%_center] lg:object-right"
                 />
                 <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/30 to-transparent md:bg-gradient-to-r md:from-black/60 md:via-black/30 md:to-transparent" aria-hidden />
-                {isActive && slide.title && (
+                {isActive && (slide.title || slide.badge) && (
                   <div className="relative flex h-full flex-col justify-center px-7 py-8 min-[390px]:px-9 sm:px-14 lg:px-20">
-                    <h2 className={cn('hero-text-in max-w-xl font-serif font-semibold leading-[1.1] text-white drop-shadow-sm line-clamp-3', compact ? 'text-[26px] min-[390px]:text-3xl lg:text-4xl' : 'text-[26px] min-[390px]:text-[30px] sm:text-4xl lg:text-6xl')}>{slide.title}</h2>
+                    {slide.badge && (
+                      <div className="hero-text-in mb-3 inline-flex items-center gap-2 self-start rounded-full border border-white/30 bg-white/20 px-3.5 py-1 text-xs font-semibold tracking-wide text-white shadow-xs backdrop-blur-md sm:mb-4">
+                        <Sparkles className="h-3.5 w-3.5 text-amber-300" aria-hidden />
+                        <span>{slide.badge}</span>
+                      </div>
+                    )}
+                    {slide.title && (
+                      <h2 className={cn('hero-text-in max-w-xl font-serif font-semibold leading-[1.1] text-white drop-shadow-sm line-clamp-3', compact ? 'text-[26px] min-[390px]:text-3xl lg:text-4xl' : 'text-[26px] min-[390px]:text-[30px] sm:text-4xl lg:text-6xl')}>{slide.title}</h2>
+                    )}
                     {slide.subtitle && (
                       <p className="hero-text-in-delay mt-4 max-w-md text-base text-white/85 line-clamp-2 lg:text-lg">{slide.subtitle}</p>
                     )}

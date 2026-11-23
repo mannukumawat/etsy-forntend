@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/Button';
-import { Notice } from '@/components/ui/Feedback';
+import { Notice, Spinner } from '@/components/ui/Feedback';
 import { TextField } from '@/components/ui/Form';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { ApiError } from '@/services/api';
@@ -21,6 +21,7 @@ export default function LoginPage() {
   const [params] = useSearchParams();
   const redirect = safeRedirect(params.get('redirect'));
   const user = useAuth((s) => s.user);
+  const isHydrated = useAuth((s) => s.isHydrated);
   const setUser = useAuth((s) => s.setUser);
   const toast = useUi((s) => s.toast);
   const pw = usePasswordToggle();
@@ -31,6 +32,16 @@ export default function LoginPage() {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<LoginValues>({ resolver: zodResolver(loginSchema), defaultValues: { email: '', password: '' } });
+
+  if (!isHydrated) {
+    return (
+      <AuthShell title={t('auth.loginTitle')} subtitle={t('auth.loginSubtitle')}>
+        <div className="flex justify-center py-12">
+          <Spinner />
+        </div>
+      </AuthShell>
+    );
+  }
 
   if (user && !isSubmitting) return <Navigate to={redirect} replace />;
 

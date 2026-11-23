@@ -10,7 +10,7 @@ import { Drawer } from '@/components/ui/Dialog';
 import { EmptyState, ErrorState } from '@/components/ui/Feedback';
 import { SelectField } from '@/components/ui/Form';
 import { Breadcrumbs } from '@/components/ui/Navigation';
-import { CATEGORY_BY_SLUG, isCategorySlug } from '@/data/categories';
+import { CATEGORIES, CATEGORY_BY_SLUG } from '@/data/categories';
 import { useAsync } from '@/hooks/useAsync';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useLanguage, useLocalized } from '@/hooks/useLocale';
@@ -37,7 +37,12 @@ export default function ShopPage() {
   const [loadedPage, setLoadedPage] = useState(1);
   const [visibleProducts, setVisibleProducts] = useState<Product[]>([]);
   const loadMoreRef = useRef<HTMLDivElement>(null);
-  const category = slug && isCategorySlug(slug) ? CATEGORY_BY_SLUG[slug] : undefined;
+
+  const { data: apiCategories, isLoading: categoriesLoading } = useAsync('catalog:categories', () => productService.listCategories());
+  const category = useMemo(() => {
+    if (!slug) return undefined;
+    return (apiCategories ?? CATEGORIES).find((c: any) => c.slug === slug) ?? CATEGORY_BY_SLUG[slug];
+  }, [slug, apiCategories]);
 
   const { data: itemGroups } = useAsync('nav:item-groups', () => fetchItemGroups());
   const activeGroup = state.group ? itemGroups?.find((g) => g.slug === state.group) : undefined;
@@ -122,7 +127,16 @@ export default function ShopPage() {
         : t('shop.title');
   useDocumentTitle(title);
 
-  if (slug && !category) return <NotFoundPage />;
+  if (slug && !category) {
+    if (categoriesLoading) {
+      return (
+        <div className="container-site py-16">
+          <ProductGridSkeleton count={8} />
+        </div>
+      );
+    }
+    return <NotFoundPage />;
+  }
 
   const update = (patch: Partial<ShopState>) => {
     navigate(shopUrl({ ...state, page: 1, ...patch }), { preventScrollReset: true });
@@ -132,7 +146,14 @@ export default function ShopPage() {
   const fmtMajor = (n: number) => formatMoney(Math.round(n * 100), currency, lang);
   const chips: Array<{ key: string; label: string; onRemove: () => void }> = [];
   if (state.q) chips.push({ key: 'q', label: t('shop.queryChip', { q: state.q }), onRemove: () => update({ q: '' }) });
-  state.categories.forEach((c) => chips.push({ key: `c-${c}`, label: loc(CATEGORY_BY_SLUG[c].name), onRemove: () => update({ categories: state.categories.filter((x) => x !== c) }) }));
+  state.categories.forEach((c) => {
+    const catObj = (apiCategories ?? CATEGORIES).find((x: any) => x.slug === c) ?? CATEGORY_BY_SLUG[c];
+    chips.push({
+      key: `c-${c}`,
+      label: catObj ? loc(catObj.name) : c,
+      onRemove: () => update({ categories: state.categories.filter((x) => x !== c) }),
+    });
+  });
   if (state.min !== undefined || state.max !== undefined) {
     const label =
       state.min !== undefined && state.max !== undefined
@@ -162,7 +183,7 @@ export default function ShopPage() {
       onToggleCategory={onToggleCategory}
       onPrice={onPrice}
       onToggleAvailability={onToggleAvailability}
-      hideCategory={!!contextName}
+      hideCategory={!!contextName || !!category}
     />
   );
 
@@ -178,7 +199,7 @@ export default function ShopPage() {
 
   const crumbs = [
     { label: t('common.home'), to: '/' },
-    ...(category || contextName ? [{ label: t('nav.shop'), to: '/shop' }] : []),
+    ...(category ? [{ label: t('nav.categories', { defaultValue: 'Categories' }), to: '/categories' }] : contextName ? [{ label: t('nav.shop'), to: '/shop' }] : []),
     { label: category ? loc(category.name) : (contextName ?? t('nav.shop')) },
   ];
   const description = category ? loc(category.description) : '';
@@ -220,7 +241,7 @@ export default function ShopPage() {
                 {filterCount ? t('shop.filtersCount', { count: filterCount }) : t('shop.filters')}
               </Button>
               <div className="hidden items-center gap-2 lg:flex">
-                {!contextName && (
+                {!contextName && !category && (
                   <FilterDropdown label={t('shop.category')} activeCount={state.categories.length}>
                     <div className="max-h-72 overflow-y-auto">
                       <CategoryOptions state={state} facets={data?.facets} onToggleCategory={onToggleCategory} />

@@ -1,7 +1,7 @@
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
-  RewriteRule ^admin$ /admin/ [R=301,L]
+  RewriteRule ^admin(?:/(.*))?$ https://admin.dignityartedgepvtltd.com/$1 [R=301,L]
   RewriteRule ^index\.html$ - [L]
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
